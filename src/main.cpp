@@ -64,7 +64,7 @@ auto main() -> int {
 
     auto triangle = Mesh{vertices, indices, 3};
     while (window.is_open()) {
-        window.clear();
+        window.begin_frame();
 
         shader.use();
         triangle.draw();
