@@ -1,0 +1,38 @@
+{
+    "name": "rin container",
+    "image": "mcr.microsoft.com/devcontainers/cpp:ubuntu-24.04",
+    "containerEnv": {
+        "DISPLAY": ":0",
+        "WAYLAND_DISPLAY": "wayland-0",
+        "XDG_RUNTIME_DIR": "/mnt/wslg",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "GALLIUM_DRIVER": "llvmpipe"
+    },
+    "postCreateCommand": "bash .devcontainer/setup.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "xaver.clang-format",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "oderwat.indent-rainbow",
+                "christian-kohler.path-intellisense",
+                "ms-azuretools.vscode-docker",
+                "streetsidesoftware.code-spell-checker",
+                "PKief.material-icon-theme",
+                "fabiospampinato.vscode-highlight",
+                "ms-vscode.cmake-tools",
+                "llvm-vs-code-extensions.lldb-dap",
+                "vadimcn.vscode-lldb"
+            ]
+        }
+    },
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined",
+        "--net=host"
+    ],
+    "mounts": [
+        "source=/mnt/wslg,target=/mnt/wslg,type=bind"
+    ]
+}
