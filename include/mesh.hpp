@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef>
 #include <span>
 #include <utility>
 
@@ -13,17 +12,19 @@ namespace rin {
 class Mesh final {
   public:
     explicit Mesh(
-        const std::span<const f32>   vertices,
-        std::span<const std::size_t> indices,
-        const u32                    vertex_count
+        const std::span<const f32> vertices,
+        const std::span<const u32> indices,
+        const u32                  vertex_count
     ) noexcept
-        : vertex_count_{vertex_count} {
+        : index_count_{static_cast<u32>(indices.size())} {
         glGenVertexArrays(1, &vao_);
         glGenBuffers(1, &vbo_);
+        glGenBuffers(1, &ebo_);
 
         glBindVertexArray(vao_);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 
+        // VBO設定
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
         glBufferData(
             GL_ARRAY_BUFFER,
             static_cast<GLsizeiptr>(vertices.size() * sizeof(f32)),
@@ -31,28 +32,29 @@ class Mesh final {
             GL_STATIC_DRAW
         );
 
+        // EBO設定
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            static_cast<GLsizeiptr>(indices.size() * sizeof(std::size_t)),
+            static_cast<GLsizeiptr>(indices.size() * sizeof(u32)),
             indices.data(),
             GL_STATIC_DRAW
         );
 
         assert(vertex_count > 0 and vertices.size() % vertex_count == 0);
-        const auto valuePerPoint = static_cast<i32>(vertices.size() / vertex_count);
+        const auto value_per_point = static_cast<i32>(vertices.size() / vertex_count);
 
         glVertexAttribPointer(
             0,
-            valuePerPoint,
+            value_per_point,
             GL_FLOAT,
             GL_FALSE,
-            valuePerPoint * static_cast<i32>(sizeof(f32)),
+            value_per_point * static_cast<i32>(sizeof(f32)),
             static_cast<void*>(0)
         );
         glEnableVertexAttribArray(0);
 
-        // GL_ELEMENT_ARRAY_BUFFER は VAO を解く前にアンバインドしてはいけない
+        // GL_ELEMENT_ARRAY_BUFFER は VAO を解く前にアンバインドしてはいけない！
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -65,39 +67,40 @@ class Mesh final {
         : vao_{std::exchange(other.vao_, 0)},
           vbo_{std::exchange(other.vbo_, 0)},
           ebo_{std::exchange(other.ebo_, 0)},
-          vertex_count_{std::exchange(other.vertex_count_, 0)} {}
+          index_count_{std::exchange(other.index_count_, 0)} {}
+
     auto operator=(Mesh&& other) noexcept -> Mesh& {
         if (this == &other) return *this;
 
-        if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
-        if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
-        if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
+        destroy();
 
-        vao_          = std::exchange(other.vao_, 0);
-        vbo_          = std::exchange(other.vbo_, 0);
-        ebo_          = std::exchange(other.ebo_, 0);
-        vertex_count_ = std::exchange(other.vertex_count_, 0);
+        vao_         = std::exchange(other.vao_, 0);
+        vbo_         = std::exchange(other.vbo_, 0);
+        ebo_         = std::exchange(other.ebo_, 0);
+        index_count_ = std::exchange(other.index_count_, 0);
 
         return *this;
     }
 
-    ~Mesh() noexcept {
-        if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
-        if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
-        if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
-    }
+    ~Mesh() noexcept { destroy(); }
 
+    // 描画メソッド（EBOを使用した glDrawElements）
     void draw() const noexcept {
-        if (vao_ == 0) return;
         glBindVertexArray(vao_);
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count_));
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
 
   private:
-    GLuint vao_{};
-    GLuint vbo_{};
-    GLuint ebo_{};
-    u32    vertex_count_{};
+    void destroy() noexcept {
+        if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
+        if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
+        if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
+    }
+
+    GLuint vao_{0};
+    GLuint vbo_{0};
+    GLuint ebo_{0};
+    u32    index_count_{0};
 };
 }  // namespace rin
