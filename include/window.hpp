@@ -9,6 +9,7 @@
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
+#include "shader.hpp"
 #include "type.hpp"
 
 namespace rin {
@@ -32,16 +33,21 @@ inline void GLAPIENTRY message_callback(
 }
 
 class Window final {
-    enum class ErrorCode : u8 { failed_to_glfw_initialize, failed_to_create_window };
+    enum class ErrorCode : u8 {
+        failed_to_GLFW_initialize,
+        failed_to_create_window,
+        failed_to_create_shader
+    };
 
   public:
     [[nodiscard]] static auto create(
         const i32 width, const i32 height, std::string_view title
     ) noexcept -> std::expected<Window, ErrorCode> {
         // GLFWの初期化（何回呼び出しても安全）
-        if (not static_cast<bool>(glfwInit()))
-            return std::unexpected{ErrorCode::failed_to_glfw_initialize};
-
+        if (not static_cast<bool>(glfwInit())) {
+            std::cerr << "Failed to GLFW initialize" << '\n';
+            return std::unexpected{ErrorCode::failed_to_GLFW_initialize};
+        }
         // これから作る画面のメタ設定
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -51,13 +57,22 @@ class Window final {
         auto        str    = std::string{title};
         auto* const window = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
 
-        if (window == nullptr) return std::unexpected{ErrorCode::failed_to_create_window};
-        return Window{window, width, height};
+        if (window == nullptr) {
+            std::cerr << "Failed to create window" << '\n';
+            return std::unexpected{ErrorCode::failed_to_create_window};
+        }
+        auto shader = Shader::create();
+        if (not shader) {
+            std::cerr << "Failed to create shader" << '\n';
+            return std::unexpected{ErrorCode::failed_to_create_shader};
+        }
+        return Window{window, width, height, std::move(*shader)};
     }
     Window(const Window&) noexcept                    = delete;
     auto operator=(const Window&) noexcept -> Window& = delete;
 
-    Window(Window&& other) noexcept : window_{std::exchange(other.window_, nullptr)} {
+    Window(Window&& other) noexcept
+        : window_{std::exchange(other.window_, nullptr)}, shader_{std::move(other.shader_)} {
         ++window_cnt_;
     }
     auto operator=(Window&& other) noexcept -> Window& {
@@ -65,6 +80,7 @@ class Window final {
 
         if (window_ != nullptr) glfwDestroyWindow(window_);
         window_ = std::exchange(other.window_, nullptr);
+        shader_ = std::move(other.shader_);
         return *this;
     }
     ~Window() noexcept {
@@ -83,11 +99,15 @@ class Window final {
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
+    void draw() noexcept;
+
     void display() noexcept { glfwSwapBuffers(window_); }
 
   private:
-    explicit Window(GLFWwindow* const window, const i32 width, const i32 height) noexcept
-        : window_{window} {
+    explicit Window(
+        GLFWwindow* const window, const i32 width, const i32 height, Shader shader
+    ) noexcept
+        : window_{window}, shader_{std::move(shader)} {
         glfwMakeContextCurrent(window_);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
 
@@ -107,6 +127,7 @@ class Window final {
     }
 
     GLFWwindow*                 window_;
+    Shader                      shader_;
     static inline constinit int window_cnt_{};
 };
 }  // namespace rin
