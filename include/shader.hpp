@@ -1,6 +1,7 @@
 #pragma once
 
 #include <expected>
+#include <iostream>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -8,52 +9,63 @@
 #include "glad/glad.h"
 
 #include "type.hpp"
-#include "util.hpp"
 
 namespace rin {
+// バーテックスシェーダー（頂点の位置をそのまま通過）
+constexpr const char* vertex_shader_source = R"(
+    #version 450 core
+    layout (location = 0) in vec3 aPos;
+    void main() {
+        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    }
+)";
+
+// フラグメントシェーダー（ピクセルをオレンジ色に）
+constexpr const char* fragment_shader_source = R"(
+    #version 450 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    }
+)";
+
 class Shader final {
   public:
     enum class ErrorCode : u8 {
-        vertex_compile_failed,
-        fragment_compile_failed,
-        vertex_file_read_failed,
-        fragment_file_read_failed,
-        link_failed
+        failed_to_vertex_compile,
+        failed_to_fragment_compile,
+        failed_to_vertex_file_read,
+        failed_to_fragment_file_read,
+        failed_to_link
     };
 
     enum class ShaderType : u8 { vertex, fragment };
 
-    [[nodiscard]] static auto createFromSource(
-        std::string_view vert_source, std::string_view frag_source
-    ) noexcept -> std::expected<Shader, ErrorCode> {
-        const auto vertex = compile_shader(GL_VERTEX_SHADER, vert_source);
-        if (not vertex) return std::unexpected{ErrorCode::vertex_compile_failed};
+    [[nodiscard]] static auto create() -> std::expected<Shader, ErrorCode> {
+        const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
+        if (not vertex) {
+            std::cerr << "Failed to vertex compile" << '\n';
+            return std::unexpected{ErrorCode::failed_to_vertex_compile};
+        }
 
-        const auto fragment = compile_shader(GL_FRAGMENT_SHADER, frag_source);
-        if (not fragment) return std::unexpected{ErrorCode::fragment_compile_failed};
+        const auto fragment = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
+        if (not fragment) {
+            std::cerr << "Failed to fragment compile" << '\n';
+            return std::unexpected{ErrorCode::failed_to_fragment_compile};
+        }
 
         const auto program = glCreateProgram();
         glAttachShader(program, *vertex);
         glAttachShader(program, *fragment);
         glLinkProgram(program);
-        if (GL_LINK_STATUS == GL_FALSE) return std::unexpected{ErrorCode::link_failed};
-
+        if (GL_LINK_STATUS == GL_FALSE) {
+            std::cerr << "Failed to link" << '\n';
+            return std::unexpected{ErrorCode::failed_to_link};
+        }
         glDeleteShader(*vertex);
         glDeleteShader(*fragment);
 
         return Shader{program};
-    }
-
-    [[nodiscard]] static auto createFromFile(
-        std::string_view vert_path, std::string_view frag_path
-    ) noexcept -> std::expected<Shader, ErrorCode> {
-        const auto vertex = read_file(vert_path);
-        if (not vertex) return std::unexpected{ErrorCode::vertex_file_read_failed};
-
-        const auto fragment = read_file(frag_path);
-        if (not fragment) return std::unexpected{ErrorCode::fragment_file_read_failed};
-
-        return createFromSource(*vertex, *fragment);
     }
 
     Shader(const Shader&) noexcept                    = delete;
