@@ -45,6 +45,7 @@ class Mesh final {
 
     Mesh(const Mesh&) noexcept                    = delete;
     auto operator=(const Mesh&) noexcept -> Mesh& = delete;
+
     Mesh(Mesh&& other) noexcept
         : vao_{std::exchange(other.vao_, 0)},
           vbo_{std::exchange(other.vbo_, 0)},
@@ -61,12 +62,14 @@ class Mesh final {
 
         return *this;
     }
+
     ~Mesh() noexcept {
         if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
         if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
     }
 
     void draw() const noexcept {
+        if (vao_ == 0) return;
         glBindVertexArray(vao_);
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count_));
         glBindVertexArray(0);
