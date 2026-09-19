@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstddef>
 #include <span>
 #include <utility>
 
@@ -11,7 +12,11 @@
 namespace rin {
 class Mesh final {
   public:
-    explicit Mesh(const std::span<const f32> vertices, const u32 vertex_count) noexcept
+    explicit Mesh(
+        const std::span<const f32>   vertices,
+        std::span<const std::size_t> indices,
+        const u32                    vertex_count
+    ) noexcept
         : vertex_count_{vertex_count} {
         glGenVertexArrays(1, &vao_);
         glGenBuffers(1, &vbo_);
@@ -26,7 +31,15 @@ class Mesh final {
             GL_STATIC_DRAW
         );
 
-        assert(vertices.size() % vertex_count == 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            static_cast<GLsizeiptr>(indices.size() * sizeof(std::size_t)),
+            indices.data(),
+            GL_STATIC_DRAW
+        );
+
+        assert(vertex_count > 0 and vertices.size() % vertex_count == 0);
         const auto valuePerPoint = static_cast<i32>(vertices.size() / vertex_count);
 
         glVertexAttribPointer(
@@ -39,8 +52,10 @@ class Mesh final {
         );
         glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // GL_ELEMENT_ARRAY_BUFFER は VAO を解く前にアンバインドしてはいけない
         glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     Mesh(const Mesh&) noexcept                    = delete;
@@ -49,15 +64,18 @@ class Mesh final {
     Mesh(Mesh&& other) noexcept
         : vao_{std::exchange(other.vao_, 0)},
           vbo_{std::exchange(other.vbo_, 0)},
+          ebo_{std::exchange(other.ebo_, 0)},
           vertex_count_{std::exchange(other.vertex_count_, 0)} {}
     auto operator=(Mesh&& other) noexcept -> Mesh& {
         if (this == &other) return *this;
 
         if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
         if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
+        if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
 
         vao_          = std::exchange(other.vao_, 0);
         vbo_          = std::exchange(other.vbo_, 0);
+        ebo_          = std::exchange(other.ebo_, 0);
         vertex_count_ = std::exchange(other.vertex_count_, 0);
 
         return *this;
@@ -66,6 +84,7 @@ class Mesh final {
     ~Mesh() noexcept {
         if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
         if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
+        if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
     }
 
     void draw() const noexcept {
@@ -78,6 +97,7 @@ class Mesh final {
   private:
     GLuint vao_{};
     GLuint vbo_{};
+    GLuint ebo_{};
     u32    vertex_count_{};
 };
 }  // namespace rin
