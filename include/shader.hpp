@@ -1,12 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include <expected>
-#include <iostream>
 #include <optional>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 #include "glad/glad.h"
 
@@ -39,7 +36,7 @@ class Shader final {
         glAttachShader(program, *vertex);
         glAttachShader(program, *fragment);
         glLinkProgram(program);
-        if (not check_link_status(program)) return std::unexpected{ErrorCode::link_failed};
+        if (GL_LINK_STATUS == GL_FALSE) return std::unexpected{ErrorCode::link_failed};
 
         glDeleteShader(*vertex);
         glDeleteShader(*fragment);
@@ -88,35 +85,9 @@ class Shader final {
         glShaderSource(shader, 1, &src, &len);
         glCompileShader(shader);
 
-        if (not check_compile_status(shader)) return std::nullopt;
+        if (GL_COMPILE_STATUS == GL_FALSE) return std::nullopt;
 
         return shader;
-    }
-
-    [[nodiscard]] static auto check_compile_status(GLuint shader_id) noexcept -> bool {
-        auto success = GLint{};
-        glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-        if (static_cast<bool>(success)) return true;
-
-        auto log_length = GLint{};
-        glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &log_length);
-        auto log = std::vector<char>(static_cast<std::size_t>(log_length));
-        glGetShaderInfoLog(shader_id, log_length, nullptr, log.data());
-        std::cerr << "[Shader Compile Error]: " << log.data() << '\n';
-        return false;
-    }
-
-    [[nodiscard]] static auto check_link_status(GLuint program_id) noexcept -> bool {
-        auto success = GLint{};
-        glGetShaderiv(program_id, GL_LINK_STATUS, &success);
-        if (static_cast<bool>(success)) return true;
-
-        auto log_length = GLint{};
-        glGetShaderiv(program_id, GL_INFO_LOG_LENGTH, &log_length);
-        auto log = std::vector<char>(static_cast<std::size_t>(log_length));
-        glGetShaderInfoLog(program_id, log_length, nullptr, log.data());
-        std::cerr << "[Shader Link Error]: " << log.data() << '\n';
-        return false;
     }
 
     GLuint program_id_{};
