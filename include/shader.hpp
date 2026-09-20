@@ -1,6 +1,9 @@
 #pragma once
 
 #include <expected>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/vector_float4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -8,6 +11,7 @@
 #include "glad/glad.h"
 
 #include "error.hpp"
+#include "type.hpp"
 
 namespace rin {
 constexpr const char* vertex_shader_source = R"(
@@ -20,8 +24,10 @@ constexpr const char* vertex_shader_source = R"(
     out vec3 ourColor;
     out vec2 TexCoord;
 
+    uniform mat4 u_Transform;
+
     void main() {
-        gl_Position = vec4(aPos, 1.0);
+        gl_Position = u_Transform * vec4(aPos, 1.0);
         ourColor = aColor;
         TexCoord = aTexCoord;
     }
@@ -41,8 +47,12 @@ constexpr const char* fragment_shader_source = R"(
     }
 )";
 
+using namespace std::string_view_literals;
+
 class Shader final {
   public:
+    static constexpr auto u_Transform = "u_Transform"sv;
+
     [[nodiscard]] static auto create() -> std::expected<Shader, Error> {
         const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
         if (not vertex) return Error::create(Error::logic, "Failed to Vertex Compile");
@@ -77,6 +87,25 @@ class Shader final {
 
     void use() const noexcept {
         if (program_id_ != 0) glUseProgram(program_id_);
+    }
+
+    // 以下はGPUに描画をセットする関数。直後にMesh::draw()が呼び出されるのを期待する
+    void set_mat4(const std::string_view name, const glm::mat4& matrix) noexcept {  // NOLINT
+        const auto location =
+            glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
+        glProgramUniformMatrix4fv(program_id_, location, 1, GL_FALSE, glm::value_ptr(matrix));
+    }
+
+    void set_vec4(const std::string_view name, const glm::vec4& value) noexcept {  // NOLINT
+        const auto location =
+            glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
+        glProgramUniform4fv(program_id_, location, 1, glm::value_ptr(value));
+    }
+
+    void set_int(const std::string_view name, const i32 value) noexcept {  // NOLINT
+        const auto location =
+            glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
+        glProgramUniform1i(program_id_, location, value);
     }
 
   private:
