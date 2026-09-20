@@ -1,6 +1,8 @@
 #pragma once
 
 #include <concepts>
+#include <expected>
+#include <utility>
 
 #include "mesh.hpp"
 #include "type.hpp"
@@ -14,11 +16,8 @@ concept Shape = requires(T shape) {
 
 class Quad final {
   public:
-    explicit Quad(const f32 width, const f32 height) noexcept : mesh_{createMesh(width, height)} {}
-    explicit Quad(const Numeric auto width, const Numeric auto height) noexcept
-        : Quad(static_cast<f32>(width), static_cast<f32>(height)) {}
-
-    [[nodiscard]] static auto createMesh(const f32 width, const f32 height) noexcept -> Mesh {
+    [[nodiscard]] static auto create(const f32 width, const f32 height) noexcept
+        -> std::expected<Quad, Error> {
         const auto hw = width * 0.5f;
         const auto hh = height * 0.5f;
 
@@ -36,10 +35,19 @@ class Quad final {
         };
         const auto indices = {0u, 1u, 2u, 2u, 3u, 0u};
 
-        return Mesh{points, colors, indices};
+        auto meshResult = Mesh::create(points, colors, indices);
+
+        if (not meshResult)
+            return Error::create(
+                Error::Type::logic, "Failed to Create Mesh ->", meshResult.error().message()
+            );
+        return Quad{std::move(*meshResult)};
     }
 
     void draw() const noexcept { mesh_.draw(); }
+
+  private:
+    explicit Quad(Mesh mesh) noexcept : mesh_{std::move(mesh)} {}
 
     Mesh mesh_;
 };
