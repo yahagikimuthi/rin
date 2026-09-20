@@ -1,10 +1,16 @@
 #pragma once
 
 #include <concepts>
+#include <cstddef>
 #include <expected>
+#include <format>
 #include <iostream>
+#include <ranges>
+#include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "type.hpp"
 
@@ -33,30 +39,56 @@ class Error final {
   public:
     enum class Type : u8 { logic, runtime };
 
-    constexpr Error(const Type type, const std::string_view message = ""sv)
-        : type_{type}, message_{message} {}
+    explicit Error(const Type type, std::vector<std::string_view>&& messages) noexcept
+        : type_{type}, messages_{std::move(messages)} {}
 
-    [[nodiscard]] constexpr auto type() const noexcept -> Type { return type_; }
-
-    [[nodiscard]] constexpr auto message() const noexcept -> std::string_view { return message_; }
-
+    template <typename... Errors>
+        requires(std::is_same_v<Errors, Error> and ...)
     [[nodiscard]] static constexpr auto create(
-        const Type type, const std::string_view message = ""sv
+        const Type type, std::string_view message, Errors&... other_errors
     ) noexcept -> std::unexpected<Error> {
-        return std::unexpected<Error>{std::in_place, type, message};
+        auto messages = std::vector<std::string_view>{};
+
+        auto message_cnt = std::size_t{1};
+        (add_error_message_cnt(other_errors, message_cnt), ...);
+        messages.reserve(message_cnt);
+
+        messages.emplace_back(message);
+        (add_error_message(other_errors, messages), ...);
+
+        return std::unexpected<Error>{std::in_place, type, std::move(messages)};
     }
 
+    [[nodiscard]] constexpr auto type() const noexcept -> Type { return type_; }
+    [[nodiscard]] constexpr auto message() const noexcept -> std::string {
+        const auto out = std::format("{}", std::views::join_with(messages_, " -> "));
+        return out;
+    }
     void what() const noexcept {
-        if (type_ == Type::logic) {
+        if (type_ == Type::logic)
             std::cerr << "[Logic Error]\n";
-        } else {
+        else
             std::cerr << "[Runtime Error]\n";
+
+        for (const auto [i, message] : std::views::enumerate(messages_)) {
+            if (i == 0)
+                std::cerr << message << '\n';
+            else
+                std::cerr << " -> " << message << '\n';
         }
-        std::cerr << message_ << '\n';
     }
 
   private:
-    const Type             type_;
-    const std::string_view message_;
+    static void add_error_message_cnt(const Error& error, std::size_t& add_var) noexcept {
+        add_var += error.messages_.size();
+    }
+    static void add_error_message(
+        const Error& error, std::vector<std::string_view>& add_vec
+    ) noexcept {
+        for (auto message : error.messages_) add_vec.emplace_back(message);
+    }
+
+    Type                          type_;
+    std::vector<std::string_view> messages_;
 };
 }  // namespace rin
