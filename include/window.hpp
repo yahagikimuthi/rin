@@ -67,7 +67,6 @@ class Window final {
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
         auto renderer_res = Renderer::create();
-
         if (not renderer_res)
             return Error::create(Error::runtime, "Failed to Create Renderer", renderer_res.error());
 
