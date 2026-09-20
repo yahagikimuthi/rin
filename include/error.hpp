@@ -1,45 +1,16 @@
 #pragma once
 
-#include <concepts>
 #include <cstddef>
 #include <expected>
 #include <format>
 #include <iostream>
 #include <ranges>
-#include <string>
 #include <string_view>
-#include <type_traits>
-#include <utility>
 #include <vector>
 
 #include "type.hpp"
 
 namespace rin {
-
-using namespace std::string_view_literals;
-
-template <typename T>
-concept Numeric = std::integral<T> or std::floating_point<T>;
-
-template <Numeric T>
-struct Vector2 final {
-    T x;
-    T y;
-};
-
-using Vector2f = Vector2<f32>;
-
-struct RGB final {
-    f32 r;
-    f32 g;
-    f32 b;
-};
-
-struct UV final {
-    f32 u;
-    f32 v;
-};
-
 class Error final {
   public:
     enum class Type : u8 { logic, runtime };

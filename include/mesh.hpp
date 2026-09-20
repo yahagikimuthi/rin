@@ -9,8 +9,9 @@
 
 #include "glad/glad.h"
 
+#include "error.hpp"
+#include "math.hpp"
 #include "type.hpp"
-#include "util.hpp"
 
 namespace rin {
 class Mesh final {

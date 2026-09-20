@@ -16,7 +16,7 @@ auto main() -> int {
     }
     auto window = std::move(*windowResult);
 
-    auto quadResult = QuadMesh::create(1.f, 5.f);
+    auto quadResult = Quad::create(1.f, 5.f);
     if (not quadResult) {
         quadResult.error().what();
         return 1;

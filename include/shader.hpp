@@ -7,7 +7,7 @@
 
 #include "glad/glad.h"
 
-#include "util.hpp"
+#include "error.hpp"
 
 namespace rin {
 constexpr const char* vertex_shader_source = R"(

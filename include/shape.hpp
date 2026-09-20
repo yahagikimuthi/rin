@@ -4,9 +4,11 @@
 #include <expected>
 #include <utility>
 
+#include "error.hpp"
+#include "math.hpp"
 #include "mesh.hpp"
+#include "shader.hpp"
 #include "type.hpp"
-#include "util.hpp"
 
 namespace rin {
 template <typename T>
@@ -14,10 +16,10 @@ concept Shape = requires(T shape) {
     { shape.draw() } noexcept -> std::same_as<void>;
 };
 
-class QuadMesh final {
+class Quad final {
   public:
     [[nodiscard]] static auto create(const f32 width, const f32 height) noexcept
-        -> std::expected<QuadMesh, Error> {
+        -> std::expected<Quad, Error> {
         const auto hw = width * 0.5f;
         const auto hh = height * 0.5f;
 
@@ -39,13 +41,18 @@ class QuadMesh final {
 
         if (not meshResult)
             return Error::create(Error::logic, "Failed to Create Mesh", meshResult.error());
-        return QuadMesh{std::move(*meshResult)};
+        return Quad{std::move(*meshResult)};
     }
 
-    void draw() const noexcept { mesh_.draw(); }
+    void draw(Shader& shader) const noexcept { mesh_.draw(); }
+
+    Vector2f position{.x = 0, .y = 0};
+    Vector2f size{.x = 0, .y = 0};
+    f32      rotation{0.f};
+    RGB      color{.r = 1.f, .g = 1.f, .b = 1.f};
 
   private:
-    explicit QuadMesh(Mesh mesh) noexcept : mesh_{std::move(mesh)} {}
+    explicit Quad(Mesh mesh) noexcept : mesh_{std::move(mesh)} {}
 
     Mesh mesh_;
 };

@@ -9,6 +9,7 @@
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
+#include "error.hpp"
 #include "shader.hpp"
 #include "shape.hpp"
 #include "type.hpp"
