@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <expected>
+#include <glm/ext/vector_float2.hpp>
 #include <ranges>
 #include <span>
 #include <utility>
@@ -10,16 +11,16 @@
 #include "glad/glad.h"
 
 #include "error.hpp"
-#include "math.hpp"
 #include "type.hpp"
+#include "util.hpp"
 
 namespace rin {
 class Mesh final {
   public:
     [[nodiscard]] static auto create(
-        const std::span<const Vector2f> points,
-        const std::span<const RGB>      colors,
-        const std::span<const u32>      indices
+        const std::span<const glm::vec2> points,
+        const std::span<const RGB>       colors,
+        const std::span<const u32>       indices
     ) noexcept -> std::expected<Mesh, Error> {
         if (points.size() != colors.size())
             return Error::create(Error::logic, "Points and colors should same size");
@@ -42,10 +43,10 @@ class Mesh final {
     }
 
     [[nodiscard]] static auto create(
-        const std::span<const Vector2f> points,
-        const std::span<const RGB>      colors,
-        const std::span<const UV>       uvs,
-        const std::span<const u32>      indices
+        const std::span<const glm::vec2> points,
+        const std::span<const RGB>       colors,
+        const std::span<const UV>        uvs,
+        const std::span<const u32>       indices
     ) noexcept -> std::expected<Mesh, Error> {
         if (points.size() != colors.size() or points.size() != uvs.size())
             return Error::create(Error::logic, "Points and Colors and UVs should same size");
