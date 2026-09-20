@@ -8,9 +8,9 @@ set(CMAKE_CXX_EXTENSIONS OFF) # GNU拡張を無効化（標準準拠）
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Git REQUIRED)
-
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(glm REQUIRED)
 
 add_library(glad STATIC src/glad.c)
 set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
@@ -69,4 +69,5 @@ target_link_libraries(rin PRIVATE
     glad
     glfw
     OpenGL::GL
+    glm::glm
 )
