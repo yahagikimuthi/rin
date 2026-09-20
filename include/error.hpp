@@ -18,56 +18,63 @@ class Error final {
     using Type::logic;
     using Type::runtime;
 
-    explicit Error(const Type type, std::vector<std::string_view>&& messages) noexcept
-        : type_{type}, messages_{std::move(messages)} {}
+  private:
+    struct Code final {
+        Type             type;
+        std::string_view message;
+    };
 
-    template <typename... Errors>
-        requires(std::is_same_v<Errors, Error> and ...)
-    [[nodiscard]] static constexpr auto create(
-        const Type type, std::string_view message, Errors&... other_errors
-    ) noexcept -> std::unexpected<Error> {
-        auto messages = std::vector<std::string_view>{};
-
-        auto message_cnt = std::size_t{1};
-        (add_error_message_cnt(other_errors, message_cnt), ...);
-        messages.reserve(message_cnt);
-
-        messages.emplace_back(message);
-        (add_error_message(other_errors, messages), ...);
-
-        return std::unexpected<Error>{std::in_place, type, std::move(messages)};
+  public:
+    [[nodiscard]] static auto create(const Type type, const std::string_view message) noexcept
+        -> std::unexpected<Error> {
+        const auto code  = Code{.type = type, .message = message};
+        auto       error = Error{std::vector{code}};
+        return std::unexpected{error};
     }
 
-    [[nodiscard]] auto type() const noexcept -> Type { return type_; }
+    [[nodiscard]] static auto create(
+        const Type type, const std::string_view message, const Error& child_error
+    ) noexcept -> std::unexpected<Error> {
+        auto codes = std::vector<Code>{};
+        codes.reserve(1 + child_error.error_codes_.size());
+        codes.emplace_back(type, message);
+        codes.append_range(child_error.error_codes_);
+
+        auto error = Error{std::move(codes)};
+        return std::unexpected{error};
+    }
+
+    [[nodiscard]] auto type() const noexcept -> Type { return error_codes_.front().type; }
     [[nodiscard]] auto message() const noexcept -> std::string {
-        const auto out = std::format("{}", std::views::join_with(messages_, " -> "));
+        const auto out = std::format(
+            "{}",
+            std::views::join_with(
+                error_codes_ | std::views::transform([](const Code& code) -> std::string {
+                    if (code.type == logic) return "[Logic Error]: " + std::string{code.message};
+
+                    return "[Runtime Error]: " + std::string{code.message};
+                }),
+                " -> "
+            )
+        );
         return out;
     }
     void what() const noexcept {
-        if (type_ == Type::logic)
-            std::cerr << "[Logic Error]\n";
-        else
-            std::cerr << "[Runtime Error]\n";
-
-        for (const auto [i, message] : std::views::enumerate(messages_)) {
-            if (i == 0)
-                std::cerr << message << '\n';
-            else
-                std::cerr << " -> " << message << '\n';
+        for (const auto [i, code] : std::views::enumerate(error_codes_)) {
+            if (i != 0) {
+                std::cerr << " -> ";
+            }
+            if (code.type == logic) {
+                std::cerr << "[Logic Error]: " << code.message << '\n';
+            } else {
+                std::cerr << "[Runtime Error]: " << code.message << '\n';
+            }
         }
     }
 
   private:
-    static void add_error_message_cnt(const Error& error, std::size_t& add_var) noexcept {
-        add_var += error.messages_.size();
-    }
-    static void add_error_message(
-        const Error& error, std::vector<std::string_view>& add_vec
-    ) noexcept {
-        for (const auto message : error.messages_) add_vec.emplace_back(message);
-    }
+    explicit Error(std::vector<Code>&& codes) noexcept : error_codes_{std::move(codes)} {}
 
-    Type                          type_;
-    std::vector<std::string_view> messages_;
+    std::vector<Code> error_codes_;
 };
 }  // namespace rin
