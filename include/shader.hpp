@@ -15,17 +15,23 @@ namespace rin {
 constexpr const char* vertex_shader_source = R"(
     #version 450 core
     layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec3 aColor;
+
+    out vec3 ourColor;
+
     void main() {
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+        gl_Position = vec4(aPos, 1.0);
+        ourColor = aColor;
     }
 )";
 
 // フラグメントシェーダー（ピクセルをオレンジ色に）
 constexpr const char* fragment_shader_source = R"(
     #version 450 core
+    in vec3 ourColor;
     out vec4 FragColor;
     void main() {
-        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+        FragColor = vec4(ourColor, 1.0f);
     }
 )";
 
@@ -38,8 +44,6 @@ class Shader final {
         failed_to_fragment_file_read,
         failed_to_link
     };
-
-    enum class ShaderType : u8 { vertex, fragment };
 
     [[nodiscard]] static auto create() -> std::expected<Shader, ErrorCode> {
         const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
