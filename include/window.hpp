@@ -10,7 +10,7 @@
 
 #include "GLFW/glfw3.h"
 #include "error.hpp"
-#include "shader.hpp"
+#include "renderer.hpp"
 #include "shape.hpp"
 #include "type.hpp"
 
@@ -66,26 +66,26 @@ class Window final {
         glViewport(0, 0, width, height);
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
-        auto shader = Shader::create();
+        auto renderer_res = Renderer::create();
 
-        if (not shader)
-            return Error::create(Error::runtime, "Failed to create shader", shader.error());
+        if (not renderer_res)
+            return Error::create(Error::runtime, "Failed to Create Renderer", renderer_res.error());
 
-        return Window{window, std::move(*shader)};
+        return Window{window, std::move(*renderer_res)};
     }
     Window(const Window&) noexcept                    = delete;
     auto operator=(const Window&) noexcept -> Window& = delete;
 
     Window(Window&& other) noexcept
-        : window_{std::exchange(other.window_, nullptr)}, shader_{std::move(other.shader_)} {
+        : window_{std::exchange(other.window_, nullptr)}, renderer_{std::move(other.renderer_)} {
         ++window_cnt_;
     }
     auto operator=(Window&& other) noexcept -> Window& {
         if (this == &other) return *this;
 
         if (window_ != nullptr) glfwDestroyWindow(window_);
-        window_ = std::exchange(other.window_, nullptr);
-        shader_ = std::move(other.shader_);
+        window_   = std::exchange(other.window_, nullptr);
+        renderer_ = std::move(other.renderer_);
         return *this;
     }
     ~Window() noexcept {
@@ -104,16 +104,16 @@ class Window final {
         glfwPollEvents();
         glClearColor(r, g, b, alpha);
         glClear(GL_COLOR_BUFFER_BIT);
-        shader_.use();
+        renderer_.use();
     }
 
-    void draw(Shape auto& shape) noexcept { shape.draw(); }
+    void draw(const Shape auto& shape) noexcept { renderer_.draw(shape); }
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
   private:
-    explicit Window(GLFWwindow* const window, Shader shader) noexcept
-        : window_{window}, shader_{std::move(shader)} {
+    explicit Window(GLFWwindow* const window, Renderer renderer) noexcept
+        : window_{window}, renderer_{std::move(renderer)} {
         ++window_cnt_;
 
         // デバッグ出力の有効化
@@ -127,7 +127,7 @@ class Window final {
     }
 
     GLFWwindow*                 window_;
-    Shader                      shader_;
+    Renderer                    renderer_;
     static inline constinit int window_cnt_{};
 };
 }  // namespace rin
