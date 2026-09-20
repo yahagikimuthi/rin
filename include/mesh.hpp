@@ -23,8 +23,8 @@ class Mesh final {
         if (points.size() != colors.size())
             return Error::create(Error::Type::logic, "Points and colors should same size");
 
-        const auto  vertices_size = (3 * points.size()) + (3 * colors.size());
-        static auto vertices      = std::vector<f32>{};
+        const auto               vertices_size = (3 * points.size()) + (3 * colors.size());
+        static thread_local auto vertices      = std::vector<f32>{};
         vertices.clear();
         vertices.reserve(vertices_size);
 
