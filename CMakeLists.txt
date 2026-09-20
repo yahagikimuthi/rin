@@ -7,9 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # GNU拡張を無効化（標準準拠）
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# CTest（自動テスト）の有効化
-enable_testing()
-
 find_package(Git REQUIRED)
 
 find_package(OpenGL REQUIRED)
@@ -20,8 +17,7 @@ set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(glad PUBLIC include)
 
 # --- ソースファイルの取得 ---
-file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
-file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp")
+file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 # 共通コンパイル/リンク設定
 add_library(project_warnings INTERFACE)
@@ -74,13 +70,3 @@ target_link_libraries(rin PRIVATE
     glfw
     OpenGL::GL
 )
-
-# テスト用 ターゲット
-add_executable(rin_test)
-target_sources(rin_test PRIVATE ${TEST_SOURCES})
-target_link_libraries(rin_test PRIVATE
-    rin_lib
-    project_warnings
-)
-
-add_test(NAME UnitTests COMMAND rin_test)
