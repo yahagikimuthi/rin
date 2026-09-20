@@ -43,12 +43,11 @@ class Window final {
   public:
     [[nodiscard]] static auto create(
         const i32 width, const i32 height, std::string_view title
-    ) noexcept -> std::expected<Window, ErrorCode> {
+    ) noexcept -> std::expected<Window, Error> {
         // GLFWの初期化（何回呼び出しても安全）
-        if (not static_cast<bool>(glfwInit())) {
-            std::cerr << "Failed to GLFW initialize\n";
-            return std::unexpected{ErrorCode::failed_to_GLFW_initialize};
-        }
+        if (not static_cast<bool>(glfwInit()))
+            return Error::create(Error::Type::runtime, "Failed to GLFW initialize");
+
         // これから作る画面のメタ設定
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -58,10 +57,8 @@ class Window final {
         auto        str    = std::string{title};
         auto* const window = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
 
-        if (window == nullptr) {
-            std::cerr << "Failed to create window\n";
-            return std::unexpected{ErrorCode::failed_to_create_window};
-        }
+        if (window == nullptr)
+            return Error::create(Error::Type::runtime, "Failed to initialize window");
 
         glfwMakeContextCurrent(window);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
@@ -71,10 +68,7 @@ class Window final {
 
         auto shader = Shader::create();
 
-        if (not shader) {
-            std::cerr << "Failed to create shader\n";
-            return std::unexpected{ErrorCode::failed_to_create_shader};
-        }
+        if (not shader) return Error::create(Error::Type::runtime, "Failed to create shader");
 
         return Window{window, std::move(*shader)};
     }
