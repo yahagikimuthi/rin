@@ -16,12 +16,8 @@ auto main() -> int {
     }
     auto window = std::move(*windowResult);
 
-    auto quadResult = Quad::create(1.f, 5.f);
-    if (not quadResult) {
-        quadResult.error().what();
-        return 1;
-    }
-    auto quad = std::move(*quadResult);
+    auto quad = Quad{};
+    quad.size = glm::vec2{1.f, 1.f};
 
     while (window.is_open()) {
         window.begin_frame();
