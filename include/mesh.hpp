@@ -137,7 +137,7 @@ class Mesh final {
         // 第三引数: 数字の型(バイト数を得るのに必要)
         // 第四引数: 正規化するか
         // 第五引数: 全部で何バイト存在するか
-        // 第六引数: 配列の何バイト目から読み込むか(RGBなら最初は座標のあとだから座標3個+f32バイト)
+        // 第六引数: 配列の何バイト目から読み込むか(RGBなら最初は座標のあとだから座標3個*f32バイト)
 
         const auto vertex_size = static_cast<i32>(components_per_vertex * sizeof(f32));
         // 位置の設定
@@ -165,7 +165,7 @@ class Mesh final {
         }
 
         // UVの設定
-        if (components_per_vertex > 5) {
+        if (components_per_vertex > 6) {
             glVertexAttribPointer(
                 2,
                 2,
