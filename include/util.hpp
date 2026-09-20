@@ -1,12 +1,17 @@
 #pragma once
 
 #include <concepts>
+#include <expected>
 #include <iostream>
 #include <string_view>
+#include <utility>
 
 #include "type.hpp"
 
 namespace rin {
+
+using namespace std::string_view_literals;
+
 template <typename T>
 concept Numeric = std::integral<T> or std::floating_point<T>;
 
@@ -28,13 +33,18 @@ class Error final {
   public:
     enum class Type : u8 { logic, runtime };
 
-    explicit Error(const Type type) noexcept : type_{type} {}
-    explicit Error(const Type type, const std::string_view message)
+    constexpr Error(const Type type, const std::string_view message = ""sv)
         : type_{type}, message_{message} {}
 
-    [[nodiscard]] auto type() const noexcept -> Type { return type_; }
+    [[nodiscard]] constexpr auto type() const noexcept -> Type { return type_; }
 
-    [[nodiscard]] auto message() const noexcept -> std::string_view { return message_; }
+    [[nodiscard]] constexpr auto message() const noexcept -> std::string_view { return message_; }
+
+    [[nodiscard]] static constexpr auto create(
+        const Type type, const std::string_view message = ""sv
+    ) noexcept -> std::unexpected<Error> {
+        return std::unexpected<Error>{std::in_place, type, message};
+    }
 
     void what() const noexcept {
         if (type_ == Type::logic) {
