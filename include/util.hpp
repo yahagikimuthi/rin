@@ -59,8 +59,8 @@ class Error final {
         return std::unexpected<Error>{std::in_place, type, std::move(messages)};
     }
 
-    [[nodiscard]] constexpr auto type() const noexcept -> Type { return type_; }
-    [[nodiscard]] constexpr auto message() const noexcept -> std::string {
+    [[nodiscard]] auto type() const noexcept -> Type { return type_; }
+    [[nodiscard]] auto message() const noexcept -> std::string {
         const auto out = std::format("{}", std::views::join_with(messages_, " -> "));
         return out;
     }
@@ -85,7 +85,7 @@ class Error final {
     static void add_error_message(
         const Error& error, std::vector<std::string_view>& add_vec
     ) noexcept {
-        for (auto message : error.messages_) add_vec.emplace_back(message);
+        for (const auto message : error.messages_) add_vec.emplace_back(message);
     }
 
     Type                          type_;
