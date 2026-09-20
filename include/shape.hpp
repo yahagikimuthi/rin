@@ -1,59 +1,31 @@
 #pragma once
 
 #include <concepts>
-#include <expected>
-#include <utility>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <glm/vec2.hpp>
 
-#include "error.hpp"
-#include "math.hpp"
-#include "mesh.hpp"
-#include "shader.hpp"
 #include "type.hpp"
+#include "util.hpp"
 
 namespace rin {
+class BaseShape {};
+
 template <typename T>
-concept Shape = requires(T shape) {
-    { shape.draw() } noexcept -> std::same_as<void>;
-};
+concept Shape = std::derived_from<T, BaseShape>;
 
-class Quad final {
+class Quad final : public BaseShape {
   public:
-    [[nodiscard]] static auto create(const f32 width, const f32 height) noexcept
-        -> std::expected<Quad, Error> {
-        const auto hw = width * 0.5f;
-        const auto hh = height * 0.5f;
-
-        const auto points = std::array<Vector2f, 4>{
-            Vector2f{.x = -hw, .y = -hh},
-            Vector2f{.x = hw, .y = -hh},
-            Vector2f{.x = hw, .y = hh},
-            Vector2f{.x = -hw, .y = hh}
-        };
-        const auto colors = std::array<RGB, 4>{
-            RGB{.r = 1.f, .g = 0.f, .b = 0.f},
-            RGB{.r = 0.f, .g = 1.f, .b = 0.f},
-            RGB{.r = 0.f, .g = 0.f, .b = 1.f},
-            RGB{.r = 1.f, .g = 1.f, .b = 0.f}
-        };
-        const auto indices = {0u, 1u, 2u, 2u, 3u, 0u};
-
-        auto meshResult = Mesh::create(points, colors, indices);
-
-        if (not meshResult)
-            return Error::create(Error::logic, "Failed to Create Mesh", meshResult.error());
-        return Quad{std::move(*meshResult)};
-    }
-
-    void draw(Shader& shader) const noexcept { mesh_.draw(); }
-
-    Vector2f position{.x = 0, .y = 0};
-    Vector2f size{.x = 0, .y = 0};
-    f32      rotation{0.f};
-    RGB      color{.r = 1.f, .g = 1.f, .b = 1.f};
-
-  private:
-    explicit Quad(Mesh mesh) noexcept : mesh_{std::move(mesh)} {}
-
-    Mesh mesh_;
+    glm::vec2 position{0, 0};
+    glm::vec2 size{0, 0};
+    f32       rotation_radius{0.f};
+    RGB       color{.r = 1.f, .g = 1.f, .b = 1.f};
 };
+
+[[nodiscard]] constexpr auto calc_transform(const Quad& quad) noexcept -> glm::mat4 {
+    auto result = glm::translate(glm::mat4(1.f), glm::vec3(quad.position.x, quad.position.y, 0.f));
+    result *= glm::scale(glm::mat4(1.f), glm::vec3(quad.size.x, quad.size.y, 1.f));
+    return result;
+}
 }  // namespace rin
