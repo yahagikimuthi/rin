@@ -1,20 +1,51 @@
 #pragma once
 
 #include <cassert>
+#include <cstddef>
+#include <ranges>
 #include <span>
 #include <utility>
+#include <vector>
 
 #include "glad/glad.h"
 
 #include "type.hpp"
+#include "util.hpp"
 
 namespace rin {
 class Mesh final {
   public:
     explicit Mesh(
+        const std::span<const Vector2f> points,
+        const std::span<const RGB>      colors,
+        const std::span<const u32>      indices
+    )
+        : Mesh(
+              [&]() noexcept -> std::span<const f32> {
+                  const auto vertices_size =
+                      static_cast<std::size_t>((3 * points.size()) + (3 * colors.size()));
+
+                  static auto vertices = std::vector<f32>{};
+                  vertices.clear();
+                  vertices.reserve(vertices_size);
+                  for (const auto i : std::views::indices(points.size())) {
+                      vertices.emplace_back(points[i].x);
+                      vertices.emplace_back(points[i].y);
+                      vertices.emplace_back(0.f);
+                      vertices.emplace_back(colors[i].r);
+                      vertices.emplace_back(colors[i].g);
+                      vertices.emplace_back(colors[i].b);
+                  }
+                  return vertices;
+              }(),
+              indices,
+              6
+          ) {}
+
+    explicit Mesh(
         const std::span<const f32> vertices,
         const std::span<const u32> indices,
-        const u32                  vertex_count
+        const u32                  components_per_vertex
     ) noexcept
         : index_count_{static_cast<u32>(indices.size())} {
         glGenVertexArrays(1, &vao_);
@@ -41,20 +72,37 @@ class Mesh final {
             GL_STATIC_DRAW
         );
 
-        assert(vertex_count > 0 and vertices.size() % vertex_count == 0);
-        const auto value_per_point = static_cast<i32>(vertices.size() / vertex_count);
+        // glVertexAttribPointerについて
+        // 第一引数: location(座標や色などの属性を指示、Shaderのソースコードで設定)
+        // 第二引数: 属性が数字何個で構成されるのかを指示, 色ならRGBで3個
+        // 第三引数: 数字の型(バイト数を得るのに必要)
+        // 第四引数: 正規化するか
+        // 第五引数: 全部で何バイト存在するか
+        // 第六引数: 配列の何バイト目から読み込むか(RGBなら最初は座標のあとだから4番目)
 
+        // 位置の設定
         glVertexAttribPointer(
             0,
-            value_per_point,
+            3,
             GL_FLOAT,
             GL_FALSE,
-            value_per_point * static_cast<i32>(sizeof(f32)),
-            static_cast<void*>(0)
+            static_cast<i32>(components_per_vertex * sizeof(f32)),
+            reinterpret_cast<void*>(0)
         );
         glEnableVertexAttribArray(0);
 
-        // GL_ELEMENT_ARRAY_BUFFER は VAO を解く前にアンバインドしてはいけない！
+        // 色の設定
+        glVertexAttribPointer(
+            1,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            static_cast<i32>(components_per_vertex * sizeof(f32)),
+            reinterpret_cast<void*>(3 * sizeof(f32))
+        );
+        glEnableVertexAttribArray(1);
+
+        // GL_ELEMENT_ARRAY_BUFFER は VAO を解く前にアンバインドしてはいけない
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -84,8 +132,8 @@ class Mesh final {
 
     ~Mesh() noexcept { destroy(); }
 
-    // 描画メソッド（EBOを使用した glDrawElements）
     void draw() const noexcept {
+        if (vao_ == 0) return;
         glBindVertexArray(vao_);
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
@@ -96,6 +144,7 @@ class Mesh final {
         if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
         if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
         if (vao_ != 0) glDeleteVertexArrays(1, &vao_);
+        index_count_ = 0;
     }
 
     GLuint vao_{0};
