@@ -46,18 +46,16 @@ class Renderer final {
         return Renderer{std::move(*shader_res), std::move(*mesh_res)};
     }
 
+    void use() noexcept { shader_.use(); }
+
     void draw([[maybe_unused]] const Quad& quad) noexcept {
-        //        auto model = glm::mat4(1.f);
-        //        model      = glm::translate(model, glm::vec3(quad.position, 0.f));
-        //        if (quad.rotation_radius != 0.f)
-        //            model = glm::rotate(model, quad.rotation_radius, glm::vec3(0.f, 0.f, 1.f));
-        //
-        //        model = glm::scale(model, glm::vec3(quad.size, 1.f));
-        //        shader_.set_mat4(Shader::u_Transform, model);
+        const auto model = calc_transform(quad);
+        shader_.set_mat4(Shader::u_Transform, model);
+
+        const auto color = quad.color;
+        shader_.set_vec4(Shader::u_Color, {color.r, color.g, color.b, 1.f});
         quad_mesh_.draw();
     }
-
-    void use() noexcept { shader_.use(); }
 
   private:
     explicit Renderer(Shader shader, Mesh quad_mesh) noexcept
@@ -65,5 +63,7 @@ class Renderer final {
 
     Shader shader_;
     Mesh   quad_mesh_;
+
+    friend class Engine;
 };
 }  // namespace rin

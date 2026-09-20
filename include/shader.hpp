@@ -19,31 +19,28 @@ constexpr const char* vertex_shader_source = R"(
     
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in vec3 aColor;
-    layout (location = 2) in vec2 aTexCoord;
 
     out vec3 ourColor;
-    out vec2 TexCoord;
 
     uniform mat4 u_Transform;
 
     void main() {
         gl_Position = u_Transform * vec4(aPos, 1.0);
         ourColor = aColor;
-        TexCoord = aTexCoord;
     }
 )";
 
 constexpr const char* fragment_shader_source = R"(
     #version 450 core
+
     in vec3 ourColor;
-    in vec2 TexCoord;
 
     out vec4 FragColor;
 
-    uniform sampler2D ourTexture;
+    uniform vec4 u_Color;
 
     void main() {
-        FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);
+        FragColor = vec4(ourColor, 1.0) * u_Color;
     }
 )";
 
@@ -52,6 +49,7 @@ using namespace std::string_view_literals;
 class Shader final {
   public:
     static constexpr auto u_Transform = "u_Transform"sv;
+    static constexpr auto u_Color     = "u_Color"sv;
 
     [[nodiscard]] static auto create() -> std::expected<Shader, Error> {
         const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
@@ -107,6 +105,8 @@ class Shader final {
             glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
         glProgramUniform1i(program_id_, location, value);
     }
+
+    [[nodiscard]] auto id() noexcept -> GLuint { return program_id_; }
 
   private:
     explicit Shader(GLuint program_id) noexcept : program_id_{program_id} {}
