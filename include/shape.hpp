@@ -14,18 +14,27 @@ class BaseShape {};
 
 template <typename T>
 concept Shape = std::derived_from<T, BaseShape>;
-
+}  // namespace rin
+namespace rin::quad {
 class Quad final : public BaseShape {
   public:
     glm::vec2 position{0, 0};
     glm::vec2 size{0, 0};
-    f32       rotation_radius{0.f};
-    RGB       color{.r = 1.f, .g = 1.f, .b = 1.f};
+    f32       rotation_radian{0.f};
+    RGB       color{.r = 2.f, .g = 2.f, .b = 2.f};
 };
 
 [[nodiscard]] constexpr auto calc_transform(const Quad& quad) noexcept -> glm::mat4 {
-    auto result = glm::translate(glm::mat4(1.f), glm::vec3(quad.position.x, quad.position.y, 0.f));
-    result *= glm::scale(glm::mat4(1.f), glm::vec3(quad.size.x, quad.size.y, 1.f));
-    return result;
+    auto model = glm::mat4(1.f);
+    model      = glm::translate(model, glm::vec3(quad.position, 0.f));
+    if (quad.rotation_radian != 0.f)
+        model = glm::rotate(model, quad.rotation_radian, glm::vec3(0.f, 0.f, 1.f));
+
+    model = glm::scale(model, glm::vec3(quad.size, 1.f));
+    return model;
 }
-}  // namespace rin
+}  // namespace rin::quad
+
+namespace rin {
+using Quad = quad::Quad;
+}
