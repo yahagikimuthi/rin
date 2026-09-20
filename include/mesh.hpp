@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef>
+#include <expected>
 #include <ranges>
 #include <span>
 #include <utility>
@@ -15,33 +15,63 @@
 namespace rin {
 class Mesh final {
   public:
-    explicit Mesh(
+    [[nodiscard]] static auto create(
         const std::span<const Vector2f> points,
         const std::span<const RGB>      colors,
         const std::span<const u32>      indices
-    )
-        : Mesh(
-              [&]() noexcept -> std::span<const f32> {
-                  const auto vertices_size =
-                      static_cast<std::size_t>((3 * points.size()) + (3 * colors.size()));
+    ) noexcept -> std::expected<Mesh, Error> {
+        if (points.size() != colors.size())
+            return Error::create(Error::Type::logic, "Points and colors should same size");
 
-                  static auto vertices = std::vector<f32>{};
-                  vertices.clear();
-                  vertices.reserve(vertices_size);
-                  for (const auto i : std::views::indices(points.size())) {
-                      vertices.emplace_back(points[i].x);
-                      vertices.emplace_back(points[i].y);
-                      vertices.emplace_back(0.f);
-                      vertices.emplace_back(colors[i].r);
-                      vertices.emplace_back(colors[i].g);
-                      vertices.emplace_back(colors[i].b);
-                  }
-                  return vertices;
-              }(),
-              indices,
-              6
-          ) {}
+        const auto  vertices_size = (3 * points.size()) + (3 * colors.size());
+        static auto vertices      = std::vector<f32>{};
+        vertices.clear();
+        vertices.reserve(vertices_size);
 
+        for (const auto i : std::views::indices(points.size())) {
+            vertices.emplace_back(points[i].x);
+            vertices.emplace_back(points[i].y);
+            vertices.emplace_back(0.f);
+            vertices.emplace_back(colors[i].r);
+            vertices.emplace_back(colors[i].g);
+            vertices.emplace_back(colors[i].b);
+        }
+
+        return Mesh{vertices, indices, 6};
+    }
+
+    Mesh(const Mesh&) noexcept                    = delete;
+    auto operator=(const Mesh&) noexcept -> Mesh& = delete;
+
+    Mesh(Mesh&& other) noexcept
+        : vao_{std::exchange(other.vao_, 0)},
+          vbo_{std::exchange(other.vbo_, 0)},
+          ebo_{std::exchange(other.ebo_, 0)},
+          index_count_{std::exchange(other.index_count_, 0)} {}
+
+    auto operator=(Mesh&& other) noexcept -> Mesh& {
+        if (this == &other) return *this;
+
+        destroy();
+
+        vao_         = std::exchange(other.vao_, 0);
+        vbo_         = std::exchange(other.vbo_, 0);
+        ebo_         = std::exchange(other.ebo_, 0);
+        index_count_ = std::exchange(other.index_count_, 0);
+
+        return *this;
+    }
+
+    ~Mesh() noexcept { destroy(); }
+
+    void draw() const noexcept {
+        if (vao_ == 0) return;
+        glBindVertexArray(vao_);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+  private:
     explicit Mesh(
         const std::span<const f32> vertices,
         const std::span<const u32> indices,
@@ -87,7 +117,7 @@ class Mesh final {
             GL_FLOAT,
             GL_FALSE,
             static_cast<i32>(components_per_vertex * sizeof(f32)),
-            reinterpret_cast<void*>(0)
+            reinterpret_cast<void*>(0)  // NOLINT
         );
         glEnableVertexAttribArray(0);
 
@@ -98,7 +128,7 @@ class Mesh final {
             GL_FLOAT,
             GL_FALSE,
             static_cast<i32>(components_per_vertex * sizeof(f32)),
-            reinterpret_cast<void*>(3 * sizeof(f32))
+            reinterpret_cast<void*>(3 * sizeof(f32))  // NOLINT
         );
         glEnableVertexAttribArray(1);
 
@@ -108,38 +138,6 @@ class Mesh final {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    Mesh(const Mesh&) noexcept                    = delete;
-    auto operator=(const Mesh&) noexcept -> Mesh& = delete;
-
-    Mesh(Mesh&& other) noexcept
-        : vao_{std::exchange(other.vao_, 0)},
-          vbo_{std::exchange(other.vbo_, 0)},
-          ebo_{std::exchange(other.ebo_, 0)},
-          index_count_{std::exchange(other.index_count_, 0)} {}
-
-    auto operator=(Mesh&& other) noexcept -> Mesh& {
-        if (this == &other) return *this;
-
-        destroy();
-
-        vao_         = std::exchange(other.vao_, 0);
-        vbo_         = std::exchange(other.vbo_, 0);
-        ebo_         = std::exchange(other.ebo_, 0);
-        index_count_ = std::exchange(other.index_count_, 0);
-
-        return *this;
-    }
-
-    ~Mesh() noexcept { destroy(); }
-
-    void draw() const noexcept {
-        if (vao_ == 0) return;
-        glBindVertexArray(vao_);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_), GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
-    }
-
-  private:
     void destroy() noexcept {
         if (ebo_ != 0) glDeleteBuffers(1, &ebo_);
         if (vbo_ != 0) glDeleteBuffers(1, &vbo_);
