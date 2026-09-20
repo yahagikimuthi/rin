@@ -14,10 +14,10 @@ concept Shape = requires(T shape) {
     { shape.draw() } noexcept -> std::same_as<void>;
 };
 
-class Quad final {
+class QuadMesh final {
   public:
     [[nodiscard]] static auto create(const f32 width, const f32 height) noexcept
-        -> std::expected<Quad, Error> {
+        -> std::expected<QuadMesh, Error> {
         const auto hw = width * 0.5f;
         const auto hh = height * 0.5f;
 
@@ -39,13 +39,13 @@ class Quad final {
 
         if (not meshResult)
             return Error::create(Error::logic, "Failed to Create Mesh", meshResult.error());
-        return Quad{std::move(*meshResult)};
+        return QuadMesh{std::move(*meshResult)};
     }
 
     void draw() const noexcept { mesh_.draw(); }
 
   private:
-    explicit Quad(Mesh mesh) noexcept : mesh_{std::move(mesh)} {}
+    explicit QuadMesh(Mesh mesh) noexcept : mesh_{std::move(mesh)} {}
 
     Mesh mesh_;
 };
