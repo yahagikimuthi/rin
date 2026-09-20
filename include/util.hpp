@@ -44,6 +44,9 @@ class Error final {
   public:
     enum class Type : u8 { logic, runtime };
 
+    using Type::logic;
+    using Type::runtime;
+
     explicit Error(const Type type, std::vector<std::string_view>&& messages) noexcept
         : type_{type}, messages_{std::move(messages)} {}
 

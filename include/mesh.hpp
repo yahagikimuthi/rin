@@ -21,7 +21,7 @@ class Mesh final {
         const std::span<const u32>      indices
     ) noexcept -> std::expected<Mesh, Error> {
         if (points.size() != colors.size())
-            return Error::create(Error::Type::logic, "Points and colors should same size");
+            return Error::create(Error::logic, "Points and colors should same size");
 
         const auto               vertices_size = (3 * points.size()) + (3 * colors.size());
         static thread_local auto vertices      = std::vector<f32>{};
@@ -47,7 +47,7 @@ class Mesh final {
         const std::span<const u32>      indices
     ) noexcept -> std::expected<Mesh, Error> {
         if (points.size() != colors.size() or points.size() != uvs.size())
-            return Error::create(Error::Type::logic, "Points and Colors and UVs should same size");
+            return Error::create(Error::logic, "Points and Colors and UVs should same size");
 
         const auto vertices_size = (3 * points.size()) + (3 * colors.size()) + (2 * uvs.size());
         static thread_local auto vertices = std::vector<f32>{};

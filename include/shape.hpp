@@ -38,7 +38,7 @@ class Quad final {
         auto meshResult = Mesh::create(points, colors, indices);
 
         if (not meshResult)
-            return Error::create(Error::Type::logic, "Failed to Create Mesh", meshResult.error());
+            return Error::create(Error::logic, "Failed to Create Mesh", meshResult.error());
         return Quad{std::move(*meshResult)};
     }
 
