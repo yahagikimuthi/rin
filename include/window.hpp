@@ -68,7 +68,8 @@ class Window final {
 
         auto shader = Shader::create();
 
-        if (not shader) return Error::create(Error::Type::runtime, "Failed to create shader");
+        if (not shader)
+            return Error::create(Error::Type::runtime, "Failed to create shader", shader.error());
 
         return Window{window, std::move(*shader)};
     }
