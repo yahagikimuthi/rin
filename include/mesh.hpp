@@ -42,33 +42,6 @@ class Mesh final {
         return Mesh{vertices, indices, 6};
     }
 
-    [[nodiscard]] static auto create(
-        const std::span<const glm::vec2> points,
-        const std::span<const RGB>       colors,
-        const std::span<const UV>        uvs,
-        const std::span<const u32>       indices
-    ) noexcept -> std::expected<Mesh, Error> {
-        if (points.size() != colors.size() or points.size() != uvs.size())
-            return Error::create(Error::logic, "Points and Colors and UVs should same size");
-
-        const auto vertices_size = (3 * points.size()) + (3 * colors.size()) + (2 * uvs.size());
-        static thread_local auto vertices = std::vector<f32>{};
-        vertices.clear();
-        vertices.reserve(vertices_size);
-
-        for (const auto i : std::views::indices(points.size())) {
-            vertices.emplace_back(points[i].x);
-            vertices.emplace_back(points[i].y);
-            vertices.emplace_back(0.f);
-            vertices.emplace_back(colors[i].r);
-            vertices.emplace_back(colors[i].g);
-            vertices.emplace_back(colors[i].b);
-            vertices.emplace_back(uvs[i].u);
-            vertices.emplace_back(uvs[i].v);
-        }
-        return Mesh{vertices, indices, 8};
-    }
-
     Mesh(const Mesh&) noexcept                    = delete;
     auto operator=(const Mesh&) noexcept -> Mesh& = delete;
 
@@ -162,19 +135,6 @@ class Mesh final {
                 reinterpret_cast<void*>(3 * sizeof(f32))  // NOLINT
             );
             glEnableVertexAttribArray(1);
-        }
-
-        // UVの設定
-        if (components_per_vertex > 6) {
-            glVertexAttribPointer(
-                2,
-                2,
-                GL_FLOAT,
-                GL_FALSE,
-                vertex_size,
-                reinterpret_cast<void*>(6 * sizeof(f32))  // NOLINT
-            );
-            glEnableVertexAttribArray(2);
         }
 
         // GL_ELEMENT_ARRAY_BUFFER は VAO を解く前にアンバインドしてはいけない
