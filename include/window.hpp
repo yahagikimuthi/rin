@@ -10,6 +10,7 @@
 
 #include "GLFW/glfw3.h"
 #include "shader.hpp"
+#include "shape.hpp"
 #include "type.hpp"
 
 namespace rin {
@@ -45,7 +46,7 @@ class Window final {
     ) noexcept -> std::expected<Window, ErrorCode> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit())) {
-            std::cerr << "Failed to GLFW initialize" << '\n';
+            std::cerr << "Failed to GLFW initialize\n";
             return std::unexpected{ErrorCode::failed_to_GLFW_initialize};
         }
         // これから作る画面のメタ設定
@@ -58,15 +59,24 @@ class Window final {
         auto* const window = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
 
         if (window == nullptr) {
-            std::cerr << "Failed to create window" << '\n';
+            std::cerr << "Failed to create window\n";
             return std::unexpected{ErrorCode::failed_to_create_window};
         }
+
+        glfwMakeContextCurrent(window);
+        gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
+
+        glViewport(0, 0, width, height);
+        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+
         auto shader = Shader::create();
+
         if (not shader) {
-            std::cerr << "Failed to create shader" << '\n';
+            std::cerr << "Failed to create shader\n";
             return std::unexpected{ErrorCode::failed_to_create_shader};
         }
-        return Window{window, width, height, std::move(*shader)};
+
+        return Window{window, std::move(*shader)};
     }
     Window(const Window&) noexcept                    = delete;
     auto operator=(const Window&) noexcept -> Window& = delete;
@@ -93,27 +103,20 @@ class Window final {
         return not static_cast<bool>(glfwWindowShouldClose(window_));
     }
 
-    static void begin_frame() noexcept {
+    void begin_frame() noexcept {
         glfwPollEvents();
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        shader_.use();
     }
 
-    void draw() noexcept;
+    void draw(Shape auto& shape) noexcept { shape.draw(); }
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
   private:
-    explicit Window(
-        GLFWwindow* const window, const i32 width, const i32 height, Shader shader
-    ) noexcept
+    explicit Window(GLFWwindow* const window, Shader shader) noexcept
         : window_{window}, shader_{std::move(shader)} {
-        glfwMakeContextCurrent(window_);
-        gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
-
-        glViewport(0, 0, width, height);
-        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-
         ++window_cnt_;
 
         // デバッグ出力の有効化
