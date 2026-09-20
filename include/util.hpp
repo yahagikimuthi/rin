@@ -35,6 +35,11 @@ struct RGB final {
     f32 b;
 };
 
+struct UV final {
+    f32 u;
+    f32 v;
+};
+
 class Error final {
   public:
     enum class Type : u8 { logic, runtime };
