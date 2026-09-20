@@ -1,14 +1,13 @@
 #pragma once
 
 #include <expected>
-#include <iostream>
 #include <optional>
 #include <string_view>
 #include <utility>
 
 #include "glad/glad.h"
 
-#include "type.hpp"
+#include "util.hpp"
 
 namespace rin {
 // バーテックスシェーダー（頂点の位置をそのまま通過）
@@ -37,35 +36,18 @@ constexpr const char* fragment_shader_source = R"(
 
 class Shader final {
   public:
-    enum class ErrorCode : u8 {
-        failed_to_vertex_compile,
-        failed_to_fragment_compile,
-        failed_to_vertex_file_read,
-        failed_to_fragment_file_read,
-        failed_to_link
-    };
-
-    [[nodiscard]] static auto create() -> std::expected<Shader, ErrorCode> {
+    [[nodiscard]] static auto create() -> std::expected<Shader, Error> {
         const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
-        if (not vertex) {
-            std::cerr << "Failed to vertex compile" << '\n';
-            return std::unexpected{ErrorCode::failed_to_vertex_compile};
-        }
+        if (not vertex) return Error::create(Error::Type::logic, "Failed to Vertex Compile");
 
         const auto fragment = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
-        if (not fragment) {
-            std::cerr << "Failed to fragment compile" << '\n';
-            return std::unexpected{ErrorCode::failed_to_fragment_compile};
-        }
+        if (not fragment) return Error::create(Error::Type::logic, "Failed to Fragment Compile");
 
         const auto program = glCreateProgram();
         glAttachShader(program, *vertex);
         glAttachShader(program, *fragment);
         glLinkProgram(program);
-        if (GL_LINK_STATUS == GL_FALSE) {
-            std::cerr << "Failed to link" << '\n';
-            return std::unexpected{ErrorCode::failed_to_link};
-        }
+        if (GL_LINK_STATUS == GL_FALSE) return Error::create(Error::Type::logic, "Failed to Link");
         glDeleteShader(*vertex);
         glDeleteShader(*fragment);
 
