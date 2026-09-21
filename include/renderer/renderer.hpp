@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <utility>
 
+#include "camera.hpp"
 #include "error.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
@@ -48,11 +49,12 @@ class Renderer final {
 
     void use() noexcept { shader_.use(); }
 
-    void draw([[maybe_unused]] const Quad& quad) noexcept {
-        const auto model = calc_transform(quad);
-        shader_.set_mat4(Shader::u_Transform, model);
+    void draw(const Quad& quad, const Camera& camera) noexcept {
+        const auto model           = calc_transform(quad);
+        const auto view_projection = camera.calc_view_position_mat();
+        shader_.set_mat4(Shader::u_Transform, view_projection * model);
 
-        const auto color = quad.color;
+        const auto color = quad.color();
         shader_.set_vec4(Shader::u_Color, {color.r, color.g, color.b, 1.f});
         quad_mesh_.draw();
     }
