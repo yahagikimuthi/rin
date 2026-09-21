@@ -11,8 +11,8 @@
 #include <utility>
 
 #include "error.hpp"
-#include "mesh.hpp"
-#include "shader.hpp"
+#include "renderer/mesh.hpp"
+#include "renderer/shader.hpp"
 #include "shape.hpp"
 
 namespace rin {
