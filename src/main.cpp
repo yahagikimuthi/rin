@@ -22,11 +22,15 @@ class Engine {
         quad.size  = {1.f, 1.f};
         quad.color = {.r = 2.f, .g = 3.f, .b = 4.f};
 
+        constexpr auto speed = 1.f;
+
         while (window.is_open()) {
+            const auto delta_time = Timer::tick();
+
             window.poll_events();
 
             if (Input::is_key_down(Key::w)) {
-                quad.position.y += 0.01f;
+                quad.position.y += speed * delta_time;
             }
 
             window.clear(0.3f, 0.2f, 0.1f, 1.f);
