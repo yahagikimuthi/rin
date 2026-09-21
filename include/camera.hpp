@@ -5,6 +5,7 @@
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <utility>
 
 #include "type.hpp"
 
@@ -14,8 +15,14 @@ struct Camera final {
     explicit constexpr Camera(const f32 width, const f32 height) noexcept
         : viewport_width_{width}, viewport_height_{height} {}
 
-    [[nodiscard]] constexpr auto position() const noexcept -> glm::vec2 { return position_; }
-    [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
+    template <typename Self>
+    [[nodiscard]] constexpr auto position(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).position_;
+    }
+    template <typename Self>
+    [[nodiscard]] constexpr auto zoom(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).zoom_;
+    }
     [[nodiscard]] constexpr auto calc_view_position_mat() const noexcept -> glm::mat4 {
         const auto half_w = (viewport_width_ * 0.5f) / zoom_;
         const auto half_h = (viewport_height_ * 0.5f) / zoom_;

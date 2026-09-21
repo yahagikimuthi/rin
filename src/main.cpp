@@ -19,11 +19,11 @@ class Engine {
         }
         auto& window = *window_res;
 
-        auto quad = Quad{};
-        quad.size(1.f, 1.f);
-        quad.color(1.f, 3.f, 4.f, 1.f);
+        auto quad  = Quad{};
+        auto quad2 = Quad{};
+        quad2.position(100.f, 100.f);
 
-        constexpr auto speed = 1.f;
+        constexpr auto speed = 100.f;
 
         while (window.is_open()) {
             const auto delta_time = Timer::tick();
@@ -31,12 +31,13 @@ class Engine {
             window.poll_events();
 
             if (Input::is_key_down(Key::w)) {
-                quad.position() += speed * delta_time;
+                quad.position().y += speed * delta_time;
             }
             window.camera_position(quad.position());
 
             window.clear(0.3f, 0.2f, 0.1f, 1.f);
             window.draw(quad);
+            window.draw(quad2);
             window.display();
         }
     }

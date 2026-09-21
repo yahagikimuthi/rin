@@ -35,10 +35,13 @@ class Quad final : public BaseShape {
         return std::forward<Self>(self).color_;
     }
     constexpr void position(const f32 x, const f32 y) noexcept { position_ = {x, y}; }
+    constexpr void position(const glm::vec2 position) noexcept { position_ = position; }
     constexpr void size(const f32 width, const f32 height) noexcept { size_ = {width, height}; }
-    constexpr void color(const f32 r, const f32 g, const f32 b, const f32 alpha) noexcept {
+    constexpr void size(const glm::vec2 size) noexcept { size_ = size; }
+    constexpr void color(const f32 r, const f32 g, const f32 b, const f32 alpha = 1.f) noexcept {
         color_ = {r, g, b, alpha};
     }
+    constexpr void color(const glm::vec4& color) noexcept { color_ = color; }
 
   private:
     glm::vec4 color_{1.f, 1.f, 1.f, 1.f};
@@ -48,12 +51,10 @@ class Quad final : public BaseShape {
 };
 
 [[nodiscard]] constexpr auto calc_transform(const Quad& quad) noexcept -> glm::mat4 {
-    auto model = glm::mat4(1.f);
-    model      = glm::translate(model, glm::vec3(quad.position(), 0.f));
-    if (quad.rotation_radian() != 0.f)
-        model = glm::rotate(model, quad.rotation_radian(), glm::vec3(0.f, 0.f, 1.f));
-
-    model = glm::scale(model, glm::vec3(quad.size(), 1.f));
+    auto model = glm::mat4(1.0f);
+    model      = glm::translate(model, glm::vec3(quad.position(), 0.0f));
+    model      = glm::rotate(model, quad.rotation_radian(), glm::vec3(0.0f, 0.0f, 1.0f));
+    model      = glm::scale(model, glm::vec3(quad.size(), 1.0f));
     return model;
 }
 }  // namespace rin
