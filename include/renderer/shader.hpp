@@ -106,8 +106,6 @@ class Shader final {
         glProgramUniform1i(program_id_, location, value);
     }
 
-    [[nodiscard]] auto id() noexcept -> GLuint { return program_id_; }
-
   private:
     explicit Shader(GLuint program_id) noexcept : program_id_{program_id} {}
 
