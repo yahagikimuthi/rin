@@ -6,6 +6,7 @@
 #include <string_view>
 #include <utility>
 
+#include "camera.hpp"
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
@@ -57,20 +58,28 @@ class Window final {
         glfwMakeContextCurrent(window);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
 
-        glViewport(0, 0, width, height);
+        auto actual_width  = 0;
+        auto actual_height = 0;
+        glfwGetFramebufferSize(window, &actual_width, &actual_height);
+
+        glViewport(0, 0, actual_width, actual_height);
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+
+        auto camera = Camera{static_cast<f32>(actual_width), static_cast<f32>(actual_height)};
 
         auto renderer_res = Renderer::create();
         if (not renderer_res)
             return Error::create(Error::runtime, "Failed to Create Renderer", renderer_res.error());
 
-        return Window{window, std::move(*renderer_res)};
+        return Window{window, camera, std::move(*renderer_res)};
     }
     Window(const Window&) noexcept                    = delete;
     auto operator=(const Window&) noexcept -> Window& = delete;
 
     Window(Window&& other) noexcept
-        : window_{std::exchange(other.window_, nullptr)}, renderer_{std::move(other.renderer_)} {
+        : camera_{other.camera_},
+          window_{std::exchange(other.window_, nullptr)},
+          renderer_{std::move(other.renderer_)} {
         ++window_cnt_;
     }
     auto operator=(Window&& other) noexcept -> Window& {
@@ -80,6 +89,7 @@ class Window final {
             glfwDestroyWindow(window_);
         }
         window_   = std::exchange(other.window_, nullptr);
+        camera_   = other.camera_;
         renderer_ = std::move(other.renderer_);
         return *this;
     }
@@ -108,13 +118,16 @@ class Window final {
         renderer_.use();
     }
 
-    void draw(const Shape auto& shape) noexcept { renderer_.draw(shape); }
+    void draw(const Shape auto& shape) noexcept { renderer_.draw(shape, camera_); }
+
+    void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
+    void camera_position(glm::vec2 position) noexcept { camera_.position() = position; }
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
   private:
-    explicit Window(GLFWwindow* const window, Renderer renderer) noexcept
-        : window_{window}, renderer_{std::move(renderer)} {
+    explicit Window(GLFWwindow* const window, const Camera& camera, Renderer renderer) noexcept
+        : camera_{camera}, window_{window}, renderer_{std::move(renderer)} {
         ++window_cnt_;
 
         // デバッグ出力の有効化
@@ -127,6 +140,7 @@ class Window final {
         glDebugMessageCallback(message_callback, nullptr);
     }
 
+    Camera                      camera_;
     GLFWwindow*                 window_;
     Renderer                    renderer_;
     static inline constinit int window_cnt_{};
