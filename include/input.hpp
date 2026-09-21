@@ -1,12 +1,12 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <array>
 #include <cstddef>
 #include <glm/ext/vector_float2.hpp>
 #include <ranges>
 #include <utility>
 
+#include "GLFW/glfw3.h"
 #include "type.hpp"
 
 namespace rin {
