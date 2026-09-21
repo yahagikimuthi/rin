@@ -18,17 +18,19 @@ class Engine {
         }
         auto& window = *window_res;
 
-        auto quad = Quad{};
-
-        quad.size = {1.f, 1.f};
-
-        quad.color = {2.f, 3.f, 4.f};
+        auto quad  = Quad{};
+        quad.size  = {1.f, 1.f};
+        quad.color = {.r = 2.f, .g = 3.f, .b = 4.f};
 
         while (window.is_open()) {
-            window.begin_frame(0.3f, 0.2f, 0.1f, 1.f);
+            window.poll_events();
 
+            if (Input::is_key_down(Key::w)) {
+                quad.position.y += 0.01f;
+            }
+
+            window.clear(0.3f, 0.2f, 0.1f, 1.f);
             window.draw(quad);
-
             window.display();
         }
     }
