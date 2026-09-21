@@ -4,6 +4,7 @@
 #include "glad/glad.h"
 
 #include "shape.hpp"
+#include "timer.hpp"
 #include "window.hpp"
 
 using namespace rin;
@@ -18,9 +19,9 @@ class Engine {
         }
         auto& window = *window_res;
 
-        auto quad  = Quad{};
-        quad.size  = {1.f, 1.f};
-        quad.color = {.r = 2.f, .g = 3.f, .b = 4.f};
+        auto quad = Quad{};
+        quad.size(1.f, 1.f);
+        quad.color(1.f, 3.f, 4.f);
 
         constexpr auto speed = 1.f;
 
@@ -30,8 +31,9 @@ class Engine {
             window.poll_events();
 
             if (Input::is_key_down(Key::w)) {
-                quad.position.y += speed * delta_time;
+                quad.position() += speed * delta_time;
             }
+            window.camera_position(quad.position());
 
             window.clear(0.3f, 0.2f, 0.1f, 1.f);
             window.draw(quad);
