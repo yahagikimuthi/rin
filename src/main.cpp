@@ -21,7 +21,7 @@ class Engine {
 
         auto quad = Quad{};
         quad.size(1.f, 1.f);
-        quad.color(1.f, 3.f, 4.f);
+        quad.color(1.f, 3.f, 4.f, 1.f);
 
         constexpr auto speed = 1.f;
 

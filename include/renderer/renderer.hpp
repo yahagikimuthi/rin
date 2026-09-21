@@ -31,15 +31,15 @@ class Renderer final {
             glm::vec2{-0.5f, 0.5f}
         };
 
-        const auto colors = std::array<RGB, 4>{
-            RGB{.r = 1.f, .g = 0.f, .b = 0.f},
-            RGB{.r = 0.f, .g = 1.f, .b = 0.f},
-            RGB{.r = 0.f, .g = 0.f, .b = 1.f},
-            RGB{.r = 1.f, .g = 1.f, .b = 0.f}
+        const auto rgbs = std::array<glm::vec3, 4>{
+            glm::vec3{1.f, 0.f, 0.f},
+            glm::vec3{0.f, 1.f, 0.f},
+            glm::vec3{0.f, 0.f, 1.f},
+            glm::vec3{1.f, 1.f, 0.f}
         };
         const auto indices = {0u, 1u, 2u, 2u, 3u, 0u};
 
-        auto mesh_res = Mesh::create(points, colors, indices);
+        auto mesh_res = Mesh::create(points, rgbs, indices);
 
         if (not mesh_res)
             return Error::create(Error::runtime, "Failed to Create Quad Mesh", mesh_res.error());
@@ -54,8 +54,7 @@ class Renderer final {
         const auto view_projection = camera.calc_view_position_mat();
         shader_.set_mat4(Shader::u_Transform, view_projection * model);
 
-        const auto color = quad.color();
-        shader_.set_vec4(Shader::u_Color, {color.r, color.g, color.b, 1.f});
+        shader_.set_vec4(Shader::u_Color, quad.color());
         quad_mesh_.draw();
     }
 

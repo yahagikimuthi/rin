@@ -3,6 +3,7 @@
 #include <cassert>
 #include <expected>
 #include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_float3.hpp>
 #include <ranges>
 #include <span>
 #include <utility>
@@ -12,20 +13,19 @@
 
 #include "error.hpp"
 #include "type.hpp"
-#include "util.hpp"
 
 namespace rin {
 class Mesh final {
   public:
     [[nodiscard]] static auto create(
         const std::span<const glm::vec2> points,
-        const std::span<const RGB>       colors,
+        const std::span<const glm::vec3> rgbs,
         const std::span<const u32>       indices
     ) noexcept -> std::expected<Mesh, Error> {
-        if (points.size() != colors.size())
+        if (points.size() != rgbs.size())
             return Error::create(Error::logic, "Points and colors should same size");
 
-        const auto               vertices_size = (3 * points.size()) + (3 * colors.size());
+        const auto               vertices_size = (3 * points.size()) + (3 * rgbs.size());
         static thread_local auto vertices      = std::vector<f32>{};
         vertices.clear();
         vertices.reserve(vertices_size);
@@ -34,9 +34,9 @@ class Mesh final {
             vertices.emplace_back(points[i].x);
             vertices.emplace_back(points[i].y);
             vertices.emplace_back(0.f);
-            vertices.emplace_back(colors[i].r);
-            vertices.emplace_back(colors[i].g);
-            vertices.emplace_back(colors[i].b);
+            vertices.emplace_back(rgbs[i].r);
+            vertices.emplace_back(rgbs[i].g);
+            vertices.emplace_back(rgbs[i].b);
         }
 
         return Mesh{vertices, indices, 6};

@@ -1,21 +1,10 @@
 #pragma once
 
 #include <type_traits>
+
 #include <variant>
-#include "type.hpp"
 
 namespace rin {
-struct RGB final {
-    f32 r;
-    f32 g;
-    f32 b;
-};
-
-struct UV final {
-    f32 u;
-    f32 v;
-};
-
 template <typename T, typename Variant>
 struct is_variant_member_impl : std::false_type {};
 

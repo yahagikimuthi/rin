@@ -4,11 +4,11 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
+#include <glm/ext/vector_float4.hpp>
 #include <glm/vec2.hpp>
 #include <utility>
 
 #include "type.hpp"
-#include "util.hpp"
 
 namespace rin {
 class BaseShape {};
@@ -36,15 +36,15 @@ class Quad final : public BaseShape {
     }
     constexpr void position(const f32 x, const f32 y) noexcept { position_ = {x, y}; }
     constexpr void size(const f32 width, const f32 height) noexcept { size_ = {width, height}; }
-    constexpr void color(const f32 r, const f32 g, const f32 b) noexcept {
-        color_ = {.r = r, .g = g, .b = b};
+    constexpr void color(const f32 r, const f32 g, const f32 b, const f32 alpha) noexcept {
+        color_ = {r, g, b, alpha};
     }
 
   private:
+    glm::vec4 color_{1.f, 1.f, 1.f, 1.f};
     glm::vec2 position_{0, 0};
-    glm::vec2 size_{0, 0};
+    glm::vec2 size_{100.f, 100.f};
     f32       rotation_radian_{0.f};
-    RGB       color_{.r = 1.f, .g = 1.f, .b = 1.f};
 };
 
 [[nodiscard]] constexpr auto calc_transform(const Quad& quad) noexcept -> glm::mat4 {
