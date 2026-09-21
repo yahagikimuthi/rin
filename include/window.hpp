@@ -10,18 +10,12 @@
 
 #include "GLFW/glfw3.h"
 #include "error.hpp"
-#include "renderer.hpp"
+#include "input.hpp"
+#include "renderer/renderer.hpp"
 #include "shape.hpp"
 #include "type.hpp"
 
 namespace rin {
-struct WindowConfig final {
-    u32              width{800};
-    u32              height{600};
-    std::string_view title{"No Title"};
-    bool             vsync{true};
-};
-
 inline void GLAPIENTRY message_callback(
     [[maybe_unused]] GLenum      source,
     [[maybe_unused]] GLenum      type,
@@ -43,7 +37,7 @@ class Window final {
 
   public:
     [[nodiscard]] static auto create(
-        const i32 width, const i32 height, std::string_view title
+        const i32 width, const i32 height, std::string_view title = "No Title"
     ) noexcept -> std::expected<Window, Error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
@@ -82,13 +76,17 @@ class Window final {
     auto operator=(Window&& other) noexcept -> Window& {
         if (this == &other) return *this;
 
-        if (window_ != nullptr) glfwDestroyWindow(window_);
+        if (window_ != nullptr) {
+            glfwDestroyWindow(window_);
+        }
         window_   = std::exchange(other.window_, nullptr);
         renderer_ = std::move(other.renderer_);
         return *this;
     }
     ~Window() noexcept {
-        if (window_ != nullptr) glfwDestroyWindow(window_);
+        if (window_ != nullptr) {
+            glfwDestroyWindow(window_);
+        }
 
         if (--window_cnt_ == 0) glfwTerminate();
     }
@@ -97,10 +95,14 @@ class Window final {
         return not static_cast<bool>(glfwWindowShouldClose(window_));
     }
 
-    void begin_frame(
+    void poll_events() noexcept {
+        glfwPollEvents();
+        Input::update(window_);
+    }
+
+    void clear(
         const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 alpha = 1.f
     ) noexcept {
-        glfwPollEvents();
         glClearColor(r, g, b, alpha);
         glClear(GL_COLOR_BUFFER_BIT);
         renderer_.use();
