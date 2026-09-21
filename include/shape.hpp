@@ -5,6 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/vec2.hpp>
+#include <utility>
 
 #include "type.hpp"
 #include "util.hpp"
@@ -17,19 +18,42 @@ concept Shape = std::derived_from<T, BaseShape>;
 
 class Quad final : public BaseShape {
   public:
-    glm::vec2 position{0, 0};
-    glm::vec2 size{0, 0};
-    f32       rotation_radius{0.f};
-    RGB       color{.r = 1.f, .g = 1.f, .b = 1.f};
+    template <typename Self>
+    [[nodiscard]] constexpr auto position(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).position_;
+    }
+    template <typename Self>
+    [[nodiscard]] constexpr auto size(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).size_;
+    }
+    template <typename Self>
+    [[nodiscard]] constexpr auto rotation_radian(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).rotation_radian_;
+    }
+    template <typename Self>
+    [[nodiscard]] constexpr auto color(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).color_;
+    }
+    constexpr void position(const f32 x, const f32 y) noexcept { position_ = {x, y}; }
+    constexpr void size(const f32 width, const f32 height) noexcept { size_ = {width, height}; }
+    constexpr void color(const f32 r, const f32 g, const f32 b) noexcept {
+        color_ = {.r = r, .g = g, .b = b};
+    }
+
+  private:
+    glm::vec2 position_{0, 0};
+    glm::vec2 size_{0, 0};
+    f32       rotation_radian_{0.f};
+    RGB       color_{.r = 1.f, .g = 1.f, .b = 1.f};
 };
 
 [[nodiscard]] constexpr auto calc_transform(const Quad& quad) noexcept -> glm::mat4 {
     auto model = glm::mat4(1.f);
-    model      = glm::translate(model, glm::vec3(quad.position, 0.f));
-    if (quad.rotation_radius != 0.f)
-        model = glm::rotate(model, quad.rotation_radius, glm::vec3(0.f, 0.f, 1.f));
+    model      = glm::translate(model, glm::vec3(quad.position(), 0.f));
+    if (quad.rotation_radian() != 0.f)
+        model = glm::rotate(model, quad.rotation_radian(), glm::vec3(0.f, 0.f, 1.f));
 
-    model = glm::scale(model, glm::vec3(quad.size, 1.f));
+    model = glm::scale(model, glm::vec3(quad.size(), 1.f));
     return model;
 }
 }  // namespace rin
