@@ -28,7 +28,7 @@ struct vec2 final {
     [[nodiscard]] explicit constexpr operator glm::vec2() const noexcept { return glm::vec2{x, y}; }
 };
 
-struct extend final {
+struct extent final {
     f32 width{};
     f32 height{};
 

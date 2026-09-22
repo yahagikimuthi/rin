@@ -40,7 +40,7 @@ class window final {
 
   public:
     [[nodiscard]] static auto create(
-        const extend size, std::string_view title = "No Title"
+        const extent size, std::string_view title = "No Title"
     ) noexcept -> std::expected<window, error> {
         return create(static_cast<i32>(size.width), static_cast<i32>(size.height), title);
     }

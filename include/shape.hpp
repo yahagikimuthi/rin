@@ -17,7 +17,7 @@ namespace rin {
 template <typename T>
 concept shape = requires(T shape) {
     { shape.position() } -> std::convertible_to<vec2>;
-    { shape.size() } -> std::convertible_to<extend>;
+    { shape.size() } -> std::convertible_to<extent>;
     { shape.rotation_radian() } -> std::convertible_to<f32>;
     { shape.color() } -> std::convertible_to<rgba>;
     { shape.point_count() } -> std::convertible_to<u32>;
@@ -57,7 +57,7 @@ class polygon {
     constexpr void size(const f32 width, const f32 height) noexcept {
         size_ = {.width = width, .height = height};
     }
-    constexpr void size(const extend size) noexcept { size_ = size; }
+    constexpr void size(const extent size) noexcept { size_ = size; }
     constexpr void color(const f32 r, const f32 g, const f32 b, const f32 a = 1.f) noexcept {
         color_ = {.r = r, .g = g, .b = b, .a = a};
     }
@@ -73,7 +73,7 @@ class polygon {
   private:
     rgba   color_{};
     vec2   position_{};
-    extend size_{.width = 100.f, .height = 100.f};
+    extent size_{.width = 100.f, .height = 100.f};
     f32    rotation_radian_{0.f};
     u32    point_cnt_;
 };

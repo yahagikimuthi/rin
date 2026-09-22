@@ -59,8 +59,11 @@ class Engine {
 };
 
 auto main() -> int {
-    stbi_set_flip_vertically_on_load(static_cast<int>(true));
+    auto window_res = rin::window::create(800, 600);
+    if (not window_res) return 1;
+    auto& window = *window_res;
 
-    auto engine = Engine{};
-    engine.run();
+    while (window.is_open()) {
+        window.poll_events();
+    }
 }
