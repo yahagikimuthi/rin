@@ -17,8 +17,8 @@ class Engine {
         }
         auto& window = *window_res;
 
-        auto quad  = rin::quad{};
-        auto quad2 = rin::quad{};
+        auto quad  = rin::polygon{4};
+        auto quad2 = rin::polygon{4};
         auto shape = rin::polygon{5};
 
         quad2.position(100.f, 100.f);

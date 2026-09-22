@@ -84,15 +84,6 @@ class circle final : public polygon {
     explicit constexpr circle() noexcept : polygon(setting::default_circle_segments) {}
 };
 
-class triangle final : public polygon {
-  public:
-    explicit constexpr triangle() noexcept : polygon(3uz) {}
-};
-class quad final : public polygon {
-  public:
-    explicit constexpr quad() noexcept : polygon(4uz) {}
-};
-
 [[nodiscard]] constexpr auto calc_transform(const shape auto& quad) noexcept -> glm::mat4 {
     auto model = glm::mat4(1.0f);
     model      = glm::translate(model, glm::vec3(static_cast<glm::vec2>(quad.position()), 0.0f));
