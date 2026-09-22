@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <utility>
 
-#include "type.hpp"
+#include "others/type.hpp"
 
 namespace rin {
 struct Camera final {

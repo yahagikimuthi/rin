@@ -21,6 +21,8 @@ class Engine {
 
         auto quad  = Quad{};
         auto quad2 = Quad{};
+        auto shape = Shape{30};
+
         quad2.position(100.f, 100.f);
 
         quad.size(100.f, 200.f);
@@ -42,6 +44,7 @@ class Engine {
 
             window.clear(0.3f, 0.2f, 0.1f, 1.f);
             window.draw(quad);
+            window.draw(shape);
             window.draw(quad2);
             window.display();
         }

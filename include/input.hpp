@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "GLFW/glfw3.h"
-#include "type.hpp"
+#include "others/type.hpp"
 
 namespace rin {
 enum class Key : u8 {

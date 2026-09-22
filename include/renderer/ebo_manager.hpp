@@ -8,11 +8,11 @@
 
 #include "glad/glad.h"
 
-#include "setting.hpp"
-#include "type.hpp"
+#include "others/setting.hpp"
+#include "others/type.hpp"
 
 namespace rin {
-struct CircleIndexData final {
+struct PolygonIndexData final {
     GLuint  ebo{};
     GLsizei index_count{};
 };
@@ -20,17 +20,17 @@ struct CircleIndexData final {
 class EBOManager final {
   public:
     explicit EBOManager() noexcept = default;
-    [[nodiscard]] auto get_or_create(const u32 sides) noexcept -> CircleIndexData {
-        const auto actual_sides = std::max(3u, sides);
+    [[nodiscard]] auto get_or_create(const u32 points) noexcept -> PolygonIndexData {
+        const auto actual_points = std::max(3u, points);
 
-        auto& slot = slots_[actual_sides];
-        if (slot.ebo == 0) slot = create_index_data(sides);
+        auto& slot = slots_[actual_points];
+        if (slot.ebo == 0) slot = create_index_data(points);
         return slot;
     }
     EBOManager(const EBOManager&) noexcept                    = delete;
     auto operator=(const EBOManager&) noexcept -> EBOManager& = delete;
     EBOManager(EBOManager&& other) noexcept : slots_{other.slots_} {
-        other.slots_.fill(CircleIndexData{});
+        other.slots_.fill(PolygonIndexData{});
     }
     auto operator=(EBOManager&& other) noexcept -> EBOManager& {
         if (this == &other) return *this;
@@ -40,7 +40,7 @@ class EBOManager final {
 
         slots_ = other.slots_;
 
-        other.slots_.fill(CircleIndexData{});
+        other.slots_.fill(PolygonIndexData{});
 
         return *this;
     }
@@ -50,19 +50,19 @@ class EBOManager final {
     }
 
   private:
-    static auto create_index_data(const u32 sides) noexcept -> CircleIndexData {
+    static auto create_index_data(const u32 points) noexcept -> PolygonIndexData {
         auto indices = std::vector<u32>{};
-        indices.reserve(sides * 3uz);
+        indices.reserve(points * 3uz);
 
-        for (const auto i : std::views::indices(sides)) {
+        for (const auto i : std::views::indices(points)) {
             const auto current_vert =
-                static_cast<u32>(1 + std::round((setting::default_circle_segments * i) / sides)) %
+                static_cast<u32>(1 + std::round((setting::default_circle_segments * i) / points)) %
                 setting::default_circle_segments;
             const auto next_vert =
                 static_cast<u32>(
                     1 + std::round(
                             static_cast<f32>(setting::default_circle_segments * (i + 1)) /
-                            static_cast<f32>(sides)
+                            static_cast<f32>(points)
                         )
                 ) %
                 setting::default_circle_segments;
@@ -82,9 +82,9 @@ class EBOManager final {
         );
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        return CircleIndexData{.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
+        return PolygonIndexData{.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
     }
 
-    std::array<CircleIndexData, setting::default_circle_segments + 1> slots_{};
+    std::array<PolygonIndexData, setting::default_circle_segments + 1> slots_{};
 };
 }  // namespace rin

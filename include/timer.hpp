@@ -3,7 +3,7 @@
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
-#include "type.hpp"
+#include "others/type.hpp"
 
 namespace rin {
 class Timer final {

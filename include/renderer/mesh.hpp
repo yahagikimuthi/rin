@@ -13,7 +13,7 @@
 
 #include "glad/glad.h"
 
-#include "type.hpp"
+#include "others/type.hpp"
 
 namespace rin {
 class Mesh final {

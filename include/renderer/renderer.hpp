@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <expected>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -12,11 +11,11 @@
 #include <utility>
 
 #include "camera.hpp"
-#include "error.hpp"
+#include "others/error.hpp"
+#include "others/setting.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
-#include "setting.hpp"
 #include "shape.hpp"
 
 namespace rin {
@@ -32,16 +31,16 @@ class Renderer final {
 
     void use() noexcept { shader_.use(); }
 
-    void draw(const Quad& quad, const Camera& camera) noexcept {
-        const auto model = calc_transform(quad);
+    void draw(const IShape auto& shape, const Camera& camera) noexcept {
+        const auto model = calc_transform(shape);
         // 汎用VAOは回転角を45度修正
         const auto offsetted_model =
             glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, 0.f, 1.f));
         const auto view_projection = camera.calc_view_position_mat();
         shader_.set_mat4(Shader::u_Transform, view_projection * offsetted_model);
 
-        shader_.set_vec4(Shader::u_Color, quad.color());
-        const auto index_data = ebo_manager_.get_or_create(4);
+        shader_.set_vec4(Shader::u_Color, shape.color());
+        const auto index_data = ebo_manager_.get_or_create(shape.point_count());
         mesh_.draw(index_data.ebo, index_data.index_count);
     }
 

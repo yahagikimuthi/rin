@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <expected>
 #include <format>
 #include <iostream>

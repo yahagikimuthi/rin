@@ -10,11 +10,11 @@
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
-#include "error.hpp"
 #include "input.hpp"
+#include "others/error.hpp"
+#include "others/type.hpp"
 #include "renderer/renderer.hpp"
 #include "shape.hpp"
-#include "type.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(
@@ -118,7 +118,7 @@ class Window final {
         renderer_.use();
     }
 
-    void draw(const Shape auto& shape) noexcept { renderer_.draw(shape, camera_); }
+    void draw(const IShape auto& shape) noexcept { renderer_.draw(shape, camera_); }
 
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
     void camera_position(glm::vec2 position) noexcept { camera_.position(position); }
