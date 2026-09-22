@@ -3,6 +3,15 @@
 
 #include "glad/glad.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#include "stb_image.h"
+#pragma GCC diagnostic pop
+
 #include "shape.hpp"
 #include "timer.hpp"
 #include "window.hpp"
@@ -50,6 +59,8 @@ class Engine {
 };
 
 auto main() -> int {
+    stbi_set_flip_vertically_on_load(static_cast<int>(true));
+
     auto engine = Engine{};
     engine.run();
 }
