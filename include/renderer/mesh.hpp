@@ -11,9 +11,9 @@
 #include "others/type.hpp"
 
 namespace rin {
-class Mesh final {
+class mesh final {
   public:
-    explicit Mesh(const u32 max_vertices) noexcept : max_vertices_{max_vertices} {
+    explicit mesh(const u32 max_vertices) noexcept : max_vertices_{max_vertices} {
         glCreateVertexArrays(1, &vao_);
         glCreateBuffers(1, &vbo_);
 
@@ -33,14 +33,14 @@ class Mesh final {
             vao_, binding_index, vbo_, 0, static_cast<GLsizei>(sizeof(glm::vec2))
         );
     }
-    Mesh(const Mesh&)                             = delete;
-    auto operator=(const Mesh&) noexcept -> Mesh& = delete;
+    mesh(const mesh&)                             = delete;
+    auto operator=(const mesh&) noexcept -> mesh& = delete;
 
-    Mesh(Mesh&& other) noexcept
+    mesh(mesh&& other) noexcept
         : vao_{std::exchange(other.vao_, 0)},
           vbo_{std::exchange(other.vbo_, 0)},
           max_vertices_{std::exchange(other.max_vertices_, 0)} {}
-    auto operator=(Mesh&& other) noexcept -> Mesh& {
+    auto operator=(mesh&& other) noexcept -> mesh& {
         if (this == &other) return *this;
 
         destroy();
@@ -52,7 +52,7 @@ class Mesh final {
         return *this;
     }
 
-    ~Mesh() noexcept { destroy(); }
+    ~mesh() noexcept { destroy(); }
 
     void update_vertices(const std::span<const glm::vec2> vertices) const noexcept {
         if (vbo_ == 0 or vertices.empty()) return;

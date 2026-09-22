@@ -13,6 +13,7 @@
 #include "input.hpp"
 #include "others/error.hpp"
 #include "others/type.hpp"
+#include "others/util.hpp"
 #include "renderer/renderer.hpp"
 #include "shape.hpp"
 
@@ -29,8 +30,8 @@ inline void GLAPIENTRY message_callback(
     std::cerr << "[OpenGL Debug Message]: " << message << '\n';
 }
 
-class Window final {
-    enum class ErrorCode : u8 {
+class window final {
+    enum class errorCode : u8 {
         failed_to_GLFW_initialize,
         failed_to_create_window,
         failed_to_create_shader
@@ -38,11 +39,17 @@ class Window final {
 
   public:
     [[nodiscard]] static auto create(
+        const extend size, std::string_view title = "No Title"
+    ) noexcept -> std::expected<window, error> {
+        return create(static_cast<i32>(size.width), static_cast<i32>(size.height), title);
+    }
+
+    [[nodiscard]] static auto create(
         const i32 width, const i32 height, std::string_view title = "No Title"
-    ) noexcept -> std::expected<Window, Error> {
+    ) noexcept -> std::expected<window, error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
-            return Error::create(Error::runtime, "Failed to GLFW initialize");
+            return error::create(error::runtime, "Failed to GLFW initialize");
 
         // これから作る画面のメタ設定
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -50,39 +57,40 @@ class Window final {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
 
-        auto        str    = std::string{title};
-        auto* const window = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
+        auto        str        = std::string{title};
+        auto* const window_ptr = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
 
-        if (window == nullptr) return Error::create(Error::runtime, "Failed to initialize window");
+        if (window_ptr == nullptr)
+            return error::create(error::runtime, "Failed to initialize window");
 
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(window_ptr);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
 
         auto actual_width  = 0;
         auto actual_height = 0;
-        glfwGetFramebufferSize(window, &actual_width, &actual_height);
+        glfwGetFramebufferSize(window_ptr, &actual_width, &actual_height);
 
         glViewport(0, 0, actual_width, actual_height);
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
-        auto camera = Camera{static_cast<f32>(actual_width), static_cast<f32>(actual_height)};
+        auto camera_res = camera{static_cast<f32>(actual_width), static_cast<f32>(actual_height)};
 
-        auto renderer_res = Renderer::create();
+        auto renderer_res = renderer::create();
         if (not renderer_res)
-            return Error::create(Error::runtime, "Failed to Create Renderer", renderer_res.error());
+            return error::create(error::runtime, "Failed to Create Renderer", renderer_res.error());
 
-        return Window{window, camera, std::move(*renderer_res)};
+        return window{window_ptr, camera_res, std::move(*renderer_res)};
     }
-    Window(const Window&) noexcept                    = delete;
-    auto operator=(const Window&) noexcept -> Window& = delete;
+    window(const window&) noexcept                    = delete;
+    auto operator=(const window&) noexcept -> window& = delete;
 
-    Window(Window&& other) noexcept
+    window(window&& other) noexcept
         : camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
           renderer_{std::move(other.renderer_)} {
         ++window_cnt_;
     }
-    auto operator=(Window&& other) noexcept -> Window& {
+    auto operator=(window&& other) noexcept -> window& {
         if (this == &other) return *this;
 
         if (window_ != nullptr) {
@@ -93,7 +101,7 @@ class Window final {
         renderer_ = std::move(other.renderer_);
         return *this;
     }
-    ~Window() noexcept {
+    ~window() noexcept {
         if (window_ != nullptr) {
             glfwDestroyWindow(window_);
         }
@@ -107,7 +115,7 @@ class Window final {
 
     void poll_events() noexcept {
         glfwPollEvents();
-        Input::update(window_);
+        input::update(window_);
     }
 
     void clear(
@@ -118,16 +126,18 @@ class Window final {
         renderer_.use();
     }
 
-    void draw(const IShape auto& shape) noexcept { renderer_.draw(shape, camera_); }
+    void draw(const shape auto& shape) noexcept { renderer_.draw(shape, camera_); }
 
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
-    void camera_position(glm::vec2 position) noexcept { camera_.position(position); }
+    void camera_position(const vec2 position) noexcept { camera_.position(position); }
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
   private:
-    explicit Window(GLFWwindow* const window, const Camera& camera, Renderer renderer) noexcept
-        : camera_{camera}, window_{window}, renderer_{std::move(renderer)} {
+    explicit window(
+        GLFWwindow* const window_ptr, const camera& camera_object, renderer renderer_object
+    ) noexcept
+        : camera_{camera_object}, window_{window_ptr}, renderer_{std::move(renderer_object)} {
         ++window_cnt_;
 
         // デバッグ出力の有効化
@@ -140,9 +150,9 @@ class Window final {
         glDebugMessageCallback(message_callback, nullptr);
     }
 
-    Camera                      camera_;
+    camera                      camera_;
     GLFWwindow*                 window_;
-    Renderer                    renderer_;
+    renderer                    renderer_;
     static inline constinit int window_cnt_{};
 };
 }  // namespace rin

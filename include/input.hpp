@@ -8,9 +8,10 @@
 
 #include "GLFW/glfw3.h"
 #include "others/type.hpp"
+#include "others/util.hpp"
 
 namespace rin {
-enum class Key : u16 {
+enum class key : u16 {
     space         = GLFW_KEY_SPACE,
     apostrophe    = GLFW_KEY_APOSTROPHE,
     comma         = GLFW_KEY_COMMA,
@@ -130,7 +131,7 @@ enum class Key : u16 {
     menu          = GLFW_KEY_MENU
 };
 
-class Input final {
+class input final {
   public:
     static void update(GLFWwindow* window) noexcept {
         if (window == nullptr) return;
@@ -145,32 +146,32 @@ class Input final {
         auto y = f64{};
 
         glfwGetCursorPos(window, &x, &y);
-        mouse_position_ = {static_cast<f32>(x), static_cast<f32>(y)};
+        mouse_position_ = {.x = static_cast<f32>(x), .y = static_cast<f32>(y)};
     }
 
-    [[nodiscard]] static constexpr auto is_key_down(const Key key) noexcept -> bool {
+    [[nodiscard]] static constexpr auto is_key_down(const key key) noexcept -> bool {
         const auto idx = key_to_size_t(key);
         return current_keys_[idx];
     }
-    [[nodiscard]] static constexpr auto is_key_pressed(const Key key) noexcept -> bool {
+    [[nodiscard]] static constexpr auto is_key_pressed(const key key) noexcept -> bool {
         const auto idx = key_to_size_t(key);
         return current_keys_[idx] and not previous_keys_[idx];
     }
-    [[nodiscard]] static constexpr auto is_key_released(const Key key) noexcept -> bool {
+    [[nodiscard]] static constexpr auto is_key_released(const key key) noexcept -> bool {
         const auto idx = key_to_size_t(key);
         return not current_keys_[idx] and previous_keys_[idx];
     }
-    [[nodiscard]] static constexpr auto mouse_position() noexcept -> glm::vec2 {
+    [[nodiscard]] static constexpr auto mouse_position() noexcept -> vec2 {
         return mouse_position_;
     }
 
   private:
-    [[nodiscard]] static constexpr auto key_to_size_t(const Key key) noexcept -> std::size_t {
+    [[nodiscard]] static constexpr auto key_to_size_t(const key key) noexcept -> std::size_t {
         return static_cast<std::size_t>(std::to_underlying(key));
     }
 
     static inline constinit std::array<bool, GLFW_KEY_LAST + 1> current_keys_{};
     static inline constinit std::array<bool, GLFW_KEY_LAST + 1> previous_keys_{};
-    static inline constinit glm::vec2                           mouse_position_{0.f, 0.f};
+    static inline constinit vec2                                mouse_position_{};
 };
 }  // namespace rin

@@ -6,7 +6,7 @@
 #include "others/type.hpp"
 
 namespace rin {
-class Timer final {
+class timer final {
   public:
     static auto tick() noexcept -> f32 {
         const auto current_time = glfwGetTime();

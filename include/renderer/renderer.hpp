@@ -12,28 +12,29 @@
 
 #include "camera.hpp"
 #include "others/error.hpp"
+#include "others/setting.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
 #include "shape.hpp"
 
 namespace rin {
-class Renderer final {
+class renderer final {
   public:
-    [[nodiscard]] static auto create() noexcept -> std::expected<Renderer, Error> {
-        auto shader_res = Shader::create();
+    [[nodiscard]] static auto create() noexcept -> std::expected<renderer, error> {
+        auto shader_res = shader::create();
         if (not shader_res)
-            return Error::create(Error::runtime, "Failed to Create Shader", shader_res.error());
+            return error::create(error::runtime, "Failed to Create Shader", shader_res.error());
 
-        return Renderer{std::move(*shader_res)};
+        return renderer{std::move(*shader_res)};
     }
 
     void use() noexcept { shader_.use(); }
 
-    void draw(const IShape auto& shape, const Camera& camera) noexcept {
+    void draw(const shape auto& shape, const camera& camera) noexcept {
         const u32 points = shape.point_count();
 
-        auto vertices = std::vector<glm::vec2>{};
+        static thread_local auto vertices = std::vector<glm::vec2>{};
         vertices.clear();
         vertices.reserve(points + 1);
 
@@ -53,17 +54,18 @@ class Renderer final {
 
         const auto model           = calc_transform(shape);
         const auto view_projection = camera.calc_view_position_mat();
-        shader_.set_mat4(Shader::u_Transform, view_projection * model);
-        shader_.set_vec4(Shader::u_Color, shape.color());
+        shader_.set_mat4(shader::u_Transform, view_projection * model);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(shape.color()) / 255.f);
 
         mesh_.draw(index_data.ebo, index_data.index_count);
     }
 
   private:
-    explicit Renderer(Shader shader) noexcept : shader_{std::move(shader)}, mesh_{Mesh{1024}} {}
+    explicit renderer(shader shader_object) noexcept
+        : shader_{std::move(shader_object)}, mesh_{mesh{setting::default_vbo_buffer}} {}
 
-    EBOManager ebo_manager_;
-    Shader     shader_;
-    Mesh       mesh_;
+    ebo_manager ebo_manager_;
+    shader      shader_;
+    mesh        mesh_;
 };
 }  // namespace rin

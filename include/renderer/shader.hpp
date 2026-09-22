@@ -40,34 +40,34 @@ constexpr const char* fragment_shader_source = R"(
 
 using namespace std::string_view_literals;
 
-class Shader final {
+class shader final {
   public:
     static constexpr auto u_Transform = "u_Transform"sv;
     static constexpr auto u_Color     = "u_Color"sv;
 
-    [[nodiscard]] static auto create() -> std::expected<Shader, Error> {
+    [[nodiscard]] static auto create() -> std::expected<shader, error> {
         const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
-        if (not vertex) return Error::create(Error::logic, "Failed to Vertex Compile");
+        if (not vertex) return error::create(error::logic, "Failed to Vertex Compile");
 
         const auto fragment = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
-        if (not fragment) return Error::create(Error::logic, "Failed to Fragment Compile");
+        if (not fragment) return error::create(error::logic, "Failed to Fragment Compile");
 
         const auto program = glCreateProgram();
         glAttachShader(program, *vertex);
         glAttachShader(program, *fragment);
         glLinkProgram(program);
-        if (GL_LINK_STATUS == GL_FALSE) return Error::create(Error::logic, "Failed to Link");
+        if (GL_LINK_STATUS == GL_FALSE) return error::create(error::logic, "Failed to Link");
         glDeleteShader(*vertex);
         glDeleteShader(*fragment);
 
-        return Shader{program};
+        return shader{program};
     }
 
-    Shader(const Shader&) noexcept                    = delete;
-    auto operator=(const Shader&) noexcept -> Shader& = delete;
+    shader(const shader&) noexcept                    = delete;
+    auto operator=(const shader&) noexcept -> shader& = delete;
 
-    Shader(Shader&& other) noexcept : program_id_{std::exchange(other.program_id_, 0)} {}
-    auto operator=(Shader&& other) noexcept -> Shader& {
+    shader(shader&& other) noexcept : program_id_{std::exchange(other.program_id_, 0)} {}
+    auto operator=(shader&& other) noexcept -> shader& {
         if (this == &other) return *this;
 
         glDeleteProgram(program_id_);
@@ -75,7 +75,7 @@ class Shader final {
         return *this;
     }
 
-    ~Shader() noexcept { glDeleteProgram(program_id_); }
+    ~shader() noexcept { glDeleteProgram(program_id_); }
 
     void use() const noexcept {
         if (program_id_ != 0) glUseProgram(program_id_);
@@ -101,7 +101,7 @@ class Shader final {
     }
 
   private:
-    explicit Shader(GLuint program_id) noexcept : program_id_{program_id} {}
+    explicit shader(GLuint program_id) noexcept : program_id_{program_id} {}
 
     [[nodiscard]] static auto compile_shader(GLuint type, std::string_view source) noexcept
         -> std::optional<GLuint> {

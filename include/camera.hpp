@@ -8,11 +8,12 @@
 #include <utility>
 
 #include "others/type.hpp"
+#include "others/util.hpp"
 
 namespace rin {
-struct Camera final {
+struct camera final {
   public:
-    explicit constexpr Camera(const f32 width, const f32 height) noexcept
+    explicit constexpr camera(const f32 width, const f32 height) noexcept
         : viewport_width_{width}, viewport_height_{height} {}
 
     template <typename Self>
@@ -29,13 +30,14 @@ struct Camera final {
 
         const auto projection = glm::ortho(-half_w, half_w, -half_h, half_h, -1.f, 1.f);
 
-        const auto view = glm::translate(glm::mat4(1.f), glm::vec3(-position_, 0.f));
+        const auto view =
+            glm::translate(glm::mat4(1.f), glm::vec3(-static_cast<glm::vec2>(position_), 0.f));
 
         return projection * view;
     }
 
-    constexpr void position(const glm::vec2 position) noexcept { position_ = position; }
-    constexpr void position(const f32 x, const f32 y) noexcept { position_ = {x, y}; }
+    constexpr void position(const vec2 position) noexcept { position_ = position; }
+    constexpr void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
     constexpr void zoom(const f32 zoom) noexcept { zoom_ = (zoom > 0.f) ? zoom : 0.1f; }
     constexpr void view_port(const f32 width, const f32 height) noexcept {
         viewport_width_  = width;
@@ -43,9 +45,9 @@ struct Camera final {
     }
 
   private:
-    glm::vec2 position_{0.f, 0.f};
-    f32       zoom_{1.f};
-    f32       viewport_width_;
-    f32       viewport_height_;
+    vec2 position_{.x = 0.f, .y = 0.f};
+    f32  zoom_{1.f};
+    f32  viewport_width_;
+    f32  viewport_height_;
 };
 }  // namespace rin

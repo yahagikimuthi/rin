@@ -11,27 +11,27 @@
 #include "others/type.hpp"
 
 namespace rin {
-struct PolygonIndexData final {
+struct polygon_index_data final {
     GLuint  ebo{};
     GLsizei index_count{};
 };
 
-class EBOManager final {
+class ebo_manager final {
   public:
-    explicit EBOManager() noexcept = default;
-    [[nodiscard]] auto get_or_create(const u32 points) noexcept -> PolygonIndexData {
+    explicit ebo_manager() noexcept = default;
+    [[nodiscard]] auto get_or_create(const u32 points) noexcept -> polygon_index_data {
         const auto actual_points = std::max(3u, points);
 
         auto& slot = slots_[actual_points];
         if (slot.ebo == 0) slot = create_index_data(actual_points);
         return slot;
     }
-    EBOManager(const EBOManager&) noexcept                    = delete;
-    auto operator=(const EBOManager&) noexcept -> EBOManager& = delete;
-    EBOManager(EBOManager&& other) noexcept : slots_{other.slots_} {
-        other.slots_.fill(PolygonIndexData{});
+    ebo_manager(const ebo_manager&) noexcept                    = delete;
+    auto operator=(const ebo_manager&) noexcept -> ebo_manager& = delete;
+    ebo_manager(ebo_manager&& other) noexcept : slots_{other.slots_} {
+        other.slots_.fill(polygon_index_data{});
     }
-    auto operator=(EBOManager&& other) noexcept -> EBOManager& {
+    auto operator=(ebo_manager&& other) noexcept -> ebo_manager& {
         if (this == &other) return *this;
 
         for (auto slot : slots_)
@@ -39,17 +39,17 @@ class EBOManager final {
 
         slots_ = other.slots_;
 
-        other.slots_.fill(PolygonIndexData{});
+        other.slots_.fill(polygon_index_data{});
 
         return *this;
     }
-    ~EBOManager() noexcept {
+    ~ebo_manager() noexcept {
         for (auto slot : slots_)
             if (slot.ebo != 0) glDeleteBuffers(1, &slot.ebo);
     }
 
   private:
-    [[nodiscard]] static auto create_index_data(const u32 points) noexcept -> PolygonIndexData {
+    [[nodiscard]] static auto create_index_data(const u32 points) noexcept -> polygon_index_data {
         auto indices = std::vector<u32>{};
         indices.reserve(points * 3uz);
 
@@ -74,9 +74,9 @@ class EBOManager final {
         );
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        return PolygonIndexData{.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
+        return polygon_index_data{.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
     }
 
-    std::array<PolygonIndexData, setting::default_circle_segments + 1> slots_{};
+    std::array<polygon_index_data, setting::default_circle_segments + 1> slots_{};
 };
 }  // namespace rin
