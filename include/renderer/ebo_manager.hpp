@@ -55,10 +55,10 @@ class EBOManager final {
         indices.reserve(points * 3uz);
 
         for (const auto i : std::views::indices(points)) {
-            const auto current_vert =
+            const auto current_idx =
                 static_cast<u32>(1 + std::round((setting::default_circle_segments * i) / points)) %
                 setting::default_circle_segments;
-            const auto next_vert =
+            const auto next_idx =
                 static_cast<u32>(
                     1 + std::round(
                             static_cast<f32>(setting::default_circle_segments * (i + 1)) /
@@ -66,6 +66,10 @@ class EBOManager final {
                         )
                 ) %
                 setting::default_circle_segments;
+
+            const auto current_vert = current_idx + 1;
+            const auto next_vert    = next_idx + 1;
+
             indices.emplace_back(0);
             indices.emplace_back(current_vert);
             indices.emplace_back(next_vert);
