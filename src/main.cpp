@@ -31,7 +31,7 @@ class Engine {
         constexpr auto speed = 100.f;
 
         while (window.is_open()) {
-            const auto delta_time = rin::timer::tick();
+            const auto delta_time = rin::timer::delta_time();
 
             window.poll_events();
 
