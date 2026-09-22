@@ -21,7 +21,7 @@ class Engine {
 
         auto quad  = Quad{};
         auto quad2 = Quad{};
-        auto shape = Shape{8};
+        auto shape = Shape{5};
 
         quad2.position(100.f, 100.f);
 

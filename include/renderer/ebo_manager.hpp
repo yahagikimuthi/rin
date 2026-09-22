@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <ranges>
 #include <vector>
 
@@ -24,7 +23,7 @@ class EBOManager final {
         const auto actual_points = std::max(3u, points);
 
         auto& slot = slots_[actual_points];
-        if (slot.ebo == 0) slot = create_index_data(points);
+        if (slot.ebo == 0) slot = create_index_data(actual_points);
         return slot;
     }
     EBOManager(const EBOManager&) noexcept                    = delete;
@@ -50,29 +49,18 @@ class EBOManager final {
     }
 
   private:
-    static auto create_index_data(const u32 points) noexcept -> PolygonIndexData {
+    [[nodiscard]] static auto create_index_data(const u32 points) noexcept -> PolygonIndexData {
         auto indices = std::vector<u32>{};
         indices.reserve(points * 3uz);
 
+        // 中心点(0)と、外周の頂点(i+1, i+2)を結んで三角形を作る
         for (const auto i : std::views::indices(points)) {
-            const auto current_idx =
-                static_cast<u32>(1 + std::round((setting::default_circle_segments * i) / points)) %
-                setting::default_circle_segments;
-            const auto next_idx =
-                static_cast<u32>(
-                    1 + std::round(
-                            static_cast<f32>(setting::default_circle_segments * (i + 1)) /
-                            static_cast<f32>(points)
-                        )
-                ) %
-                setting::default_circle_segments;
+            const u32 current_vert = i + 1;
+            const u32 next_vert    = ((i + 1) % points) + 1;  // 最後の頂点は最初の外周頂点(1)に戻る
 
-            const auto current_vert = current_idx + 1;
-            const auto next_vert    = next_idx + 1;
-
-            indices.emplace_back(0);
-            indices.emplace_back(current_vert);
-            indices.emplace_back(next_vert);
+            indices.emplace_back(0);             // 中心点
+            indices.emplace_back(current_vert);  // 現在の外周頂点
+            indices.emplace_back(next_vert);     // 次の外周頂点
         }
 
         auto ebo = GLuint{};

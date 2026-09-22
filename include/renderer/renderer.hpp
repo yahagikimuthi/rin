@@ -12,7 +12,6 @@
 
 #include "camera.hpp"
 #include "others/error.hpp"
-#include "others/setting.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
@@ -26,27 +25,42 @@ class Renderer final {
         if (not shader_res)
             return Error::create(Error::runtime, "Failed to Create Shader", shader_res.error());
 
-        return Renderer{std::move(*shader_res), Mesh{setting::default_circle_segments}};
+        return Renderer{std::move(*shader_res)};
     }
 
     void use() noexcept { shader_.use(); }
 
     void draw(const IShape auto& shape, const Camera& camera) noexcept {
-        const auto model = calc_transform(shape);
-        // 汎用VAOは回転角を45度修正
-        const auto offsetted_model =
-            glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, 0.f, 1.f));
-        const auto view_projection = camera.calc_view_position_mat();
-        shader_.set_mat4(Shader::u_Transform, view_projection * offsetted_model);
+        const u32 points = shape.point_count();
 
+        auto vertices = std::vector<glm::vec2>{};
+        vertices.clear();
+        vertices.reserve(points + 1);
+
+        vertices.emplace_back(0.0f, 0.0f);  // 中心点
+
+        constexpr auto radius     = 0.5f;
+        const auto     angle_step = (2.0f * std::numbers::pi_v<f32>) / static_cast<f32>(points);
+
+        for (const auto i : std::views::indices(points)) {
+            const f32 angle = angle_step * static_cast<f32>(i);
+            vertices.emplace_back(radius * std::cos(angle), radius * std::sin(angle));
+        }
+
+        mesh_.update_vertices(vertices);
+
+        const auto index_data = ebo_manager_.get_or_create(points);
+
+        const auto model           = calc_transform(shape);
+        const auto view_projection = camera.calc_view_position_mat();
+        shader_.set_mat4(Shader::u_Transform, view_projection * model);
         shader_.set_vec4(Shader::u_Color, shape.color());
-        const auto index_data = ebo_manager_.get_or_create(shape.point_count());
+
         mesh_.draw(index_data.ebo, index_data.index_count);
     }
 
   private:
-    explicit Renderer(Shader shader, Mesh quad_mesh) noexcept
-        : shader_{std::move(shader)}, mesh_{std::move(quad_mesh)} {}
+    explicit Renderer(Shader shader) noexcept : shader_{std::move(shader)}, mesh_{Mesh{1024}} {}
 
     EBOManager ebo_manager_;
     Shader     shader_;
