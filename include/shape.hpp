@@ -15,11 +15,11 @@
 
 namespace rin {
 template <typename T>
-concept shape = requires(std::remove_cv_t<T> shape) {
-    { shape.position() } -> std::convertible_to<vec2&>;
-    { shape.size() } -> std::convertible_to<extend&>;
-    { shape.rotation_radian() } -> std::convertible_to<f32&>;
-    { shape.color() } -> std::convertible_to<rgba&>;
+concept shape = requires(T shape) {
+    { shape.position() } -> std::convertible_to<vec2>;
+    { shape.size() } -> std::convertible_to<extend>;
+    { shape.rotation_radian() } -> std::convertible_to<f32>;
+    { shape.color() } -> std::convertible_to<rgba>;
     { shape.point_count() } -> std::convertible_to<u32>;
 };
 
