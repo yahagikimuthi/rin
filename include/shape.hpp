@@ -93,7 +93,7 @@ class quad final : public polygon {
     explicit constexpr quad() noexcept : polygon(4uz) {}
 };
 
-[[nodiscard]] constexpr auto calc_transform(shape auto& quad) noexcept -> glm::mat4 {
+[[nodiscard]] constexpr auto calc_transform(const shape auto& quad) noexcept -> glm::mat4 {
     auto model = glm::mat4(1.0f);
     model      = glm::translate(model, glm::vec3(static_cast<glm::vec2>(quad.position()), 0.0f));
     model      = glm::rotate(model, quad.rotation_radian(), glm::vec3(0.0f, 0.0f, 1.0f));
