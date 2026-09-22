@@ -46,19 +46,19 @@ class shader final {
     static constexpr auto u_Color     = "u_Color"sv;
 
     [[nodiscard]] static auto create() -> std::expected<shader, error> {
-        const auto vertex = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
-        if (not vertex) return error::create(error::logic, "Failed to Vertex Compile");
+        const auto vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
+        if (not vertex_shader) return error::create(error::logic, "Failed to Vertex Compile");
 
-        const auto fragment = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
-        if (not fragment) return error::create(error::logic, "Failed to Fragment Compile");
+        const auto fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
+        if (not fragment_shader) return error::create(error::logic, "Failed to Fragment Compile");
 
         const auto program = glCreateProgram();
-        glAttachShader(program, *vertex);
-        glAttachShader(program, *fragment);
+        glAttachShader(program, *vertex_shader);
+        glAttachShader(program, *fragment_shader);
         glLinkProgram(program);
         if (GL_LINK_STATUS == GL_FALSE) return error::create(error::logic, "Failed to Link");
-        glDeleteShader(*vertex);
-        glDeleteShader(*fragment);
+        glDeleteShader(*vertex_shader);
+        glDeleteShader(*fragment_shader);
 
         return shader{program};
     }
