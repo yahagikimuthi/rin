@@ -17,30 +17,24 @@ namespace rin {
 constexpr const char* vertex_shader_source = R"(
     #version 450 core
     
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aColor;
-
-    out vec3 ourColor;
+    layout (location = 0) in vec2 aPos; // 2Dゲーム用のため vec2 に変更
 
     uniform mat4 u_Transform;
 
     void main() {
-        gl_Position = u_Transform * vec4(aPos, 1.0);
-        ourColor = aColor;
+        gl_Position = u_Transform * vec4(aPos, 0.0, 1.0);
     }
 )";
 
 constexpr const char* fragment_shader_source = R"(
     #version 450 core
 
-    in vec3 ourColor;
-
     out vec4 FragColor;
 
     uniform vec4 u_Color;
 
     void main() {
-        FragColor = vec4(ourColor, 1.0) * u_Color;
+        FragColor = u_Color;
     }
 )";
 

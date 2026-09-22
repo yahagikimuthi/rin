@@ -23,6 +23,11 @@ class Engine {
         auto quad2 = Quad{};
         quad2.position(100.f, 100.f);
 
+        quad.size(100.f, 200.f);
+
+        quad.color(0.2f, 0.4f, 0.1f, 1.f);
+        quad.rotation_radian() = 3.1f;
+
         constexpr auto speed = 100.f;
 
         while (window.is_open()) {
