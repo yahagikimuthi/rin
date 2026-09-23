@@ -6,3 +6,4 @@
 ./git/
 /assets/
 .VSCodeCounter/
+/src/main.cpp
