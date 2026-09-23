@@ -21,32 +21,37 @@ class ebo_manager final {
     explicit ebo_manager() noexcept = default;
     [[nodiscard]] auto get_or_create(const u32 points) noexcept -> polygon_index_data {
         const auto actual_points = std::max(3u, points);
-
-        auto& slot = slots_[actual_points];
+        if (actual_points <= setting::default_circle_segments) {
+            auto& slot = default_slots_[actual_points];
+            if (slot.ebo == 0) slot = create_index_data(actual_points);
+            return slot;
+        }
+        unexpected_slots_.resize(actual_points + 1);
+        auto& slot = unexpected_slots_[actual_points];
         if (slot.ebo == 0) slot = create_index_data(actual_points);
         return slot;
     }
+
     ebo_manager(const ebo_manager&) noexcept                    = delete;
     auto operator=(const ebo_manager&) noexcept -> ebo_manager& = delete;
-    ebo_manager(ebo_manager&& other) noexcept : slots_{other.slots_} {
-        other.slots_.fill(polygon_index_data{});
+    ebo_manager(ebo_manager&& other) noexcept
+        : default_slots_{other.default_slots_},
+          unexpected_slots_{std::move(other.unexpected_slots_)} {
+        other.default_slots_.fill(polygon_index_data{});
     }
     auto operator=(ebo_manager&& other) noexcept -> ebo_manager& {
         if (this == &other) return *this;
 
-        for (auto slot : slots_)
-            if (slot.ebo != 0) glDeleteBuffers(1, &slot.ebo);
+        destroy();
 
-        slots_ = other.slots_;
+        default_slots_    = other.default_slots_;
+        unexpected_slots_ = std::move(other.unexpected_slots_);
 
-        other.slots_.fill(polygon_index_data{});
+        other.default_slots_.fill(polygon_index_data{});
 
         return *this;
     }
-    ~ebo_manager() noexcept {
-        for (auto slot : slots_)
-            if (slot.ebo != 0) glDeleteBuffers(1, &slot.ebo);
-    }
+    ~ebo_manager() noexcept { destroy(); }
 
   private:
     [[nodiscard]] static auto create_index_data(const u32 points) noexcept -> polygon_index_data {
@@ -77,6 +82,23 @@ class ebo_manager final {
         return polygon_index_data{.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
     }
 
-    std::array<polygon_index_data, setting::default_circle_segments + 1> slots_{};
+    void destroy() noexcept {
+        for (auto slot : default_slots_) {
+            if (slot.ebo != 0) {
+                glDeleteBuffers(1, &slot.ebo);
+                slot.ebo = 0;
+            }
+        }
+
+        for (auto slot : unexpected_slots_) {
+            if (slot.ebo != 0) {
+                glDeleteBuffers(1, &slot.ebo);
+                slot.ebo = 0;
+            }
+        }
+    }
+
+    std::array<polygon_index_data, setting::default_circle_segments + 1> default_slots_{};
+    std::vector<polygon_index_data>                                      unexpected_slots_;
 };
 }  // namespace rin
