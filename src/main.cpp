@@ -1,4 +1,3 @@
-#include <cassert>
 #include <glm/trigonometric.hpp>
 
 #include "glad/glad.h"
