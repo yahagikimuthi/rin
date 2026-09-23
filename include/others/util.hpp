@@ -204,8 +204,8 @@ inline constexpr auto fuchsia = rgba{.r = 255.f, .g = 0.f, .b = 255.f};
 inline constexpr auto purple  = rgba{.r = 128.f, .g = 0.f, .b = 128.f};
 
 struct uv final {
-    f32 u;
-    f32 v;
+    f32 u{0.f};
+    f32 v{0.f};
 
     auto operator==(const uv&) const noexcept -> bool = default;
 };
