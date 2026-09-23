@@ -30,16 +30,16 @@ class input final {
         mouse_position_ = {.x = static_cast<f32>(x), .y = static_cast<f32>(y)};
     }
 
-    [[nodiscard]] static constexpr auto is_key_down(const key key) noexcept -> bool {
-        const auto idx = key_to_size_t(key);
+    [[nodiscard]] static constexpr auto is_key_down(const key key_button) noexcept -> bool {
+        const auto idx = key_to_size_t(key_button);
         return current_keys_[idx];
     }
-    [[nodiscard]] static constexpr auto is_key_pressed(const key key) noexcept -> bool {
-        const auto idx = key_to_size_t(key);
+    [[nodiscard]] static constexpr auto is_key_pressed(const key key_button) noexcept -> bool {
+        const auto idx = key_to_size_t(key_button);
         return current_keys_[idx] and not previous_keys_[idx];
     }
-    [[nodiscard]] static constexpr auto is_key_released(const key key) noexcept -> bool {
-        const auto idx = key_to_size_t(key);
+    [[nodiscard]] static constexpr auto is_key_released(const key key_button) noexcept -> bool {
+        const auto idx = key_to_size_t(key_button);
         return not current_keys_[idx] and previous_keys_[idx];
     }
     [[nodiscard]] static constexpr auto mouse_position() noexcept -> vec2 {
@@ -47,12 +47,32 @@ class input final {
     }
 
   private:
-    [[nodiscard]] static constexpr auto key_to_size_t(const key key) noexcept -> std::size_t {
-        return static_cast<std::size_t>(std::to_underlying(key));
+    [[nodiscard]] static constexpr auto key_to_size_t(const key key_button) noexcept
+        -> std::size_t {
+        return static_cast<std::size_t>(std::to_underlying(key_button));
     }
 
     static inline constinit std::array<bool, GLFW_KEY_LAST + 1> current_keys_{};
     static inline constinit std::array<bool, GLFW_KEY_LAST + 1> previous_keys_{};
     static inline constinit vec2                                mouse_position_{};
 };
+
+[[nodiscard]] [[gnu::always_inline]] constexpr auto is_key_down(const key key_button) noexcept
+    -> bool {
+    return input::is_key_down(key_button);
+}
+
+[[nodiscard]] [[gnu::always_inline]] constexpr auto is_key_pressed(const key key_button) noexcept
+    -> bool {
+    return input::is_key_pressed(key_button);
+}
+
+[[nodiscard]] [[gnu::always_inline]] constexpr auto is_key_released(const key key_button) noexcept
+    -> bool {
+    return input::is_key_released(key_button);
+}
+
+[[nodiscard]] [[gnu::always_inline]] constexpr auto mouse_position() noexcept -> vec2 {
+    return input::mouse_position();
+}
 }  // namespace rin
