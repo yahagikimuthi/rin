@@ -67,7 +67,7 @@ class ebo_manager {
         indices.clear();
         indices.reserve(index_cnt);
 
-        for (const auto i : std::views::indices(triangle_cnt + 1)) {
+        for (const auto i : std::views::iota(1uz, triangle_cnt + 1)) {
             indices.emplace_back(0);
             indices.emplace_back(i);
             indices.emplace_back(i + 1);
