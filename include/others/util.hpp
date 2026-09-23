@@ -172,10 +172,10 @@ struct extent final {
 };
 
 struct rgba final {
-    u32 r{0};
-    u32 g{0};
-    u32 b{0};
-    u32 a{255};
+    u8 r{0};
+    u8 g{0};
+    u8 b{0};
+    u8 a{255};
 
     [[nodiscard]] constexpr auto operator+() const noexcept -> rgba { return *this; }
 
