@@ -54,7 +54,7 @@ class error final {
 
                     return "[Runtime Error]: " + std::string{error_code.message};
                 }),
-                " -> "
+                "\n -> "
             )
         );
         return out;
