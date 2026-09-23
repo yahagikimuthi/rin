@@ -66,6 +66,7 @@ class renderer final {
     void draw(const vertex_vector& vec, const camera& camera) noexcept {
         shader_.set_mat4(shader::u_Transform, camera.calc_view_position_mat());
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white));
+        shader_.set_bool(shader::u_UseTexture, false);
 
         mesh_.update_vertices(vec);
         if (vec.type() != primitive_triangles) return;
