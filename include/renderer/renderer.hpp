@@ -62,7 +62,7 @@ class renderer final {
 
   private:
     explicit renderer(shader shader_object) noexcept
-        : shader_{std::move(shader_object)}, mesh_{mesh{setting::default_vbo_buffer}} {}
+        : shader_{std::move(shader_object)}, mesh_{mesh{default_vbo_buffer}} {}
 
     ebo_manager ebo_manager_;
     shader      shader_;

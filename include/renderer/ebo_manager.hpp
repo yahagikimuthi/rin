@@ -21,7 +21,7 @@ class ebo_manager final {
     explicit ebo_manager() noexcept = default;
     [[nodiscard]] auto get_or_create(const u32 points) noexcept -> polygon_index_data {
         const auto actual_points = std::max(3u, points);
-        if (actual_points <= setting::default_circle_segments) {
+        if (actual_points <= default_circle_segments) {
             auto& slot = default_slots_[actual_points];
             if (slot.ebo == 0) slot = create_index_data(actual_points);
             return slot;
@@ -98,7 +98,7 @@ class ebo_manager final {
         }
     }
 
-    std::array<polygon_index_data, setting::default_circle_segments + 1> default_slots_{};
-    std::vector<polygon_index_data>                                      unexpected_slots_;
+    std::array<polygon_index_data, default_circle_segments + 1> default_slots_{};
+    std::vector<polygon_index_data>                             unexpected_slots_;
 };
 }  // namespace rin
