@@ -72,12 +72,13 @@ class shader final {
     auto operator=(shader&& other) noexcept -> shader& {
         if (this == &other) return *this;
 
-        glDeleteProgram(program_id_);
+        destroy();
+
         program_id_ = std::exchange(other.program_id_, 0);
         return *this;
     }
 
-    ~shader() noexcept { glDeleteProgram(program_id_); }
+    ~shader() noexcept { destroy(); }
 
     void use() const noexcept {
         if (program_id_ != 0) glUseProgram(program_id_);
@@ -116,6 +117,12 @@ class shader final {
         if (GL_COMPILE_STATUS == GL_FALSE) return std::nullopt;
 
         return shader;
+    }
+
+    void destroy() {
+        if (program_id_ == 0) return;
+        glDeleteProgram(program_id_);
+        program_id_ = 0;
     }
 
     GLuint program_id_{};

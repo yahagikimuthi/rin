@@ -93,6 +93,7 @@ class window final {
 
         if (window_ != nullptr) {
             glfwDestroyWindow(window_);
+            window_ = nullptr;
         }
         window_   = std::exchange(other.window_, nullptr);
         camera_   = other.camera_;
@@ -102,6 +103,7 @@ class window final {
     ~window() noexcept {
         if (window_ != nullptr) {
             glfwDestroyWindow(window_);
+            window_ = nullptr;
         }
 
         if (--window_cnt_ == 0) glfwTerminate();
