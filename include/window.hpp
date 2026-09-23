@@ -114,14 +114,14 @@ class window final {
     void poll_events() noexcept {
         glfwPollEvents();
         input::update(window_);
+        renderer_.use();
     }
 
-    void clear(
-        const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 alpha = 1.f
+    static void clear(
+        const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 a = 1.f
     ) noexcept {
-        glClearColor(r, g, b, alpha);
+        glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
-        renderer_.use();
     }
 
     void draw(const shape auto& shape) noexcept { renderer_.draw(shape, camera_); }
