@@ -15,7 +15,7 @@
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"
-#include "shape.hpp"
+#include "vertex.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(
@@ -123,7 +123,7 @@ class window final {
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void draw(const shape auto& shape) noexcept { renderer_.draw(shape, camera_); }
+    void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
 
     template <typename Self>
     [[nodiscard]] auto camera_position(this Self&& self) noexcept -> auto&& {

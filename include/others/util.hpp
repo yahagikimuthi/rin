@@ -209,10 +209,4 @@ struct uv final {
 
     auto operator==(const uv&) const noexcept -> bool = default;
 };
-
-struct vertex final {
-    vec2 position;
-    uv   tex_coord;
-    rgba color;
-};
 }  // namespace rin
