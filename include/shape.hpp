@@ -60,7 +60,7 @@ class polygon final {
         color_ = {.r = r, .g = g, .b = b, .a = a};
     }
     constexpr void color(const rgba& color) noexcept { color_ = color; }
-    constexpr void rotation_radian(f32 rotation) noexcept { rotation_radian_ = rotation; }
+    constexpr void rotation_radian(const f32 radian) noexcept { rotation_radian_ = radian; }
 
   private:
     rgba   color_{};
