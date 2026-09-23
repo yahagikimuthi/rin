@@ -17,11 +17,18 @@ namespace rin {
 constexpr const char* vertex_shader_source = R"(
     #version 450 core
     
-    layout (location = 0) in vec2 aPos; // 2Dゲーム用のため vec2 に変更
+    layout (location = 0) in vec2 aPos;
+    layout (location = 1) in vec2 aTexCoord;
+    layout (location = 2) in vec4 aColor;
+
+    out vec2 v_TexCoord;
+    out vec4 v_Color;
 
     uniform mat4 u_Transform;
 
     void main() {
+        v_TexCoord  = aTexCoord;
+        v_Color     = aColor;
         gl_Position = u_Transform * vec4(aPos, 0.0, 1.0);
     }
 )";
@@ -29,12 +36,20 @@ constexpr const char* vertex_shader_source = R"(
 constexpr const char* fragment_shader_source = R"(
     #version 450 core
 
+    in vec2 v_TexCoord;
+    in vec4 v_Color;
+
     out vec4 FragColor;
 
-    uniform vec4 u_Color;
+    uniform vec4      u_Color;
+    uniform sampler2D u_Texture;
+    uniform bool      u_UseTexture; // テクスチャを使用するかどうかのフラグ
 
     void main() {
-        FragColor = u_Color;
+        vec4 tex_color = u_UseTexture ? texture(u_Texture, v_TexCoord) : vec4(1.0);
+        
+        // テクスチャカラー * 頂点カラー * uniformカラー を乗算して最終色を計算
+        FragColor = tex_color * v_Color * u_Color;
     }
 )";
 
