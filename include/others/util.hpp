@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <compare>
+#include <concepts>
 #include <functional>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
@@ -29,8 +30,7 @@ struct overloaded final : public Ts... {
     using Ts::operator()...;
 };
 
-template <typename F>
-    requires std::is_nothrow_invocable_v<F>
+template <std::invocable<> F>
 class scope_exit final {
   public:
     [[nodiscard]] explicit scope_exit(F func) noexcept : exit_func{func} {};
