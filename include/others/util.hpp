@@ -46,6 +46,10 @@ class scope_exit final {
     F exit_func_;
 };
 
+[[nodiscard]] constexpr auto make_scope_exit() -> auto {
+    return scope_exit{[]() noexcept -> void {}};
+}
+
 struct vec2 final {
     f32 x{};
     f32 y{};
@@ -196,6 +200,6 @@ inline constexpr auto aqua    = rgba{.r = 0.f, .g = 255.f, .b = 255.f};
 inline constexpr auto teal    = rgba{.r = 0.f, .g = 128.f, .b = 128.f};
 inline constexpr auto blue    = rgba{.r = 0.f, .g = 0.f, .b = 255.f};
 inline constexpr auto navy    = rgba{.r = 0.f, .g = 0.f, .b = 128.f};
-inline constexpr auto fuchsia = rgba{.r = 255.f, .g = 0.f, .a = 255.f};
+inline constexpr auto fuchsia = rgba{.r = 255.f, .g = 0.f, .b = 255.f};
 inline constexpr auto purple  = rgba{.r = 128.f, .g = 0.f, .b = 128.f};
 }  // namespace rin
