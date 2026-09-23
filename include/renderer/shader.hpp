@@ -43,7 +43,7 @@ constexpr const char* fragment_shader_source = R"(
 
     uniform vec4      u_Color;
     uniform sampler2D u_Texture;
-    uniform bool      u_UseTexture; // テクスチャを使用するかどうかのフラグ
+    uniform bool      u_UseTexture;
 
     void main() {
         vec4 tex_color = u_UseTexture ? texture(u_Texture, v_TexCoord) : vec4(1.0);
