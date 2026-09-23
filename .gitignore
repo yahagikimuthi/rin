@@ -4,4 +4,5 @@
 /.clangd
 /.compile_commands.json
 ./git/
+/assets/
 .VSCodeCounter/
