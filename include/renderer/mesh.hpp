@@ -43,7 +43,9 @@ class mesh final {
         // Location2 aColor (color / vec4)
         constexpr auto col_attrib = GLuint{2};
         glEnableVertexArrayAttrib(vao_, col_attrib);
-        glVertexArrayAttribFormat(vao_, col_attrib, 4, GL_FLOAT, GL_FALSE, offsetof(vertex, color));
+        glVertexArrayAttribFormat(
+            vao_, col_attrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(vertex, color)
+        );
         glVertexArrayAttribBinding(vao_, col_attrib, binding_index);
 
         // VAO のバインディングポイント 0 に VBO を接続 (ストライドは sizeof(vertex))
