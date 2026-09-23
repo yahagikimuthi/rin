@@ -119,7 +119,7 @@ class shader final {
         return shader;
     }
 
-    void destroy() {
+    void destroy() noexcept {
         if (program_id_ == 0) return;
         glDeleteProgram(program_id_);
         program_id_ = 0;

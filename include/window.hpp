@@ -26,7 +26,7 @@ inline void GLAPIENTRY message_callback(
     [[maybe_unused]] GLsizei     length,
     const GLchar*                message,
     [[maybe_unused]] const void* userParam
-) {
+) noexcept {
     std::cerr << "[OpenGL Debug Message]: " << message << '\n';
 }
 
