@@ -48,8 +48,6 @@ struct rgba final {
     }
 };
 
-namespace color {
 static constexpr auto white = rgba{.r = 255.f, .g = 255.f, .b = 255.f, .a = 255.f};
 static constexpr auto red   = rgba{.r = 255.f, .g = 0.f, .b = 0.f, .a = 255.f};
-}  // namespace color
 }  // namespace rin
