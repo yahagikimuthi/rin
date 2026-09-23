@@ -16,7 +16,6 @@
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"
 #include "shape.hpp"
-#include "timer.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(
@@ -117,7 +116,6 @@ class window final {
     void poll_events() noexcept {
         glfwPollEvents();
         input::update(window_);
-        timer::tick();
     }
 
     void clear(
