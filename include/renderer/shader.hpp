@@ -48,7 +48,6 @@ constexpr const char* fragment_shader_source = R"(
     void main() {
         vec4 tex_color = u_UseTexture ? texture(u_Texture, v_TexCoord) : vec4(1.0);
         
-        // テクスチャカラー * 頂点カラー * uniformカラー を乗算して最終色を計算
         FragColor = tex_color * v_Color * u_Color;
     }
 )";
@@ -57,8 +56,9 @@ using namespace std::string_view_literals;
 
 class shader final {
   public:
-    static constexpr auto u_Transform = "u_Transform"sv;
-    static constexpr auto u_Color     = "u_Color"sv;
+    static constexpr auto u_Transform  = "u_Transform"sv;
+    static constexpr auto u_Color      = "u_Color"sv;
+    static constexpr auto u_UseTexture = "u_UseTexture"sv;
 
     [[nodiscard]] static auto create() noexcept -> std::expected<shader, error> {
         const auto vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
@@ -116,6 +116,12 @@ class shader final {
         const auto location =
             glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
         glProgramUniform1i(program_id_, location, value);
+    }
+
+    void set_bool(const std::string_view name, const bool value) noexcept {  // NOLINT
+        const auto location =
+            glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
+        glProgramUniform1i(program_id_, location, static_cast<int>(value));
     }
 
   private:
