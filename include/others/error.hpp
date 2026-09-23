@@ -1,7 +1,6 @@
 #pragma once
 
 #include <expected>
-#include <format>
 #include <iostream>
 #include <ranges>
 #include <string_view>
@@ -44,18 +43,14 @@ class [[nodiscard]] error final {
     [[nodiscard]] auto type() const noexcept -> error_type { return codes_.front().type; }
 
     [[nodiscard]] auto message() const noexcept -> std::string {
-        const auto out = std::format(
-            "{}",
-            std::views::join_with(
-                codes_ | std::views::transform([](const error_code& code) -> std::string {
-                    if (code.type == logic_error)
-                        return "[Logic Error]: " + std::string{code.message};
-
-                    return "[Runtime Error]: " + std::string{code.message};
-                }),
-                "\n -> "
-            )
-        );
+        auto out = codes_ |
+                   std::views::transform([](const error_code& code) noexcept -> std::string {
+                       if (code.type == logic_error)
+                           return "[Logic Error] " + std::string{code.message};
+                       return "[Runtime Error]: " + std::string{code.message};
+                   }) |
+                   std::views::join_with(std::string{"\n -> "}) | std::ranges::to<std::string>();
+        out += "\n";
         return out;
     }
 
