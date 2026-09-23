@@ -34,7 +34,7 @@ class Engine {
 
         quad.size(100.f, 200.f);
 
-        quad.color(rin::color::red);
+        quad.color(rin::red);
         quad.rotation_radian() = 3.1f;
 
         constexpr auto speed = 100.f;
