@@ -31,12 +31,6 @@ inline void GLAPIENTRY message_callback(
 }
 
 class window final {
-    enum class errorCode : u8 {
-        failed_to_GLFW_initialize,
-        failed_to_create_window,
-        failed_to_create_shader
-    };
-
   public:
     [[nodiscard]] static auto create(
         const extent size, std::string_view title = "No Title"
