@@ -30,6 +30,8 @@ struct overloaded final : public Ts... {
     using Ts::operator()...;
 };
 
+constexpr void nothing([[maybe_unused]] auto&&... _) noexcept {}
+
 template <std::invocable<> F>
 class scope_exit final {
   public:
