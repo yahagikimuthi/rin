@@ -33,12 +33,12 @@ template <typename F>
     requires std::is_nothrow_invocable_v<F>
 class scope_exit final {
   public:
-    explicit scope_exit(F func) noexcept : exit_func{func} {};
+    [[nodiscard]] explicit scope_exit(F func) noexcept : exit_func{func} {};
     scope_exit(const scope_exit&) noexcept                   = delete;
     auto operator=(const scope_exit) noexcept -> scope_exit& = delete;
     scope_exit(scope_exit&&) noexcept                        = delete;
     auto operator=(scope_exit&&) noexcept -> scope_exit&&    = delete;
-    ~scope_exit() { std::invoke(exit_func); }
+    ~scope_exit() noexcept { std::invoke(exit_func); }
 
   private:
     F exit_func;
