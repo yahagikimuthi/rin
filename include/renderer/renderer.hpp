@@ -70,8 +70,8 @@ class renderer final {
         mesh_.update_vertices(vec);
         if (vec.type() != primitive_triangles) return;
 
-        const auto points_cnt = static_cast<u32>(vec.size());
-        const auto index_data = ebo_manager_.get_or_create(points_cnt);
+        const auto vertex_cnt = static_cast<u32>(vec.size());
+        const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
         mesh_.draw(index_data.ebo, index_data.index_count, primitive_triangles);
     }
 

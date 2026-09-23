@@ -16,24 +16,28 @@ struct polygon_index_data final {
     GLsizei index_count{};
 };
 
-class ebo_manager final {
+class ebo_manager {
   public:
     explicit ebo_manager() noexcept = default;
-    [[nodiscard]] auto get_or_create(const u32 points) noexcept -> polygon_index_data {
-        const auto actual_points = std::max(3u, points);
-        if (actual_points <= default_circle_segments) {
-            auto& slot = default_slots_[actual_points];
-            if (slot.ebo == 0) slot = create_index_data(actual_points);
+
+    [[nodiscard]] auto get_or_create(const u32 vertex_count) noexcept -> polygon_index_data {
+        const auto actual_vertex = std::max(vertex_count, 3u);
+
+        if (actual_vertex <= default_circle_segments) {
+            auto& slot = default_slots_[actual_vertex];
+            if (slot.ebo == 0) slot = create_index_data(actual_vertex);
             return slot;
         }
-        unexpected_slots_.resize(actual_points + 1);
-        auto& slot = unexpected_slots_[actual_points];
-        if (slot.ebo == 0) slot = create_index_data(actual_points);
+
+        unexpected_slots_.resize(actual_vertex + 1);
+        auto& slot = unexpected_slots_[actual_vertex];
+        if (slot.ebo == 0) slot = create_index_data(actual_vertex);
         return slot;
     }
 
     ebo_manager(const ebo_manager&) noexcept                    = delete;
     auto operator=(const ebo_manager&) noexcept -> ebo_manager& = delete;
+
     ebo_manager(ebo_manager&& other) noexcept
         : default_slots_{other.default_slots_},
           unexpected_slots_{std::move(other.unexpected_slots_)} {
@@ -54,32 +58,28 @@ class ebo_manager final {
     ~ebo_manager() noexcept { destroy(); }
 
   private:
-    [[nodiscard]] static auto create_index_data(const u32 points) noexcept -> polygon_index_data {
-        auto indices = std::vector<u32>{};
-        indices.reserve(points * 3uz);
+    [[nodiscard]] static auto create_index_data(const u32 vertex_count) noexcept
+        -> polygon_index_data {
+        const auto triangle_cnt = vertex_count - 2;
+        const auto index_cnt    = triangle_cnt * 3;
 
-        // 中心点(0)と、外周の頂点(i+1, i+2)を結んで三角形を作る
-        for (const auto i : std::views::indices(points)) {
-            const u32 current_vert = i + 1;
-            const u32 next_vert    = ((i + 1) % points) + 1;  // 最後の頂点は最初の外周頂点(1)に戻る
+        static thread_local auto indices = std::vector<u32>{};
+        indices.clear();
+        indices.reserve(index_cnt);
 
-            indices.emplace_back(0);             // 中心点
-            indices.emplace_back(current_vert);  // 現在の外周頂点
-            indices.emplace_back(next_vert);     // 次の外周頂点
+        for (const auto i : std::views::indices(triangle_cnt + 1)) {
+            indices.emplace_back(0);
+            indices.emplace_back(i);
+            indices.emplace_back(i + 1);
         }
 
         auto ebo = GLuint{};
-        glGenBuffers(1, &ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            static_cast<GLsizeiptr>(indices.size() * sizeof(u32)),
-            indices.data(),
-            GL_STATIC_DRAW
-        );
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glCreateBuffers(1, &ebo);
 
-        return polygon_index_data{.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
+        const auto buffer_size = static_cast<GLsizeiptr>(indices.size() * sizeof(u32));
+        glNamedBufferData(ebo, buffer_size, indices.data(), GL_STATIC_DRAW);
+
+        return {.ebo = ebo, .index_count = static_cast<GLsizei>(indices.size())};
     }
 
     void destroy() noexcept {
