@@ -47,11 +47,11 @@ class [[nodiscard]] error final {
         const auto out = std::format(
             "{}",
             std::views::join_with(
-                codes_ | std::views::transform([](const error_code& error_code) -> std::string {
-                    if (error_code.type == logic_error)
-                        return "[Logic Error]: " + std::string{error_code.message};
+                codes_ | std::views::transform([](const error_code& code) -> std::string {
+                    if (code.type == logic_error)
+                        return "[Logic Error]: " + std::string{code.message};
 
-                    return "[Runtime Error]: " + std::string{error_code.message};
+                    return "[Runtime Error]: " + std::string{code.message};
                 }),
                 "\n -> "
             )
