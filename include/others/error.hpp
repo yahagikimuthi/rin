@@ -10,7 +10,7 @@
 #include "type.hpp"
 
 namespace rin {
-class error final {
+class [[nodiscard]] error final {
   public:
     enum class type : u8 { logic, runtime };
 
@@ -44,6 +44,7 @@ class error final {
     }
 
     [[nodiscard]] auto type() const noexcept -> type { return error_codes_.front().error_type; }
+
     [[nodiscard]] auto message() const noexcept -> std::string {
         const auto out = std::format(
             "{}",
@@ -59,6 +60,7 @@ class error final {
         );
         return out;
     }
+
     void what() const noexcept {
         for (const auto [i, error_code] : std::views::enumerate(error_codes_)) {
             if (i != 0) {
