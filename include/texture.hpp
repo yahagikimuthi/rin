@@ -60,6 +60,11 @@ class texture final {
 
     void bind(const u32 unit) noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
 
+    template <typename Self>
+    [[nodiscard]] auto size(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).size_;
+    }
+
   private:
     explicit texture(const u32 width, const u32 height, const std::span<const u8> pixels) noexcept
         : size_{.width = static_cast<f32>(width), .height = static_cast<f32>(height)} {
