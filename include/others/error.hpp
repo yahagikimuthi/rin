@@ -14,7 +14,6 @@ inline constexpr auto logic_error   = error_type::logic;
 inline constexpr auto runtime_error = error_type::runtime;
 
 class [[nodiscard]] error final {
-  private:
     struct error_code final {
         error_type       type;
         std::string_view message;
