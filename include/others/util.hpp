@@ -202,4 +202,17 @@ inline constexpr auto blue    = rgba{.r = 0.f, .g = 0.f, .b = 255.f};
 inline constexpr auto navy    = rgba{.r = 0.f, .g = 0.f, .b = 128.f};
 inline constexpr auto fuchsia = rgba{.r = 255.f, .g = 0.f, .b = 255.f};
 inline constexpr auto purple  = rgba{.r = 128.f, .g = 0.f, .b = 128.f};
+
+struct uv final {
+    f32 u;
+    f32 v;
+
+    auto operator==(const uv&) const noexcept -> bool = default;
+};
+
+struct vertex final {
+    vec2 position;
+    uv   tex_coord;
+    rgba color;
+};
 }  // namespace rin
