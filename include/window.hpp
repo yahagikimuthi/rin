@@ -83,9 +83,7 @@ class window final {
     window(window&& other) noexcept
         : camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
-          renderer_{std::move(other.renderer_)} {
-        ++window_cnt_;
-    }
+          renderer_{std::move(other.renderer_)} {}
     auto operator=(window&& other) noexcept -> window& {
         if (this == &other) return *this;
 
@@ -103,6 +101,7 @@ class window final {
             glfwDestroyWindow(window_);
             window_ = nullptr;
         }
+        --window_cnt_;
 
         if (--window_cnt_ == 0) glfwTerminate();
     }
