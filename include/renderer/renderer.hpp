@@ -24,7 +24,7 @@ class renderer final {
     [[nodiscard]] static auto create() noexcept -> std::expected<renderer, error> {
         auto shader_res = shader::create();
         if (not shader_res)
-            return error::create(error::runtime, "Failed to Create Shader", shader_res.error());
+            return error::create(error::runtime, "Failed to create shader.", shader_res.error());
 
         return renderer{std::move(*shader_res)};
     }

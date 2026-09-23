@@ -49,7 +49,9 @@ class window final {
     ) noexcept -> std::expected<window, error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
-            return error::create(error::runtime, "Failed to GLFW initialize");
+            return error::create(
+                error::runtime, "Failed to GLFW initialize. We recommend ending program."
+            );
 
         // これから作る画面のメタ設定
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -61,7 +63,7 @@ class window final {
         auto* const window_ptr = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
 
         if (window_ptr == nullptr)
-            return error::create(error::runtime, "Failed to initialize window");
+            return error::create(error::runtime, "Failed to initialize window.");
 
         glfwMakeContextCurrent(window_ptr);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
@@ -77,7 +79,9 @@ class window final {
 
         auto renderer_res = renderer::create();
         if (not renderer_res)
-            return error::create(error::runtime, "Failed to Create Renderer", renderer_res.error());
+            return error::create(
+                error::runtime, "Failed to create renderer.", renderer_res.error()
+            );
 
         return window{window_ptr, camera_res, std::move(*renderer_res)};
     }
@@ -127,6 +131,11 @@ class window final {
     }
 
     void draw(const shape auto& shape) noexcept { renderer_.draw(shape, camera_); }
+
+    template <typename Self>
+    [[nodiscard]] auto camera_position(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).camera_.position();
+    }
 
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
     void camera_position(const vec2 position) noexcept { camera_.position(position); }
