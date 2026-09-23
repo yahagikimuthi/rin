@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <compare>
+#include <functional>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <type_traits>
@@ -26,6 +27,21 @@ inline constexpr auto is_variant_member_v = is_variant_member<T, Variant>::value
 template <typename... Ts>
 struct overloaded final : public Ts... {
     using Ts::operator()...;
+};
+
+template <typename F>
+    requires std::is_nothrow_invocable_v<F>
+class scope_exit final {
+  public:
+    explicit scope_exit(F func) noexcept : exit_func{func} {};
+    scope_exit(const scope_exit&) noexcept                   = delete;
+    auto operator=(const scope_exit) noexcept -> scope_exit& = delete;
+    scope_exit(scope_exit&&) noexcept                        = delete;
+    auto operator=(scope_exit&&) noexcept -> scope_exit&&    = delete;
+    ~scope_exit() { std::invoke(exit_func); }
+
+  private:
+    F exit_func;
 };
 
 struct vec2 final {
