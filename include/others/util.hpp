@@ -164,6 +164,20 @@ struct rgba final {
     }
 };
 
-inline constexpr auto white = rgba{.r = 255.f, .g = 255.f, .b = 255.f, .a = 255.f};
-inline constexpr auto red   = rgba{.r = 255.f, .g = 0.f, .b = 0.f, .a = 255.f};
+inline constexpr auto white   = rgba{.r = 255.f, .g = 255.f, .b = 255.f};
+inline constexpr auto silver  = rgba{.r = 192.f, .g = 192.f, .b = 192.f};
+inline constexpr auto gray    = rgba{.r = 128.f, .g = 128.f, .b = 128.f};
+inline constexpr auto black   = rgba{.r = 0.f, .g = 0.f, .b = 0.f};
+inline constexpr auto red     = rgba{.r = 255.f, .g = 0.f, .b = 0.f};
+inline constexpr auto maroon  = rgba{.r = 128.f, .g = 0.f, .b = 0.f};
+inline constexpr auto yellow  = rgba{.r = 255.f, .g = 255.f, .b = 0.f};
+inline constexpr auto olive   = rgba{.r = 128.f, .g = 128.f, .b = 0.f};
+inline constexpr auto lime    = rgba{.r = 0.f, .g = 255.f, .b = 0.f};
+inline constexpr auto green   = rgba{.r = 0.f, .g = 128.f, .b = 0.f};
+inline constexpr auto aqua    = rgba{.r = 0.f, .g = 255.f, .b = 255.f};
+inline constexpr auto teal    = rgba{.r = 0.f, .g = 128.f, .b = 128.f};
+inline constexpr auto blue    = rgba{.r = 0.f, .g = 0.f, .b = 255.f};
+inline constexpr auto navy    = rgba{.r = 0.f, .g = 0.f, .b = 128.f};
+inline constexpr auto fuchsia = rgba{.r = 255.f, .g = 0.f, .a = 255.f};
+inline constexpr auto purple  = rgba{.r = 128.f, .g = 0.f, .b = 128.f};
 }  // namespace rin
