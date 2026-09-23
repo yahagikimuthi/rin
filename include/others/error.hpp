@@ -11,8 +11,8 @@
 
 namespace rin {
 enum class error_type : u8 { logic, runtime };
-static constexpr auto logic_error   = error_type::logic;
-static constexpr auto runtime_error = error_type::runtime;
+inline constexpr auto logic_error   = error_type::logic;
+inline constexpr auto runtime_error = error_type::runtime;
 
 class [[nodiscard]] error final {
   private:

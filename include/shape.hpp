@@ -26,7 +26,7 @@ template <typename T>
 struct is_shape : std::bool_constant<shape<T>> {};
 
 template <typename T>
-static constexpr auto is_shape_v = is_shape<T>::value;
+inline constexpr auto is_shape_v = is_shape<T>::value;
 
 class polygon final {
   public:
