@@ -45,7 +45,7 @@ class shader final {
     static constexpr auto u_Transform = "u_Transform"sv;
     static constexpr auto u_Color     = "u_Color"sv;
 
-    [[nodiscard]] static auto create() -> std::expected<shader, error> {
+    [[nodiscard]] static auto create() noexcept -> std::expected<shader, error> {
         const auto vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
         if (not vertex_shader)
             return error::create(logic_error, "Failed to compile vertex shader.");
