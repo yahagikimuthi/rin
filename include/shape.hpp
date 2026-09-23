@@ -9,7 +9,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 
@@ -29,10 +28,9 @@ struct is_shape : std::bool_constant<shape<T>> {};
 template <typename T>
 static constexpr auto is_shape_v = is_shape<T>::value;
 
-class polygon {
+class polygon final {
   public:
     explicit constexpr polygon(u32 point_cnt) noexcept : point_cnt_{point_cnt} {}
-    constexpr ~polygon() noexcept = default;
 
     template <typename Self>
     [[nodiscard]] constexpr auto position(this Self&& self) noexcept -> auto&& {
@@ -64,24 +62,12 @@ class polygon {
     constexpr void color(const rgba& color) noexcept { color_ = color; }
     constexpr void rotation_radian(f32 rotation) noexcept { rotation_radian_ = rotation; }
 
-  protected:
-    constexpr polygon(const polygon&) noexcept                    = default;
-    constexpr auto operator=(const polygon&) noexcept -> polygon& = default;
-    constexpr polygon(polygon&&) noexcept                         = default;
-    constexpr auto operator=(polygon&&) noexcept -> polygon&      = default;
-
   private:
     rgba   color_{};
     vec2   position_{};
     extent size_{.width = 100.f, .height = 100.f};
     f32    rotation_radian_{0.f};
     u32    point_cnt_;
-};
-
-class circle final : public polygon {
-  public:
-    explicit constexpr circle(const u32 points) : polygon(points) {}
-    explicit constexpr circle() noexcept : polygon(setting::default_circle_segments) {}
 };
 
 [[nodiscard]] constexpr auto calc_transform(const shape auto& quad) noexcept -> glm::mat4 {
