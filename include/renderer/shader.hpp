@@ -48,17 +48,17 @@ class shader final {
     [[nodiscard]] static auto create() -> std::expected<shader, error> {
         const auto vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
         if (not vertex_shader)
-            return error::create(error::logic, "Failed to compile vertex shader.");
+            return error::create(logic_error, "Failed to compile vertex shader.");
 
         const auto fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
         if (not fragment_shader)
-            return error::create(error::logic, "Failed to compile fragment shader.");
+            return error::create(logic_error, "Failed to compile fragment shader.");
 
         const auto program = glCreateProgram();
         glAttachShader(program, *vertex_shader);
         glAttachShader(program, *fragment_shader);
         glLinkProgram(program);
-        if (GL_LINK_STATUS == GL_FALSE) return error::create(error::logic, "Failed to link.");
+        if (GL_LINK_STATUS == GL_FALSE) return error::create(logic_error, "Failed to link.");
         glDeleteShader(*vertex_shader);
         glDeleteShader(*fragment_shader);
 

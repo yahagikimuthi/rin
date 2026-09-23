@@ -32,7 +32,7 @@ class texture final {
         auto channels = 0;
 
         auto* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
-        if (data == nullptr) return error::create(error::logic, "Failed to load file.");
+        if (data == nullptr) return error::create(logic_error, "Failed to load file.");
 
         const auto pixels = std::span<u8>{data, static_cast<std::size_t>(width * height * 4)};
 
