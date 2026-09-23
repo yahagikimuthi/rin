@@ -58,7 +58,7 @@ class texture final {
     }
     ~texture() noexcept { destroy(); }
 
-    void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }
+    void bind(const u32 unit) noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
 
   private:
     explicit texture(const u32 width, const u32 height, const std::span<const u8> pixels) noexcept

@@ -80,7 +80,7 @@ class shader final {
 
     ~shader() noexcept { destroy(); }
 
-    void use() const noexcept {
+    void use() noexcept {  // NOLINT
         if (program_id_ != 0) glUseProgram(program_id_);
     }
 

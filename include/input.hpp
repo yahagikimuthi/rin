@@ -20,7 +20,7 @@ class input final {
         previous_keys_ = current_keys_;
 
         for (const auto i : std::views::indices(current_keys_.size())) {
-            current_keys_[i] = (glfwGetKey(window, static_cast<int>(i)) == GLFW_PRESS);  // NOLINT
+            current_keys_[i] = (glfwGetKey(window, static_cast<int>(i)) == GLFW_PRESS);
         }
 
         auto x = f64{};

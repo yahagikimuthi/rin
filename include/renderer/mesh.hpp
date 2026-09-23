@@ -54,7 +54,7 @@ class mesh final {
 
     ~mesh() noexcept { destroy(); }
 
-    void update_vertices(const std::span<const glm::vec2> vertices) const noexcept {
+    void update_vertices(const std::span<const glm::vec2> vertices) noexcept {  // NOLINT
         if (vbo_ == 0 or vertices.empty()) return;
 
         assert(
