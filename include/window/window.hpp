@@ -125,6 +125,7 @@ class window final {
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
     }
+    static void clear(const rgba& color) noexcept { clear(color.r, color.g, color.b, color.a); }
 
     void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
 
