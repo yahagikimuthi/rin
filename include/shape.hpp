@@ -32,22 +32,15 @@ class polygon final {
   public:
     explicit constexpr polygon(u32 point_cnt) noexcept : point_cnt_{point_cnt} {}
 
-    template <typename Self>
-    [[nodiscard]] constexpr auto position(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).position_;
+    [[nodiscard]] constexpr auto position() const noexcept -> vec2 { return position_; }
+
+    [[nodiscard]] constexpr auto size() const noexcept -> extent { return size_; }
+
+    [[nodiscard]] constexpr auto rotation_radian() const noexcept -> f32 {
+        return rotation_radian_;
     }
-    template <typename Self>
-    [[nodiscard]] constexpr auto size(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).size_;
-    }
-    template <typename Self>
-    [[nodiscard]] constexpr auto rotation_radian(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).rotation_radian_;
-    }
-    template <typename Self>
-    [[nodiscard]] constexpr auto color(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).color_;
-    }
+
+    [[nodiscard]] constexpr auto color() const noexcept -> rgba { return color_; }
     [[nodiscard]] constexpr auto point_count() const noexcept -> u32 { return point_cnt_; }
 
     constexpr void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
@@ -56,7 +49,7 @@ class polygon final {
         size_ = {.width = width, .height = height};
     }
     constexpr void size(const extent size) noexcept { size_ = size; }
-    constexpr void color(const f32 r, const f32 g, const f32 b, const f32 a = 1.f) noexcept {
+    constexpr void color(const u8 r, const u8 g, const u8 b, const u8 a = 1.f) noexcept {
         color_ = {.r = r, .g = g, .b = b, .a = a};
     }
     constexpr void color(const rgba& color) noexcept { color_ = color; }
