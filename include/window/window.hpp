@@ -45,7 +45,8 @@ class window final {
     auto operator=(const window&) noexcept -> window& = delete;
 
     window(window&& other) noexcept
-        : camera_{other.camera_},
+        : input_{other.input_},
+          camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
           renderer_{std::move(other.renderer_)} {}
     auto operator=(window&& other) noexcept -> window& {
@@ -55,6 +56,7 @@ class window final {
             glfwDestroyWindow(window_);
             window_ = nullptr;
         }
+        input_    = other.input_;
         window_   = std::exchange(other.window_, nullptr);
         camera_   = other.camera_;
         renderer_ = std::move(other.renderer_);
@@ -132,7 +134,7 @@ class window final {
         glDebugMessageCallback(message_callback, nullptr);
     }
 
-    input                       input_;
+    input                       input_{make_input()};
     camera                      camera_;
     GLFWwindow*                 window_;
     renderer                    renderer_;

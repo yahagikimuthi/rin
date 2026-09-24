@@ -13,9 +13,9 @@
 
 namespace rin {
 class input final {
-  public:
-    explicit constexpr input() noexcept = default;
+    friend inline auto make_input() noexcept -> input;
 
+  public:
     void update(GLFWwindow* window) noexcept {
         if (window == nullptr) return;
 
@@ -47,6 +47,7 @@ class input final {
     [[nodiscard]] constexpr auto mouse_position() const noexcept -> vec2 { return mouse_position_; }
 
   private:
+    explicit constexpr input() noexcept = default;
     [[nodiscard]] static constexpr auto key_to_size_t(const key key_button) noexcept
         -> std::size_t {
         return static_cast<std::size_t>(std::to_underlying(key_button));
@@ -56,4 +57,6 @@ class input final {
     std::array<bool, GLFW_KEY_LAST + 1> previous_keys_{};
     vec2                                mouse_position_{};
 };
+
+[[nodiscard]] inline auto make_input() noexcept -> input { return input{}; }
 }  // namespace rin
