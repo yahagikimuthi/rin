@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <expected>
 #include <iostream>
 #include <ranges>
@@ -97,6 +98,11 @@ class [[nodiscard]] error final {
                 std::cerr << "[Runtime Error]: " << code.message_to_view() << '\n';
             }
         }
+    }
+
+    [[noreturn]] void panic() const noexcept {
+        what();
+        std::abort();
     }
 
   private:
