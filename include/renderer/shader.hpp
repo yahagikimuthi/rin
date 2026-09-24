@@ -45,11 +45,15 @@ constexpr const char* fragment_shader_source = R"(
     uniform sampler2D u_Texture;
     uniform bool      u_UseTexture;
 
-    void main() {
-        vec4 tex_color = u_UseTexture ? texture(u_Texture, v_TexCoord) : vec4(1.0);
-        
+void main() {
+    if (u_UseTexture) {
+        vec4 tex_color = texture(u_Texture, v_TexCoord);
+        // テクスチャカラー * 頂点カラー * uniformカラー
         FragColor = tex_color * v_Color * u_Color;
+    } else {
+        FragColor = v_Color * u_Color;
     }
+}
 )";
 
 using namespace std::string_view_literals;
@@ -59,6 +63,7 @@ class shader final {
     static constexpr auto u_Transform  = "u_Transform"sv;
     static constexpr auto u_Color      = "u_Color"sv;
     static constexpr auto u_UseTexture = "u_UseTexture"sv;
+    static constexpr auto u_Texture    = "u_Texture"sv;
 
     [[nodiscard]] static auto create() noexcept -> std::expected<shader, error> {
         const auto vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);

@@ -9,14 +9,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/trigonometric.hpp>
+#include <optional>
 #include <utility>
 
 #include "camera.hpp"
 #include "others/error.hpp"
 #include "others/setting.hpp"
+#include "others/util.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
+#include "sprite.hpp"
 #include "vertex.hpp"
 
 namespace rin {
@@ -32,53 +35,41 @@ class renderer final {
 
     void use() noexcept { shader_.use(); }
 
-    //    void draw(const polygon& polygon_shape, const camera& camera) noexcept {
-    //        const u32 points = polygon_shape.point_count();
-    //
-    //        static thread_local auto vertices = std::vector<glm::vec2>{};
-    //        vertices.clear();
-    //        vertices.reserve(points + 1);
-    //
-    //        vertices.emplace_back(0.0f, 0.0f);  // 中心点
-    //
-    //        constexpr auto radius     = 0.5f;
-    //        const auto     angle_step = (2.0f * std::numbers::pi_v<f32>) /
-    //        static_cast<f32>(points);
-    //
-    //        for (const auto i : std::views::indices(points)) {
-    //            const f32 angle = angle_step * static_cast<f32>(i);
-    //            vertices.emplace_back(radius * std::cos(angle), radius * std::sin(angle));
-    //        }
-    //
-    //        mesh_.update_vertices(vertices);
-    //
-    //        const auto index_data = ebo_manager_.get_or_create(points);
-    //
-    //        const auto model           = calc_transform(polygon_shape);
-    //        const auto view_projection = camera.calc_view_position_mat();
-    //        shader_.set_mat4(shader::u_Transform, view_projection * model);
-    //        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(polygon_shape.color()) /
-    //        255.f);
-    //
-    //        mesh_.draw(index_data.ebo, index_data.index_count);
-    //    }
-
-    void draw(const vertex_vector& vec, const camera& camera) noexcept {
-        shader_.set_mat4(shader::u_Transform, camera.calc_view_position_mat());
+    void draw(
+        const vertex_vector& vec, const std::optional<const texture&> tex, const camera& camera_obj
+    ) noexcept {
+        shader_.set_mat4(shader::u_Transform, camera_obj.calc_view_position_mat());
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
         shader_.set_bool(shader::u_UseTexture, false);
 
-        mesh_.update_vertices(vec);
-        if (vec.type() != primitive_triangles) return;
+        if (tex) {
+            tex->bind(0);
+            shader_.set_int(shader::u_Texture, 0);
+            shader_.set_bool(shader::u_UseTexture, true);
+        } else {
+            shader_.set_bool(shader::u_UseTexture, false);
+        }
 
+        mesh_.update_vertices(vec);
         const auto vertex_cnt = static_cast<u32>(vec.size());
         const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
-        mesh_.draw(index_data.ebo, index_data.index_count, primitive_triangles);
+        mesh_.draw(index_data.ebo, index_data.index_count, vec.type());
+    }
+
+    void draw(const vertex_vector& vec, const camera& camera) noexcept {
+        draw(vec, std::nullopt, camera);
+    }
+
+    void draw(sprite& sprite, const camera& camera) noexcept {
+        draw(sprite.calc_vertices(), sprite.settle_texture(), camera);
     }
 
   private:
     explicit renderer(shader shader_object) noexcept
-        : shader_{std::move(shader_object)}, mesh_{mesh{default_vbo_buffer}} {}
+        : shader_{std::move(shader_object)}, mesh_{mesh{default_vbo_buffer}} {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     ebo_manager ebo_manager_;
     shader      shader_;

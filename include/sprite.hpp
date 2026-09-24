@@ -1,15 +1,15 @@
 #pragma once
 
-#include "others/type.hpp"
-#include "others/util.hpp"
-#include "texture.hpp"
-#include "vertex.hpp"
-
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <optional>
+
+#include "others/type.hpp"
+#include "others/util.hpp"
+#include "texture.hpp"
+#include "vertex.hpp"
 
 namespace rin {
 struct rect final {
@@ -21,27 +21,16 @@ struct rect final {
 
 class sprite final {
   public:
-    void set_texture(const texture& tex, const bool reset_rect = true) noexcept {
+    explicit sprite(const texture& tex) noexcept { settle_texture(tex); }
+
+    void settle_texture(const texture& tex) noexcept {
         tex_.emplace(tex);
-        if (reset_rect) {
-            tex_rect_ =
-                rect{.x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height};
-        }
+        tex_rect_ =
+            rect{.x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height};
         dirty_ = true;
     }
 
-    void set_texture(const texture& tex, const rect& tex_rect) noexcept {
-        tex_.emplace(tex);
-        tex_rect_ = tex_rect;
-        dirty_    = true;
-    }
-
-    void set_texture_rect(const rect& tex_rect) noexcept {
-        tex_rect_ = tex_rect;
-        dirty_    = true;
-    }
-
-    [[nodiscard]] auto get_vertices() noexcept -> const vertex_vector& {
+    [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
         if (dirty_) {
             update_vertices();
             dirty_ = false;
@@ -49,11 +38,17 @@ class sprite final {
         return vertices_;
     }
 
+    [[nodiscard]] auto settle_texture() const noexcept -> std::optional<const texture&> {
+        return tex_;
+    }
+
   private:
     void update_vertices() noexcept {
         if (not tex_) return;
 
         vertices_.clear();
+
+        // UV座標正規化
         const auto tex_w = tex_->size().width;
         const auto tex_h = tex_->size().height;
 
@@ -62,22 +57,26 @@ class sprite final {
         const auto u1 = (tex_rect_.x + tex_rect_.width) / tex_w;
         const auto v1 = (tex_rect_.y + tex_rect_.height) / tex_h;
 
+        // 原点・サイズを考慮したローカル4角
         const auto w = tex_rect_.width;
         const auto h = tex_rect_.height;
 
-        const auto p0 = vec2{.x = -origin_.x, .y = -origin_.y};
-        const auto p1 = vec2{.x = -origin_.x + w, .y = -origin_.y};
-        const auto p2 = vec2{.x = -origin_.x + w, .y = -origin_.y + h};
-        const auto p3 = vec2{.x = -origin_.x, .y = -origin_.y + h};
+        // 原点を引いたローカル座標 (0,0 は原点位置)
+        const vec2 p0{.x = -origin_.x, .y = -origin_.y};
+        const vec2 p1{.x = -origin_.x + w, .y = -origin_.y};
+        const vec2 p2{.x = -origin_.x + w, .y = -origin_.y + h};
+        const vec2 p3{.x = -origin_.x, .y = -origin_.y + h};
 
-        auto transform = glm::mat4{1.f};
-        transform      = glm::translate(transform, glm::vec3{position_.x, position_.y, 0.f});
+        // 回転・平行移動・スケールの変換行列を作成して各頂点を変換
+        auto transform = glm::mat4{1.0f};
+        transform      = glm::translate(transform, glm::vec3{position_.x, position_.y, 0.0f});
+        if (rotation_ != 0.0f) {
+            transform = glm::rotate(transform, rotation_, glm::vec3{0.0f, 0.0f, 1.0f});
+        }
+        transform = glm::scale(transform, glm::vec3{scale_.x, scale_.y, 1.0f});
 
-        if (rotation_ != 0.f)
-            transform = glm::rotate(transform, rotation_, glm::vec3{0.f, 0.f, 1.f});
-
-        auto transform_pos = [&](vec2 p) noexcept -> vec2 {
-            const auto v = transform * glm::vec4{p.x, p.y, 0.f, 1.f};
+        auto transform_pos = [&](vec2 p) -> vec2 {
+            const auto v = transform * glm::vec4{p.x, p.y, 0.0f, 1.0f};
             return vec2{.x = v.x, .y = v.y};
         };
 
@@ -86,6 +85,7 @@ class sprite final {
         const auto world_p2 = transform_pos(p2);
         const auto world_p3 = transform_pos(p3);
 
+        // 三角形2個分（6頂点）を vertex_vector に追加
         vertices_.emplace_back(world_p0, uv{.u = u0, .v = v0}, color_);
         vertices_.emplace_back(world_p1, uv{.u = u1, .v = v0}, color_);
         vertices_.emplace_back(world_p2, uv{.u = u1, .v = v1}, color_);
@@ -96,13 +96,13 @@ class sprite final {
     }
 
     std::optional<const texture&> tex_;
-    vertex_vector                 vertices_;
+    vertex_vector                 vertices_{primitive_triangles};
     rect                          tex_rect_;
-    rgba                          color_;
+    rgba                          color_{white};
     vec2                          position_;
+    vec2                          scale_{.x = 1.f, .y = 1.f};
     vec2                          origin_;
-    f32                           rotation_;
-
-    bool dirty_;
+    f32                           rotation_{0.f};
+    bool                          dirty_{true};
 };
 }  // namespace rin

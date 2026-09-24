@@ -1,9 +1,7 @@
 #pragma once
 
-#include <cstddef>
 #include <expected>
 #include <filesystem>
-#include <span>
 #include <utility>
 #include "others/type.hpp"
 
@@ -34,9 +32,7 @@ class texture final {
         auto* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
         if (data == nullptr) return error::create(logic_error, "Failed to load file.");
 
-        const auto pixels = std::span<u8>{data, static_cast<std::size_t>(width * height * 4)};
-
-        auto tex = texture{static_cast<u32>(width), static_cast<u32>(height), pixels};
+        auto tex = texture{static_cast<u32>(width), static_cast<u32>(height), data};
 
         stbi_image_free(data);
         return tex;
@@ -58,21 +54,21 @@ class texture final {
     }
     ~texture() noexcept { destroy(); }
 
-    void bind(const u32 unit) noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
+    void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
 
     template <typename Self>
     [[nodiscard]] auto size(this Self&& self) noexcept -> auto&& {
         return std::forward<Self>(self).size_;
     }
 
-  private:
-    explicit texture(const u32 width, const u32 height, const std::span<const u8> pixels) noexcept
+    explicit texture(const u32 width, const u32 height, const void* pixels) noexcept
         : size_{.width = static_cast<f32>(width), .height = static_cast<f32>(height)} {
         glCreateTextures(GL_TEXTURE_2D, 1, &id_);
         glTextureStorage2D(
             id_, 1, GL_RGBA8, static_cast<GLsizei>(width), static_cast<GLsizei>(height)
         );
-        if (not pixels.empty()) {
+        if (pixels != nullptr) {
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTextureSubImage2D(
                 id_,
                 0,
@@ -82,16 +78,16 @@ class texture final {
                 static_cast<GLsizei>(height),
                 GL_RGBA,
                 GL_UNSIGNED_BYTE,
-                pixels.data()
+                pixels
             );
         }
-
         glTextureParameteri(id_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(id_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
+  private:
     void destroy() noexcept {
         if (id_ != 0) {
             glDeleteTextures(1, &id_);

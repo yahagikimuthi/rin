@@ -15,6 +15,7 @@
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"
+#include "sprite.hpp"
 #include "vertex.hpp"
 
 namespace rin {
@@ -124,6 +125,8 @@ class window final {
     }
 
     void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
+
+    void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
 
     template <typename Self>
     [[nodiscard]] auto camera_position(this Self&& self) noexcept -> auto&& {
