@@ -7,9 +7,9 @@
 #include <utility>
 
 #include "GLFW/glfw3.h"
-#include "key.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
+#include "window/key.hpp"
 
 namespace rin {
 class input final {

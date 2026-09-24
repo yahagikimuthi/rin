@@ -19,7 +19,7 @@
 
 #include "others/error.hpp"
 #include "others/type.hpp"
-#include "texture.hpp"
+#include "texture/texture.hpp"
 
 namespace rin {
 class font final {

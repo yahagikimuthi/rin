@@ -8,7 +8,7 @@
 
 #include "others/type.hpp"
 #include "others/util.hpp"
-#include "texture.hpp"
+#include "texture/texture.hpp"
 #include "vertex.hpp"
 
 namespace rin {

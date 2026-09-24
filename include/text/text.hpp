@@ -5,9 +5,9 @@
 #include <string_view>
 #include <variant>
 
-#include "font.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
+#include "text/font.hpp"
 
 namespace rin {
 class text final {

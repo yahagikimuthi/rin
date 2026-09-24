@@ -10,13 +10,14 @@
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
-#include "input.hpp"
 #include "others/error.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"
-#include "sprite.hpp"
+#include "text/text.hpp"
+#include "texture/sprite.hpp"
 #include "vertex.hpp"
+#include "window/input.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(
@@ -127,6 +128,8 @@ class window final {
     void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
 
     void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
+
+    void draw(const text& tex) noexcept { renderer_.draw(tex, camera_); }
 
     [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
 

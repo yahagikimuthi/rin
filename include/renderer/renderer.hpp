@@ -12,16 +12,16 @@
 #include <optional>
 #include <utility>
 
-#include "camera.hpp"
 #include "others/error.hpp"
 #include "others/setting.hpp"
 #include "others/util.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
-#include "sprite.hpp"
-#include "text.hpp"
+#include "text/text.hpp"
+#include "texture/sprite.hpp"
 #include "vertex.hpp"
+#include "window/camera.hpp"
 
 namespace rin {
 class renderer final {
