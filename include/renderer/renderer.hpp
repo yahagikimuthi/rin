@@ -125,7 +125,7 @@ class renderer final {
 };
 
 [[nodiscard]] inline auto try_make_renderer() noexcept -> std::expected<renderer, error> {
-    auto shader_res = shader::create();
+    auto shader_res = try_make_shader();
     if (not shader_res)
         return make_error(runtime_error, "Failed to create shader.", shader_res.error());
 
