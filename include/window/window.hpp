@@ -169,13 +169,13 @@ class window final {
     glViewport(0, 0, actual_width, actual_height);
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
-    auto camera_res = camera{static_cast<f32>(actual_width), static_cast<f32>(actual_height)};
+    auto camera_obj = make_camera(static_cast<f32>(actual_width), static_cast<f32>(actual_height));
 
     auto renderer_res = try_make_renderer();
     if (not renderer_res)
         return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
-    return window{window_ptr, camera_res, std::move(*renderer_res)};
+    return window{window_ptr, camera_obj, std::move(*renderer_res)};
 }
 
 [[nodiscard]] inline auto try_make_window(

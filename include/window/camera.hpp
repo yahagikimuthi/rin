@@ -11,11 +11,11 @@
 
 namespace rin {
 struct camera final {
-  public:
-    explicit constexpr camera(const f32 window_width, const f32 window_height) noexcept
-        : window_size_{.width = window_width, .height = window_height} {}
-    explicit constexpr camera(const extent window_size) noexcept : window_size_{window_size} {}
+    friend inline auto make_camera(const f32 window_width, const f32 window_height) noexcept
+        -> camera;
+    friend inline auto make_camera(const extent window_size) noexcept -> camera;
 
+  public:
     [[nodiscard]] constexpr auto position() const noexcept -> vec2 { return position_; }
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
 
@@ -39,8 +39,19 @@ struct camera final {
     }
 
   private:
+    explicit constexpr camera(const f32 window_width, const f32 window_height) noexcept
+        : window_size_{.width = window_width, .height = window_height} {}
+
     vec2   position_{.x = 0.f, .y = 0.f};
     extent window_size_;
     f32    zoom_{1.f};
 };
+
+[[nodiscard]] inline auto make_camera(const f32 window_width, const f32 window_height) noexcept
+    -> camera {
+    return camera{window_width, window_height};
+}
+[[nodiscard]] inline auto make_camera(const extent window_size) noexcept -> camera {
+    return camera{window_size.width, window_size.height};
+}
 }  // namespace rin
