@@ -37,7 +37,6 @@ class font final {
         const u32                    atlas_width  = 1024,
         const u32                    atlas_height = 1024
     ) noexcept -> std::expected<font, error> {
-        // 1. TTF ファイルの読み込み
         auto file = std::ifstream{path, std::ios::binary | std::ios::ate};
         if (not file.is_open()) {
             return std::unexpected(error::create(logic_error, "Failed to open font file."));
@@ -47,11 +46,9 @@ class font final {
         file.seekg(0, std::ios::beg);
         file.read(reinterpret_cast<char*>(font_buffer.data()), file_size);  // NOLINT
 
-        // 2. アトラス用のアルファバッファ確保
         auto atlas_pixels = std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height));
         auto baked_chars  = std::vector<stbtt_bakedchar>(96);  // ASCII 32..127 (96文字)
 
-        // 3. stbtt によるビットマップベイク
         const auto res = stbtt_BakeFontBitmap(
             font_buffer.data(),
             0,
