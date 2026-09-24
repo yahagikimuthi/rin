@@ -92,10 +92,10 @@ class renderer final {
             const auto x1 = x0 + g->size.width;
             const auto y1 = y0 + g->size.height;
 
-            const auto u0 = g->x;
-            const auto v0 = g->y;
-            const auto u1 = g->x + g->width;
-            const auto v1 = g->y + g->height;
+            const auto u0 = g->uv_rect.x;
+            const auto v0 = g->uv_rect.y;
+            const auto u1 = g->uv_rect.x + g->uv_rect.width;
+            const auto v1 = g->uv_rect.y + g->uv_rect.height;
 
             vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
             vec.emplace_back(vec2{.x = x1, .y = y0}, uv{.u = u1, .v = v0}, color);
