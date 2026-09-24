@@ -7,7 +7,7 @@
 
 #include "others/type.hpp"
 #include "others/util.hpp"
-#include "text/font.hpp"
+#include "texture/font.hpp"
 
 namespace rin {
 class text final {

@@ -18,7 +18,7 @@
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
-#include "text/text.hpp"
+#include "texture//text.hpp"
 #include "texture/sprite.hpp"
 #include "vertex.hpp"
 #include "window/camera.hpp"

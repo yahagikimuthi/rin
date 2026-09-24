@@ -14,8 +14,8 @@
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"
-#include "text/text.hpp"
 #include "texture/sprite.hpp"
+#include "texture/text.hpp"
 #include "vertex.hpp"
 #include "window/input.hpp"
 
