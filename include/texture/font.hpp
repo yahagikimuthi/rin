@@ -34,7 +34,7 @@ class font final {
     };
 
   public:
-    [[nodiscard]] static auto load_from_file(
+    [[nodiscard]] static auto create_from_file(
         const std::filesystem::path& path,
         const f32                    font_size,
         const u32                    atlas_width,

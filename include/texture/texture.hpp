@@ -21,7 +21,7 @@
 namespace rin {
 class texture final {
   public:
-    [[nodiscard]] static auto load_from_file(const std::filesystem::path& path) noexcept
+    [[nodiscard]] static auto create_from_file(const std::filesystem::path& path) noexcept
         -> std::expected<texture, error> {
         stbi_set_flip_vertically_on_load(static_cast<int>(true));
 
