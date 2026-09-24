@@ -72,7 +72,7 @@ class renderer final {
         const auto font_obj = tex.settle_font();
         if (not font_obj) return;
 
-        auto vec      = vertex_vector{primitive_triangles};
+        auto vec      = make_vertex_vector(primitive_triangles);
         auto cursor_x = tex.position().x;
         auto cursor_y = tex.position().y;
 

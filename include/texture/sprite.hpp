@@ -92,7 +92,7 @@ class sprite final {
     }
 
     std::optional<const texture&> tex_;
-    vertex_vector                 vertices_{primitive_triangles};
+    vertex_vector                 vertices_{make_vertex_vector(primitive_triangles)};
     uv_rectangle                  tex_rect_{};
     rgba                          color_{white};
     vec2                          position_;
