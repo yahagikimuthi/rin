@@ -10,6 +10,7 @@
 
 #include "GLFW/glfw3.h"
 #include "camera.hpp"
+#include "key.hpp"
 #include "others/error.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
@@ -114,7 +115,7 @@ class window final {
 
     void poll_events() noexcept {
         glfwPollEvents();
-        input::update(window_);
+        input_.update(window_);
         renderer_.use();
     }
 
@@ -138,6 +139,17 @@ class window final {
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
+    [[nodiscard]] auto is_key_down(const key key_button) const noexcept -> bool {
+        return input_.is_key_down(key_button);
+    }
+    [[nodiscard]] auto is_key_pressed(const key key_button) const noexcept -> bool {
+        return input_.is_key_pressed(key_button);
+    }
+    [[nodiscard]] auto is_key_released(const key key_button) const noexcept -> bool {
+        return input_.is_key_released(key_button);
+    }
+    [[nodiscard]] auto mouse_position() const noexcept -> vec2 { return input_.mouse_position(); }
+
   private:
     explicit window(
         GLFWwindow* const window_ptr, const camera& camera_object, renderer renderer_object
@@ -155,6 +167,7 @@ class window final {
         glDebugMessageCallback(message_callback, nullptr);
     }
 
+    input                       input_;
     camera                      camera_;
     GLFWwindow*                 window_;
     renderer                    renderer_;
