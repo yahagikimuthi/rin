@@ -73,7 +73,7 @@ class font final {
             rgba_pixels[(i * 4) + 3] = alpha;
         }
 
-        auto f       = font{texture{atlas_width, atlas_height, rgba_pixels.data()}};
+        auto f       = font{make_texture(atlas_width, atlas_height, rgba_pixels.data())};
         f.font_size_ = font_size;
 
         for (const auto i : std::views::indices(96u)) {
