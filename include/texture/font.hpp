@@ -109,6 +109,8 @@ class font final {
         return std::nullopt;
     }
 
+    [[nodiscard]] auto settle_texture() const noexcept -> const texture& { return atlas_texture_; }
+
     [[nodiscard]] auto font_size() const noexcept -> f32 { return font_size_; }
 
   private:
