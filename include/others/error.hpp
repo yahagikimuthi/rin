@@ -6,7 +6,8 @@
 #include <string_view>
 #include <vector>
 
-#include "type.hpp"
+#include "others/type.hpp"
+#include "others/util.hpp"
 
 namespace rin {
 enum class error_type : u8 { logic, runtime };
@@ -20,15 +21,16 @@ class [[nodiscard]] error final {
     };
 
   public:
-    [[nodiscard]] static auto create(const error_type type, const std::string_view message) noexcept
-        -> std::unexpected<error> {
+    [[nodiscard]] static auto create(
+        const error_type type, const string_literal auto& message
+    ) noexcept -> std::unexpected<error> {
         const auto code         = error_code{.type = type, .message = message};
         auto       error_object = error{std::vector{code}};
         return std::unexpected{error_object};
     }
 
     [[nodiscard]] static auto create(
-        const error_type type, const std::string_view message, const error& child_error
+        const error_type type, const string_literal auto& message, const error& child_error
     ) noexcept -> std::unexpected<error> {
         auto codes = std::vector<error_code>{};
         codes.reserve(1 + child_error.codes_.size());

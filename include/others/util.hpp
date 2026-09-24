@@ -30,6 +30,16 @@ struct overloaded final : public Ts... {
     using Ts::operator()...;
 };
 
+template <typename T>
+concept string_literal =
+    std::is_array_v<T> and std::same_as<std::remove_cvref_t<std::remove_extent_t<T>>, char>;
+
+template <typename T>
+struct is_string_literal final : std::bool_constant<string_literal<T>> {};
+
+template <typename T>
+inline constexpr auto is_string_literal_v = string_literal<T>;
+
 constexpr void nothing([[maybe_unused]] auto&&... _) noexcept {}
 
 template <std::invocable<> F>
