@@ -71,9 +71,11 @@ class renderer final {
 
     void draw(const text& tex, const camera& camera) noexcept {
         const auto font_obj = tex.settle_font();
-        auto       vec      = vertex_vector{primitive_triangles};
-        auto       cursor_x = tex.position().x;
-        auto       cursor_y = tex.position().y;
+        if (not font_obj) return;
+
+        auto vec      = vertex_vector{primitive_triangles};
+        auto cursor_x = tex.position().x;
+        auto cursor_y = tex.position().y;
 
         const auto color = tex.color();
 
