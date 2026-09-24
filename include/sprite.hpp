@@ -12,14 +12,15 @@
 #include "vertex.hpp"
 
 namespace rin {
-struct rect final {
-    f32 x{};
-    f32 y{};
-    f32 width{};
-    f32 height{};
-};
 
 class sprite final {
+    struct rect final {
+        f32 x{};
+        f32 y{};
+        f32 width{};
+        f32 height{};
+    };
+
   public:
     explicit sprite(const texture& tex) noexcept { settle_texture(tex); }
 
