@@ -137,6 +137,9 @@ class window final {
 
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
     void camera_position(const vec2 position) noexcept { camera_.position(position); }
+    void camera_zoom(const f32 zoom) noexcept { camera_.zoom(zoom); }
+
+    [[nodiscard]] auto camera_zoom() const noexcept -> f32 { return camera_.zoom(); }
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
