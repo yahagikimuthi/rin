@@ -26,15 +26,9 @@
 
 namespace rin {
 class renderer final {
+    friend inline auto try_make_renderer() noexcept -> std::expected<renderer, error>;
+
   public:
-    [[nodiscard]] static auto create() noexcept -> std::expected<renderer, error> {
-        auto shader_res = shader::create();
-        if (not shader_res)
-            return make_error(runtime_error, "Failed to create shader.", shader_res.error());
-
-        return renderer{std::move(*shader_res)};
-    }
-
     void use() noexcept { shader_.use(); }
 
     void draw(
@@ -129,4 +123,12 @@ class renderer final {
     shader      shader_;
     mesh        mesh_;
 };
+
+[[nodiscard]] inline auto try_make_renderer() noexcept -> std::expected<renderer, error> {
+    auto shader_res = shader::create();
+    if (not shader_res)
+        return make_error(runtime_error, "Failed to create shader.", shader_res.error());
+
+    return renderer{std::move(*shader_res)};
+}
 }  // namespace rin

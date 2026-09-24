@@ -171,7 +171,7 @@ class window final {
 
     auto camera_res = camera{static_cast<f32>(actual_width), static_cast<f32>(actual_height)};
 
-    auto renderer_res = renderer::create();
+    auto renderer_res = try_make_renderer();
     if (not renderer_res)
         return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
