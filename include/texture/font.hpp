@@ -24,13 +24,10 @@
 namespace rin {
 class font final {
     struct glyph final {
-        f32    x{};
-        f32    y{};
-        f32    width{};
-        f32    height{};
-        extent size{};
-        vec2   bearing{};
-        f32    advance{};
+        uv_rectangle uv_rect{};
+        extent       size{};
+        vec2         bearing{};
+        f32          advance{};
     };
 
   public:
@@ -84,10 +81,12 @@ class font final {
             const auto  codepoint = static_cast<char32_t>(32 + i);
 
             auto g = glyph{
-                .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
-                .y      = static_cast<f32>(b.y0) / static_cast<f32>(atlas_height),
-                .width  = static_cast<f32>(b.x1 - b.x0) / static_cast<f32>(atlas_width),
-                .height = static_cast<f32>(b.y1 - b.y0) / static_cast<f32>(atlas_height),
+                .uv_rect{
+                    .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
+                    .y      = static_cast<f32>(b.y0) / static_cast<f32>(atlas_height),
+                    .width  = static_cast<f32>(b.x1 - b.x0) / static_cast<f32>(atlas_width),
+                    .height = static_cast<f32>(b.y1 - b.y0) / static_cast<f32>(atlas_height)
+                },
                 .size =
                     extent{
                         .width  = static_cast<f32>(b.x1 - b.x0),

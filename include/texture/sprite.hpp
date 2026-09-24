@@ -14,20 +14,14 @@
 namespace rin {
 
 class sprite final {
-    struct rect final {
-        f32 x{};
-        f32 y{};
-        f32 width{};
-        f32 height{};
-    };
-
   public:
     explicit sprite(const texture& tex) noexcept { settle_texture(tex); }
 
     void settle_texture(const texture& tex) noexcept {
         tex_.emplace(tex);
-        tex_rect_ =
-            rect{.x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height};
+        tex_rect_ = uv_rectangle{
+            .x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height
+        };
         dirty_ = true;
     }
 
@@ -98,7 +92,7 @@ class sprite final {
 
     std::optional<const texture&> tex_;
     vertex_vector                 vertices_{primitive_triangles};
-    rect                          tex_rect_;
+    uv_rectangle                  tex_rect_{};
     rgba                          color_{white};
     vec2                          position_;
     vec2                          scale_{.x = 1.f, .y = 1.f};

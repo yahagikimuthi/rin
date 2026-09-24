@@ -19,6 +19,13 @@
 #include "renderer/ebo_manager.hpp"
 
 namespace rin {
+struct uv_rectangle final {
+    f32 x;
+    f32 y;
+    f32 width;
+    f32 height;
+};
+
 class texture final {
   public:
     [[nodiscard]] static auto create_from_file(const std::filesystem::path& path) noexcept
