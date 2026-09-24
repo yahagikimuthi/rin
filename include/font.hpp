@@ -6,10 +6,8 @@
 #include <fstream>
 #include <optional>
 #include <ranges>
-#include <string_view>
 #include <unordered_map>
 #include <vector>
-#include "vertex.hpp"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #pragma GCC diagnostic push
@@ -119,45 +117,4 @@ class font final {
     texture                             atlas_texture_;
     f32                                 font_size_{0.f};
 };
-
-[[nodiscard]] inline auto calc_text_vertices(
-    const font& font_obj, std::string_view text_str, const vec2& position, const rgba& color
-) noexcept -> vertex_vector {
-    auto vec      = vertex_vector{primitive_triangles};
-    auto cursor_x = position.x;
-    auto cursor_y = position.y;
-
-    for (const auto c : text_str) {
-        if (c == '\n') {
-            cursor_x = position.x;
-            cursor_y += font_obj.font_size();
-            continue;
-        }
-
-        const auto g = font_obj.glyph_of_point(static_cast<char32_t>(c));
-        if (g == std::nullopt) continue;
-
-        const auto x0 = cursor_x + g->bearing.x;
-        const auto y0 = cursor_y + g->bearing.y;
-        const auto x1 = x0 + g->size.width;
-        const auto y1 = y0 + g->size.height;
-
-        const auto u0 = g->x;
-        const auto v0 = g->y;
-        const auto u1 = g->x + g->width;
-        const auto v1 = g->y + g->height;
-
-        vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
-        vec.emplace_back(vec2{.x = x1, .y = y0}, uv{.u = u1, .v = v0}, color);
-        vec.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color);
-
-        vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
-        vec.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color);
-        vec.emplace_back(vec2{.x = x0, .y = y1}, uv{.u = u0, .v = v1}, color);
-
-        cursor_x += g->advance;
-    }
-
-    return vec;
-}
 }  // namespace rin

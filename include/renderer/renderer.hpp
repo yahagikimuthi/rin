@@ -20,6 +20,7 @@
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
 #include "sprite.hpp"
+#include "text.hpp"
 #include "vertex.hpp"
 
 namespace rin {
@@ -66,6 +67,48 @@ class renderer final {
 
     void draw(sprite& sprite, const camera& camera) noexcept {
         draw(sprite.calc_vertices(), sprite.settle_texture(), camera);
+    }
+
+    void draw(const text& tex, const camera& camera) noexcept {
+        const auto font_obj = tex.settle_font();
+        auto       vec      = vertex_vector{primitive_triangles};
+        auto       cursor_x = tex.position().x;
+        auto       cursor_y = tex.position().y;
+
+        const auto color = tex.color();
+
+        for (const auto c : tex.string()) {
+            if (c == '\n') {
+                cursor_x = tex.position().x;
+                cursor_y += font_obj->font_size();
+                continue;
+            }
+
+            const auto g = font_obj->glyph_of_point(static_cast<char32_t>(c));
+            if (g == std::nullopt) continue;
+
+            const auto x0 = cursor_x + g->bearing.x;
+            const auto y0 = cursor_y + g->bearing.y;
+            const auto x1 = x0 + g->size.width;
+            const auto y1 = y0 + g->size.height;
+
+            const auto u0 = g->x;
+            const auto v0 = g->y;
+            const auto u1 = g->x + g->width;
+            const auto v1 = g->y + g->height;
+
+            vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
+            vec.emplace_back(vec2{.x = x1, .y = y0}, uv{.u = u1, .v = v0}, color);
+            vec.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color);
+
+            vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
+            vec.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color);
+            vec.emplace_back(vec2{.x = x0, .y = y1}, uv{.u = u0, .v = v1}, color);
+
+            cursor_x += g->advance;
+        }
+
+        draw(vec, std::nullopt, camera);
     }
 
   private:
