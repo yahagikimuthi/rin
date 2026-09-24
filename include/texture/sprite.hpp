@@ -14,9 +14,9 @@
 namespace rin {
 
 class sprite final {
-  public:
-    explicit sprite(const texture& tex) noexcept { settle_texture(tex); }
+    friend inline auto make_sprite(const texture& tex) noexcept -> sprite;
 
+  public:
     void settle_texture(const texture& tex) noexcept {
         tex_.emplace(tex);
         tex_rect_ = uv_rectangle{
@@ -38,6 +38,7 @@ class sprite final {
     }
 
   private:
+    explicit sprite(const texture& tex) noexcept { settle_texture(tex); }
     void update_vertices() noexcept {
         if (not tex_) return;
 
@@ -100,4 +101,6 @@ class sprite final {
     f32                           rotation_{0.f};
     bool                          dirty_{true};
 };
+
+[[nodiscard]] inline auto make_sprite(const texture& tex) noexcept -> sprite { return sprite{tex}; }
 }  // namespace rin
