@@ -63,10 +63,10 @@ class sprite final {
         const auto h = tex_rect_.height;
 
         // 原点を引いたローカル座標 (0,0 は原点位置)
-        const vec2 p0{.x = -origin_.x, .y = -origin_.y};
-        const vec2 p1{.x = -origin_.x + w, .y = -origin_.y};
-        const vec2 p2{.x = -origin_.x + w, .y = -origin_.y + h};
-        const vec2 p3{.x = -origin_.x, .y = -origin_.y + h};
+        const auto p0 = vec2{.x = -origin_.x, .y = -origin_.y};
+        const auto p1 = vec2{.x = -origin_.x + w, .y = -origin_.y};
+        const auto p2 = vec2{.x = -origin_.x + w, .y = -origin_.y + h};
+        const auto p3 = vec2{.x = -origin_.x, .y = -origin_.y + h};
 
         // 回転・平行移動・スケールの変換行列を作成して各頂点を変換
         auto transform = glm::mat4{1.0f};

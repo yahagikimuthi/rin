@@ -40,7 +40,6 @@ class renderer final {
     ) noexcept {
         shader_.set_mat4(shader::u_Transform, camera_obj.calc_view_position_mat());
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
-        shader_.set_bool(shader::u_UseTexture, false);
 
         if (tex) {
             tex->bind(0);
@@ -51,9 +50,14 @@ class renderer final {
         }
 
         mesh_.update_vertices(vec);
-        const auto vertex_cnt = static_cast<u32>(vec.size());
-        const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
-        mesh_.draw(index_data.ebo, index_data.index_count, vec.type());
+        if (vec.type() == primitive_type::triangles) {
+            const auto vertex_cnt = static_cast<u32>(vec.size());
+            const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
+            mesh_.draw_elements(index_data.ebo, index_data.index_count, vec.type());
+            return;
+        }
+
+        mesh_.draw_arrays(static_cast<GLsizei>(vec.size()), vec.type());
     }
 
     void draw(const vertex_vector& vec, const camera& camera) noexcept {

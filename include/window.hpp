@@ -128,10 +128,7 @@ class window final {
 
     void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
 
-    template <typename Self>
-    [[nodiscard]] auto camera_position(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).camera_.position();
-    }
+    [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
 
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
     void camera_position(const vec2 position) noexcept { camera_.position(position); }

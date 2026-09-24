@@ -92,7 +92,13 @@ class mesh final {
         glNamedBufferSubData(vbo_, 0, upload_size, vertices.data());
     }
 
-    void draw(
+    void draw_arrays(const GLsizei count, primitive_type type) noexcept {  // NOLINT
+        if (count == 0) return;
+        glBindVertexArray(vao_);
+        glDrawArrays(static_cast<GLenum>(type), 0, count);
+    }
+
+    void draw_elements(
         const GLuint ebo, const GLsizei index_count, const primitive_type type
     ) const noexcept {
         if (vao_ == 0 or ebo == 0) return;
