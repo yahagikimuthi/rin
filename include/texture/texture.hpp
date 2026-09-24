@@ -37,7 +37,7 @@ class texture final {
         auto channels = 0;
 
         auto* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
-        if (data == nullptr) return error::create(logic_error, "Failed to load file.");
+        if (data == nullptr) return make_error(logic_error, "Failed to load file.");
 
         auto tex = texture{static_cast<u32>(width), static_cast<u32>(height), data};
 

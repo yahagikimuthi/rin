@@ -46,7 +46,7 @@ class window final {
     ) noexcept -> std::expected<window, error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
-            return error::create(
+            return make_error(
                 runtime_error, "Failed to GLFW initialize. We recommend ending program."
             );
 
@@ -59,8 +59,7 @@ class window final {
         auto        str        = std::string{title};
         auto* const window_ptr = glfwCreateWindow(width, height, str.c_str(), nullptr, nullptr);
 
-        if (window_ptr == nullptr)
-            return error::create(runtime_error, "Failed to initialize window.");
+        if (window_ptr == nullptr) return make_error(runtime_error, "Failed to initialize window.");
 
         glfwMakeContextCurrent(window_ptr);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
@@ -76,7 +75,7 @@ class window final {
 
         auto renderer_res = renderer::create();
         if (not renderer_res)
-            return error::create(runtime_error, "Failed to create renderer.", renderer_res.error());
+            return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
         return window{window_ptr, camera_res, std::move(*renderer_res)};
     }

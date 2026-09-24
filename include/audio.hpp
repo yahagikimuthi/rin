@@ -72,7 +72,7 @@ class audio_engine final {
         auto       engine = ma_engine{};
         const auto result = ma_engine_init(nullptr, &engine);
         if (result != MA_SUCCESS)
-            return error::create(runtime_error, "Failed to initialize miniaudio engine.");
+            return make_error(runtime_error, "Failed to initialize miniaudio engine.");
 
         return audio_engine{engine};
     }
@@ -97,14 +97,13 @@ class audio_engine final {
 
     [[nodiscard]] auto load_sound(const std::filesystem::path& path) noexcept
         -> std::expected<sound, error> {
-        if (not is_initialized_)
-            return error::create(logic_error, "Audio engine is not initialized.");
+        if (not is_initialized_) return make_error(logic_error, "Audio engine is not initialized.");
 
         auto       sound_obj = sound{};
         const auto result    = ma_sound_init_from_file(
             &engine_, path.string().c_str(), 0, nullptr, nullptr, &sound_obj.sound_
         );
-        if (result != MA_SUCCESS) return error::create(logic_error, "Failed to load sound file.");
+        if (result != MA_SUCCESS) return make_error(logic_error, "Failed to load sound file.");
 
         sound_obj.is_initialized_ = true;
         return sound_obj;

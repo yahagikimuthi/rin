@@ -16,63 +16,36 @@ enum class error_type : u8 { logic, runtime };
 inline constexpr auto logic_error   = error_type::logic;
 inline constexpr auto runtime_error = error_type::runtime;
 
+struct error_code final {  // NOLINT
+    using str_t = std::variant<std::string_view, std::string>;
+
+    [[nodiscard]] auto message_to_str() const noexcept -> std::string {
+        return message.visit([](auto&& str) noexcept -> std::string {
+            return static_cast<std::string>(str);
+        });
+    }
+    [[nodiscard]] auto message_to_view() const noexcept -> std::string_view {
+        return message.visit([](auto&& str) noexcept -> std::string_view { return str; });
+    }
+
+    error_type type;
+    str_t      message;
+};
+
 class [[nodiscard]] error final {
-    struct error_code final {  // NOLINT
-        using str_t = std::variant<std::string_view, std::string>;
-
-        [[nodiscard]] auto message_to_str() const noexcept -> std::string {
-            return message.visit([](auto&& str) noexcept -> std::string {
-                return static_cast<std::string>(str);
-            });
-        }
-        [[nodiscard]] auto message_to_view() const noexcept -> std::string_view {
-            return message.visit([](auto&& str) noexcept -> std::string_view { return str; });
-        }
-
-        error_type type;
-        str_t      message;
-    };
+    friend constexpr auto make_error(
+        const error_type type, const string_literal auto& message
+    ) noexcept -> std::unexpected<error>;
+    friend constexpr auto make_error(
+        const error_type type, const string_literal auto& message, const error& child_error
+    ) noexcept -> std::unexpected<error>;
+    friend constexpr auto make_error(const error_type type, const std::string_view message) noexcept
+        -> std::unexpected<error>;
+    friend constexpr auto make_error(
+        const error_type type, const std::string_view message, const error& child_error
+    ) noexcept -> std::unexpected<error>;
 
   public:
-    [[nodiscard]] static auto create(
-        const error_type type, const string_literal auto& message
-    ) noexcept -> std::unexpected<error> {
-        const auto code         = error_code{.type = type, .message = std::string_view{message}};
-        auto       error_object = error{std::vector{code}};
-        return std::unexpected{error_object};
-    }
-
-    [[nodiscard]] static auto create(
-        const error_type type, const string_literal auto& message, const error& child_error
-    ) noexcept -> std::unexpected<error> {
-        auto codes = std::vector<error_code>{};
-        codes.reserve(1 + child_error.codes_.size());
-        codes.emplace_back(type, std::string_view{message});
-        codes.append_range(child_error.codes_);
-
-        auto error_obj = error{std::move(codes)};
-        return std::unexpected{error_obj};
-    }
-
-    [[nodiscard]] static auto create(const error_type type, const std::string_view message) noexcept
-        -> std::unexpected<error> {
-        const auto code      = error_code{.type = type, .message = std::string{message}};
-        auto       error_obj = error{std::vector{code}};
-        return std::unexpected{error_obj};
-    }
-
-    [[nodiscard]] static auto create(
-        const error_type type, const std::string_view message, const error& child_error
-    ) noexcept -> std::unexpected<error> {
-        auto codes = std::vector<error_code>{};
-        codes.reserve(1 + child_error.codes_.size());
-        codes.emplace_back(type, std::string{message});
-        codes.append_range(child_error.codes_);
-
-        auto error_obj = error{std::move(codes)};
-        return std::unexpected{error_obj};
-    }
-
     [[nodiscard]] auto type() const noexcept -> error_type { return codes_.front().type; }
 
     [[nodiscard]] auto message() const noexcept -> std::string {
@@ -110,4 +83,44 @@ class [[nodiscard]] error final {
 
     std::vector<error_code> codes_;
 };
+
+[[nodiscard]] constexpr auto make_error(
+    const error_type type, const string_literal auto& message
+) noexcept -> std::unexpected<error> {
+    const auto code         = error_code{.type = type, .message = std::string_view{message}};
+    auto       error_object = error{std::vector{code}};
+    return std::unexpected{error_object};
+}
+
+[[nodiscard]] constexpr auto make_error(
+    const error_type type, const string_literal auto& message, const error& child_error
+) noexcept -> std::unexpected<error> {
+    auto codes = std::vector<error_code>{};
+    codes.reserve(1 + child_error.codes_.size());
+    codes.emplace_back(type, std::string_view{message});
+    codes.append_range(child_error.codes_);
+
+    auto error_obj = error{std::move(codes)};
+    return std::unexpected{error_obj};
+}
+
+[[nodiscard]] constexpr auto make_error(
+    const error_type type, const std::string_view message
+) noexcept -> std::unexpected<error> {
+    const auto code      = error_code{.type = type, .message = std::string{message}};
+    auto       error_obj = error{std::vector{code}};
+    return std::unexpected{error_obj};
+}
+
+[[nodiscard]] constexpr auto make_error(
+    const error_type type, const std::string_view message, const error& child_error
+) noexcept -> std::unexpected<error> {
+    auto codes = std::vector<error_code>{};
+    codes.reserve(1 + child_error.codes_.size());
+    codes.emplace_back(type, std::string{message});
+    codes.append_range(child_error.codes_);
+
+    auto error_obj = error{std::move(codes)};
+    return std::unexpected{error_obj};
+}
 }  // namespace rin

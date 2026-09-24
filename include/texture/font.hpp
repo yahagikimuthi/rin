@@ -39,7 +39,7 @@ class font final {
     ) noexcept -> std::expected<font, error> {
         auto file = std::ifstream{path, std::ios::binary | std::ios::ate};
         if (not file.is_open()) {
-            return std::unexpected(error::create(logic_error, "Failed to open font file."));
+            return std::unexpected(make_error(logic_error, "Failed to open font file."));
         }
         const auto file_size   = file.tellg();
         auto       font_buffer = std::vector<u8>(static_cast<size_t>(file_size));
@@ -61,7 +61,7 @@ class font final {
             baked_chars.data()
         );
 
-        if (res <= 0) return error::create(logic_error, "Font atlas size is too small.");
+        if (res <= 0) return make_error(logic_error, "Font atlas size is too small.");
 
         auto rgba_pixels =
             std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height * 4));
