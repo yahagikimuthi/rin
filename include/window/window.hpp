@@ -6,10 +6,10 @@
 #include <string_view>
 #include <utility>
 
-#include "camera.hpp"
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
+#include "camera.hpp"
 #include "others/error.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
