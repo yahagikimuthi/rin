@@ -56,10 +56,6 @@ class scope_exit final {
     F exit_func_;
 };
 
-[[nodiscard]] constexpr auto make_scope_exit() -> auto {
-    return scope_exit{[]() noexcept -> void {}};
-}
-
 struct vec2 final {
     f32 x{};
     f32 y{};
