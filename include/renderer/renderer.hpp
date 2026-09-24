@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <expected>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -37,7 +38,10 @@ class renderer final {
     void use() noexcept { shader_.use(); }
 
     void draw(
-        const vertex_vector& vec, const std::optional<const texture&> tex, const camera& camera_obj
+        const vertex_vector&                vec,
+        const std::optional<const texture&> tex,
+        const camera&                       camera_obj,
+        const bool                          is_text = false
     ) noexcept {
         shader_.set_mat4(shader::u_Transform, camera_obj.calc_view_position_mat());
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
@@ -51,7 +55,8 @@ class renderer final {
         }
 
         mesh_.update_vertices(vec);
-        if (vec.type() == primitive_type::triangles) {
+        if (not is_text and  // 文字列の場合、EBOを使用すると壊れます
+            vec.type() == primitive_type::triangles) {
             const auto vertex_cnt = static_cast<u32>(vec.size());
             const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
             mesh_.draw_elements(index_data.ebo, index_data.index_count, vec.type());
@@ -87,10 +92,10 @@ class renderer final {
             }
 
             const auto g = font_obj->glyph_of_point(static_cast<char32_t>(c));
-            if (g == std::nullopt) continue;
+            if (not g) continue;
 
-            const auto x0 = cursor_x + g->bearing.x;
-            const auto y0 = cursor_y + g->bearing.y;
+            const auto x0 = std::floor(cursor_x + g->bearing.x);
+            const auto y0 = std::floor(cursor_y + g->bearing.y);
             const auto x1 = x0 + g->size.width;
             const auto y1 = y0 + g->size.height;
 
@@ -110,7 +115,7 @@ class renderer final {
             cursor_x += g->advance;
         }
 
-        draw(vec, std::nullopt, camera);
+        draw(vec, font_obj->settle_texture(), camera, true);
     }
 
   private:
