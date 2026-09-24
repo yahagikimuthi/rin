@@ -11,6 +11,7 @@ find_package(Git REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
+find_package(Threads REQUIRED)
 
 add_library(glad STATIC src/glad.c)
 set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
@@ -70,4 +71,5 @@ target_link_libraries(rin PRIVATE
     glfw
     OpenGL::GL
     glm::glm
+    Threads::Threads
 )
