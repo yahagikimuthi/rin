@@ -7,7 +7,6 @@
 #include <glm/ext/vector_float4.hpp>
 #include <glm/vec2.hpp>
 #include <type_traits>
-#include <utility>
 
 #include "others/type.hpp"
 #include "others/util.hpp"
