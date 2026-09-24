@@ -71,7 +71,7 @@ class sprite final {
         }
         transform = glm::scale(transform, glm::vec3{scale_.x, scale_.y, 1.0f});
 
-        auto transform_pos = [&](vec2 p) -> vec2 {
+        auto transform_pos = [&](vec2 p) noexcept -> vec2 {
             const auto v = transform * glm::vec4{p.x, p.y, 0.0f, 1.0f};
             return vec2{.x = v.x, .y = v.y};
         };
