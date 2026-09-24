@@ -120,7 +120,7 @@ class renderer final {
 
   private:
     explicit renderer(shader shader_object) noexcept
-        : shader_{std::move(shader_object)}, mesh_{mesh{default_vbo_buffer}} {
+        : shader_{std::move(shader_object)}, mesh_{make_mesh(default_vbo_buffer)} {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
