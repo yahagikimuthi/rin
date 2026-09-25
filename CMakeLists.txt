@@ -72,4 +72,5 @@ target_link_libraries(rin PRIVATE
     OpenGL::GL
     glm::glm
     Threads::Threads
+    ${CMAKE_DL_LIBS}
 )
