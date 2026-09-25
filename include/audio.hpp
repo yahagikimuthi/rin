@@ -2,6 +2,7 @@
 
 #include <expected>
 #include <filesystem>
+#include <memory>
 #include <utility>
 
 #define MINIAUDIO_IMPLEMENTATION
@@ -69,27 +70,24 @@ class sound final {
 class audio_engine final {
   public:
     [[nodiscard]] static auto create() noexcept -> std::expected<audio_engine, error> {
-        auto       engine = ma_engine{};
-        const auto result = ma_engine_init(nullptr, &engine);
+        auto       engine = std::make_unique<ma_engine>();
+        const auto result = ma_engine_init(nullptr, engine.get());
         if (result != MA_SUCCESS)
             return make_error(runtime_error, "Failed to initialize miniaudio engine.");
 
-        return audio_engine{engine};
+        return audio_engine{std::move(engine)};
     }
 
     audio_engine(const audio_engine&) noexcept                    = delete;
     auto operator=(const audio_engine&) noexcept -> audio_engine& = delete;
 
-    audio_engine(audio_engine&& other) noexcept
-        : engine_{std::exchange(other.engine_, ma_engine{})},
-          is_initialized_{std::exchange(other.is_initialized_, false)} {}
+    audio_engine(audio_engine&& other) noexcept : engine_{std::move(other.engine_)} {}
     auto operator=(audio_engine&& other) noexcept -> audio_engine& {
         if (this == &other) return *this;
 
         destroy();
 
-        engine_         = std::exchange(other.engine_, ma_engine{});
-        is_initialized_ = std::exchange(other.is_initialized_, false);
+        engine_ = std::move(other.engine_);
         return *this;
     }
 
@@ -97,11 +95,11 @@ class audio_engine final {
 
     [[nodiscard]] auto try_load_sound(const std::filesystem::path& path) noexcept
         -> std::expected<sound, error> {
-        if (not is_initialized_) return make_error(logic_error, "Audio engine is not initialized.");
+        if (not engine_) return make_error(logic_error, "Audio engine is not initialized.");
 
         auto       sound_obj = sound{};
         const auto result    = ma_sound_init_from_file(
-            &engine_, path.string().c_str(), 0, nullptr, nullptr, &sound_obj.sound_
+            engine_.get(), path.string().c_str(), 0, nullptr, nullptr, &sound_obj.sound_
         );
         if (result != MA_SUCCESS) return make_error(logic_error, "Failed to load sound file.");
 
@@ -110,20 +108,20 @@ class audio_engine final {
     }
 
     void master_volume(const f32 volume) noexcept {
-        if (is_initialized_) ma_engine_set_volume(&engine_, volume);
+        if (engine_) ma_engine_set_volume(engine_.get(), volume);
     }
 
   private:
-    explicit audio_engine(const ma_engine engine) noexcept : engine_{engine} {}
+    explicit audio_engine(std::unique_ptr<ma_engine> engine) noexcept
+        : engine_{std::move(engine)} {}
 
     void destroy() noexcept {
-        if (not is_initialized_) return;
-        ma_engine_uninit(&engine_);
-        is_initialized_ = false;
+        if (not engine_) return;
+        ma_engine_uninit(engine_.get());
+        engine_ = nullptr;
     }
 
-    ma_engine engine_{};
-    bool      is_initialized_{true};
+    std::unique_ptr<ma_engine> engine_;
 };
 
 [[nodiscard]] inline auto try_make_audio_engine() noexcept -> std::expected<audio_engine, error> {
