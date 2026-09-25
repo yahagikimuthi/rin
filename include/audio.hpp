@@ -33,7 +33,7 @@ class sound final {
         sound_ = std::move(other.sound_);
         return *this;
     }
-    ~sound() noexcept = default;
+    ~sound() noexcept { destroy(); }
 
     [[nodiscard]] auto is_playing() const noexcept -> bool {
         return sound_ and ma_sound_is_playing(sound_.get()) == MA_TRUE;
@@ -55,9 +55,11 @@ class sound final {
   private:
     explicit sound() noexcept = default;
     void destroy() noexcept {
-        if (not sound_) return;
+        if (not sound_) {
+            return;
+        }
         ma_sound_uninit(sound_.get());
-        sound_ = nullptr;
+        sound_.reset();
     }
 
     std::unique_ptr<ma_sound> sound_{std::make_unique<ma_sound>()};
