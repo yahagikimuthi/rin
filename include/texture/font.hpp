@@ -22,22 +22,87 @@
 #include "texture/texture.hpp"
 
 namespace rin {
-struct glyph final {
-    uv_rectangle uv_rect{};
-    extent       size{};
-    vec2         bearing{};
-    f32          advance{};
-};
 
 class font final {
-    friend inline auto try_make_font(
-        const std::filesystem::path& path,
-        const f32                    font_size,
-        const u32                    atlas_width,
-        const u32                    atlas_height
-    ) noexcept -> std::expected<font, error>;
+    struct glyph final {
+        uv_rectangle uv_rect{};
+        extent       size{};
+        vec2         bearing{};
+        f32          advance{};
+    };
 
   public:
+    [[nodiscard]] static auto try_make(
+        const std::filesystem::path& path,
+        const f32                    font_size,
+        const u32                    atlas_width  = 1024,
+        const u32                    atlas_height = 1024
+    ) noexcept -> std::expected<font, error> {
+        auto file = std::ifstream{path, std::ios::binary | std::ios::ate};
+        if (not file.is_open()) {
+            return std::unexpected(make_error(logic_error, "Failed to open font file."));
+        }
+        const auto file_size   = file.tellg();
+        auto       font_buffer = std::vector<u8>(static_cast<size_t>(file_size));
+        file.seekg(0, std::ios::beg);
+        file.read(reinterpret_cast<char*>(font_buffer.data()), file_size);  // NOLINT
+
+        auto atlas_pixels = std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height));
+        auto baked_chars  = std::vector<stbtt_bakedchar>(96);  // ASCII 32..127 (96文字)
+
+        const auto res = stbtt_BakeFontBitmap(
+            font_buffer.data(),
+            0,
+            font_size,
+            atlas_pixels.data(),
+            static_cast<i32>(atlas_width),
+            static_cast<i32>(atlas_height),
+            32,
+            96,
+            baked_chars.data()
+        );
+
+        if (res <= 0) return make_error(logic_error, "Font atlas size is too small.");
+
+        auto rgba_pixels =
+            std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height * 4));
+        for (const auto i : std::views::indices(atlas_pixels.size())) {
+            const auto alpha         = atlas_pixels[i];
+            rgba_pixels[(i * 4) + 0] = 255;
+            rgba_pixels[(i * 4) + 1] = 255;
+            rgba_pixels[(i * 4) + 2] = 255;
+            rgba_pixels[(i * 4) + 3] = alpha;
+        }
+
+        auto f       = font{make_texture(atlas_width, atlas_height, rgba_pixels.data())};
+        f.font_size_ = font_size;
+
+        for (const auto i : std::views::indices(96u)) {
+            const auto& b         = baked_chars[i];
+            const auto  codepoint = static_cast<char32_t>(32 + i);
+
+            auto g = glyph{
+                .uv_rect =
+                    uv_rectangle{
+                        .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
+                        .y      = static_cast<f32>(b.y0) / static_cast<f32>(atlas_height),
+                        .width  = static_cast<f32>(b.x1 - b.x0) / static_cast<f32>(atlas_width),
+                        .height = static_cast<f32>(b.y1 - b.y0) / static_cast<f32>(atlas_height)
+                    },
+                .size =
+                    extent{
+                        .width  = static_cast<f32>(b.x1 - b.x0),
+                        .height = static_cast<f32>(b.y1 - b.y0)
+                    },
+                .bearing = vec2{.x = b.xoff, .y = b.yoff},
+                .advance = b.xadvance
+            };
+            f.glyphs_[codepoint] = g;
+        }
+
+        return f;
+    }
+
     [[nodiscard]] auto glyph_of_point(const char32_t codepoint) const noexcept
         -> std::optional<const glyph&> {
         const auto it = glyphs_.find(codepoint);
@@ -63,66 +128,6 @@ class font final {
     const u32                    atlas_width  = 1024,
     const u32                    atlas_height = 1024
 ) noexcept -> std::expected<font, error> {
-    auto file = std::ifstream{path, std::ios::binary | std::ios::ate};
-    if (not file.is_open()) {
-        return std::unexpected(make_error(logic_error, "Failed to open font file."));
-    }
-    const auto file_size   = file.tellg();
-    auto       font_buffer = std::vector<u8>(static_cast<size_t>(file_size));
-    file.seekg(0, std::ios::beg);
-    file.read(reinterpret_cast<char*>(font_buffer.data()), file_size);  // NOLINT
-
-    auto atlas_pixels = std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height));
-    auto baked_chars  = std::vector<stbtt_bakedchar>(96);  // ASCII 32..127 (96文字)
-
-    const auto res = stbtt_BakeFontBitmap(
-        font_buffer.data(),
-        0,
-        font_size,
-        atlas_pixels.data(),
-        static_cast<i32>(atlas_width),
-        static_cast<i32>(atlas_height),
-        32,
-        96,
-        baked_chars.data()
-    );
-
-    if (res <= 0) return make_error(logic_error, "Font atlas size is too small.");
-
-    auto rgba_pixels = std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height * 4));
-    for (const auto i : std::views::indices(atlas_pixels.size())) {
-        const auto alpha         = atlas_pixels[i];
-        rgba_pixels[(i * 4) + 0] = 255;
-        rgba_pixels[(i * 4) + 1] = 255;
-        rgba_pixels[(i * 4) + 2] = 255;
-        rgba_pixels[(i * 4) + 3] = alpha;
-    }
-
-    auto f       = font{make_texture(atlas_width, atlas_height, rgba_pixels.data())};
-    f.font_size_ = font_size;
-
-    for (const auto i : std::views::indices(96u)) {
-        const auto& b         = baked_chars[i];
-        const auto  codepoint = static_cast<char32_t>(32 + i);
-
-        auto g = glyph{
-            .uv_rect =
-                uv_rectangle{
-                    .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
-                    .y      = static_cast<f32>(b.y0) / static_cast<f32>(atlas_height),
-                    .width  = static_cast<f32>(b.x1 - b.x0) / static_cast<f32>(atlas_width),
-                    .height = static_cast<f32>(b.y1 - b.y0) / static_cast<f32>(atlas_height)
-                },
-            .size =
-                extent{
-                    .width = static_cast<f32>(b.x1 - b.x0), .height = static_cast<f32>(b.y1 - b.y0)
-                },
-            .bearing = vec2{.x = b.xoff, .y = b.yoff},
-            .advance = b.xadvance
-        };
-        f.glyphs_[codepoint] = g;
-    }
-
-    return f;
+    return font::try_make(path, font_size, atlas_width, atlas_height);
 }
 }  // namespace rin

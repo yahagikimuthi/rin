@@ -34,9 +34,11 @@ inline constexpr auto primitive_triangle_strip = primitive_type::triangle_strip;
 inline constexpr auto primitive_triangle_fan   = primitive_type::triangle_fan;
 
 class vertex_vector final {
-    friend inline auto make_vertex_vector(const primitive_type type) noexcept -> vertex_vector;
-
   public:
+    [[nodiscard]] static auto make(const primitive_type type) noexcept -> vertex_vector {
+        return vertex_vector{type};
+    }
+
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
     void emplace_back(Args&&... args) noexcept {
@@ -86,6 +88,6 @@ class vertex_vector final {
 };
 
 [[nodiscard]] inline auto make_vertex_vector(const primitive_type type) noexcept -> vertex_vector {
-    return vertex_vector{type};
+    return vertex_vector::make(type);
 }
 }  // namespace rin

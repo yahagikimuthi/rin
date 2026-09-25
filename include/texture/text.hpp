@@ -13,10 +13,9 @@ namespace rin {
 class text final {
     using str_t = std::variant<std::string, std::string_view>;
 
-    friend inline auto make_text() noexcept -> text;
-    friend inline auto make_text(const font& font_ref) noexcept -> text;
-
   public:
+    [[nodiscard]] static auto make(const font& font_ref) noexcept -> text { return text{font_ref}; }
+
     [[nodiscard]] auto string() const noexcept -> std::string_view {
         return tex_str.visit([](auto&& str) noexcept -> std::string_view { return str; });
     }
@@ -35,7 +34,6 @@ class text final {
     void settle_font(const font& font_obj) noexcept { font_.emplace(font_obj); }
 
   private:
-    explicit text() noexcept = default;
     explicit text(const font& font_obj) noexcept : font_{font_obj} {}
     str_t                      tex_str;
     rgba                       color_;
@@ -43,8 +41,7 @@ class text final {
     std::optional<const font&> font_{std::nullopt};
 };
 
-[[nodiscard]] inline auto make_text() noexcept -> text { return text{}; }
 [[nodiscard]] inline auto make_text(const font& font_ref) noexcept -> text {
-    return text{font_ref};
+    return text::make(font_ref);
 }
 }  // namespace rin

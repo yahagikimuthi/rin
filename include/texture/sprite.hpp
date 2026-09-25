@@ -12,11 +12,10 @@
 #include "vertex.hpp"
 
 namespace rin {
-
 class sprite final {
-    friend inline auto make_sprite(const texture& tex) noexcept -> sprite;
-
   public:
+    [[nodiscard]] static auto make(const texture& tex) noexcept -> sprite { return sprite{tex}; }
+
     void settle_texture(const texture& tex) noexcept {
         tex_.emplace(tex);
         tex_rect_ = uv_rectangle{
@@ -102,5 +101,7 @@ class sprite final {
     bool                          dirty_{true};
 };
 
-[[nodiscard]] inline auto make_sprite(const texture& tex) noexcept -> sprite { return sprite{tex}; }
+[[nodiscard]] inline auto make_sprite(const texture& tex) noexcept -> sprite {
+    return sprite::make(tex);
+}
 }  // namespace rin

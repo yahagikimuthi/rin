@@ -67,7 +67,7 @@ class sound final {
 
 class audio_engine final {
   public:
-    [[nodiscard]] static auto create() noexcept -> std::expected<audio_engine, error> {
+    [[nodiscard]] static auto try_make() noexcept -> std::expected<audio_engine, error> {
         auto       engine = std::make_unique<ma_engine>();
         const auto result = ma_engine_init(nullptr, engine.get());
         if (result != MA_SUCCESS)
@@ -124,6 +124,6 @@ class audio_engine final {
 };
 
 [[nodiscard]] inline auto try_make_audio_engine() noexcept -> std::expected<audio_engine, error> {
-    return audio_engine::create();
+    return audio_engine::try_make();
 }
 }  // namespace rin

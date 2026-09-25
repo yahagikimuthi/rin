@@ -26,9 +26,15 @@
 
 namespace rin {
 class renderer final {
-    friend inline auto try_make_renderer() noexcept -> std::expected<renderer, error>;
-
   public:
+    [[nodiscard]] static auto try_make() noexcept -> std::expected<renderer, error> {
+        auto shader_res = try_make_shader();
+        if (not shader_res)
+            return make_error(runtime_error, "Failed to create shader.", shader_res.error());
+
+        return renderer{std::move(*shader_res)};
+    }
+
     void use() noexcept { shader_.use(); }
 
     void draw(
@@ -119,16 +125,12 @@ class renderer final {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    ebo_manager ebo_manager_;
+    ebo_manager ebo_manager_{make_ebo_manager()};
     shader      shader_;
     mesh        mesh_;
 };
 
 [[nodiscard]] inline auto try_make_renderer() noexcept -> std::expected<renderer, error> {
-    auto shader_res = try_make_shader();
-    if (not shader_res)
-        return make_error(runtime_error, "Failed to create shader.", shader_res.error());
-
-    return renderer{std::move(*shader_res)};
+    return renderer::try_make();
 }
 }  // namespace rin

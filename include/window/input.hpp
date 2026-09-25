@@ -13,9 +13,9 @@
 
 namespace rin {
 class input final {
-    friend inline auto make_input() noexcept -> input;
-
   public:
+    [[nodiscard]] static auto make() noexcept -> input { return input{}; }
+
     void update(GLFWwindow* window) noexcept {
         if (window == nullptr) return;
 
@@ -58,5 +58,5 @@ class input final {
     vec2                                mouse_position_{};
 };
 
-[[nodiscard]] inline auto make_input() noexcept -> input { return input{}; }
+[[nodiscard]] inline auto make_input() noexcept -> input { return input::make(); }
 }  // namespace rin

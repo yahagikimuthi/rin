@@ -13,9 +13,11 @@
 
 namespace rin {
 class mesh final {
-    friend inline auto make_mesh(const u32 max_vertices) noexcept -> mesh;
-
   public:
+    [[nodiscard]] static auto make(const u32 max_vertices) noexcept -> mesh {
+        return mesh{max_vertices};
+    }
+
     mesh(const mesh&)                             = delete;
     auto operator=(const mesh&) noexcept -> mesh& = delete;
 
@@ -129,6 +131,6 @@ class mesh final {
 };
 
 [[nodiscard]] inline auto make_mesh(const u32 max_vertices) noexcept -> mesh {
-    return mesh{max_vertices};
+    return mesh::make(max_vertices);
 }
 }  // namespace rin

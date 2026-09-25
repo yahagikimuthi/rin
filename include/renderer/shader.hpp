@@ -59,13 +59,31 @@ void main() {
 using namespace std::string_view_literals;
 
 class shader final {
-    friend inline auto try_make_shader() noexcept -> std::expected<shader, error>;
-
   public:
     static constexpr auto u_Transform  = "u_Transform"sv;
     static constexpr auto u_Color      = "u_Color"sv;
     static constexpr auto u_UseTexture = "u_UseTexture"sv;
     static constexpr auto u_Texture    = "u_Texture"sv;
+
+    [[nodiscard]] static auto try_make() noexcept -> std::expected<shader, error> {
+        const auto vertex_shader = shader::compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
+        if (not vertex_shader) return make_error(logic_error, "Failed to compile vertex shader.");
+
+        const auto fragment_shader =
+            shader::compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
+        if (not fragment_shader)
+            return make_error(logic_error, "Failed to compile fragment shader.");
+
+        const auto program = glCreateProgram();
+        glAttachShader(program, *vertex_shader);
+        glAttachShader(program, *fragment_shader);
+        glLinkProgram(program);
+        if (GL_LINK_STATUS == GL_FALSE) return make_error(logic_error, "Failed to link.");
+        glDeleteShader(*vertex_shader);
+        glDeleteShader(*fragment_shader);
+
+        return shader{program};
+    }
 
     shader(const shader&) noexcept                    = delete;
     auto operator=(const shader&) noexcept -> shader& = delete;
@@ -137,20 +155,6 @@ class shader final {
 };
 
 [[nodiscard]] inline auto try_make_shader() noexcept -> std::expected<shader, error> {
-    const auto vertex_shader = shader::compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
-    if (not vertex_shader) return make_error(logic_error, "Failed to compile vertex shader.");
-
-    const auto fragment_shader = shader::compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
-    if (not fragment_shader) return make_error(logic_error, "Failed to compile fragment shader.");
-
-    const auto program = glCreateProgram();
-    glAttachShader(program, *vertex_shader);
-    glAttachShader(program, *fragment_shader);
-    glLinkProgram(program);
-    if (GL_LINK_STATUS == GL_FALSE) return make_error(logic_error, "Failed to link.");
-    glDeleteShader(*vertex_shader);
-    glDeleteShader(*fragment_shader);
-
-    return shader{program};
+    return shader::try_make();
 }
 }  // namespace rin

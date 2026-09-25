@@ -27,13 +27,29 @@ struct uv_rectangle final {
 };
 
 class texture final {
-    friend inline auto make_texture(
-        const u32 width, const u32 height, const u8* const pixels
-    ) noexcept -> texture;
-    friend inline auto try_make_texture(const std::filesystem::path& path) noexcept
-        -> std::expected<texture, error>;
-
   public:
+    [[nodiscard]] static auto make(
+        const u32 width, const u32 height, const u8* const pixels
+    ) noexcept -> texture {
+        return texture{width, height, pixels};
+    }
+    [[nodiscard]] static auto try_make(const std::filesystem::path& path) noexcept
+        -> std::expected<texture, error> {
+        stbi_set_flip_vertically_on_load(static_cast<int>(true));
+
+        auto width    = 0;
+        auto height   = 0;
+        auto channels = 0;
+
+        auto* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
+        if (data == nullptr) return make_error(logic_error, "Failed to load file.");
+
+        auto tex = texture{static_cast<u32>(width), static_cast<u32>(height), data};
+
+        stbi_image_free(data);
+        return tex;
+    }
+
     texture(const texture&) noexcept                    = delete;
     auto operator=(const texture&) noexcept -> texture& = delete;
 
@@ -98,23 +114,11 @@ class texture final {
 [[nodiscard]] inline auto make_texture(
     const u32 width, const u32 height, const u8* const pixels
 ) noexcept -> texture {
-    return texture{width, height, pixels};
+    return texture::make(width, height, pixels);
 }
 
 [[nodiscard]] inline auto try_make_texture(const std::filesystem::path& path) noexcept
     -> std::expected<texture, error> {
-    stbi_set_flip_vertically_on_load(static_cast<int>(true));
-
-    auto width    = 0;
-    auto height   = 0;
-    auto channels = 0;
-
-    auto* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
-    if (data == nullptr) return make_error(logic_error, "Failed to load file.");
-
-    auto tex = texture{static_cast<u32>(width), static_cast<u32>(height), data};
-
-    stbi_image_free(data);
-    return tex;
+    return texture::try_make(path);
 }
 }  // namespace rin

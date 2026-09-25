@@ -18,7 +18,7 @@ struct polygon_index_data final {
 
 class ebo_manager {
   public:
-    explicit ebo_manager() noexcept = default;
+    [[nodiscard]] static auto make() noexcept -> ebo_manager { return ebo_manager{}; }
 
     [[nodiscard]] auto get_or_create(const u32 vertex_count) noexcept -> polygon_index_data {
         const auto actual_vertex = std::max(vertex_count, 3u);
@@ -58,6 +58,8 @@ class ebo_manager {
     ~ebo_manager() noexcept { destroy(); }
 
   private:
+    explicit ebo_manager() noexcept = default;
+
     [[nodiscard]] static auto create_index_data(const u32 vertex_count) noexcept
         -> polygon_index_data {
         const auto triangle_cnt = vertex_count - 2;
@@ -101,4 +103,6 @@ class ebo_manager {
     std::array<polygon_index_data, default_circle_segments + 1> default_slots_{};
     std::vector<polygon_index_data>                             unexpected_slots_;
 };
+
+[[nodiscard]] inline auto make_ebo_manager() noexcept -> ebo_manager { return ebo_manager::make(); }
 }  // namespace rin

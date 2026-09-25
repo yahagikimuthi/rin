@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <expected>
 #include <iostream>
 #include <string>
@@ -34,13 +35,59 @@ inline void GLAPIENTRY message_callback(
 }
 
 class window final {
-    friend inline auto try_make_window(const extent size, std::string_view title) noexcept
-        -> std::expected<window, error>;
-    friend inline auto try_make_window(
-        const u32 width, const u32 height, std::string_view title
-    ) noexcept -> std::expected<window, error>;
-
   public:
+    [[nodiscard]] static auto try_make(
+        const f32 width, const f32 height, std::string_view title
+    ) noexcept -> std::expected<window, error> {
+        // GLFWの初期化（何回呼び出しても安全）
+        if (not static_cast<bool>(glfwInit()))
+            return make_error(
+                runtime_error, "Failed to GLFW initialize. We recommend ending program."
+            );
+
+        // これから作る画面のメタ設定
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
+
+        auto        str        = std::string{title};
+        auto* const window_ptr = glfwCreateWindow(
+            static_cast<i32>(std::max(width, 0.f)),
+            static_cast<i32>(std::max(height, 1.f)),
+            str.c_str(),
+            nullptr,
+            nullptr
+        );
+
+        if (window_ptr == nullptr) return make_error(runtime_error, "Failed to initialize window.");
+
+        glfwMakeContextCurrent(window_ptr);
+        gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
+
+        auto actual_width  = 0;
+        auto actual_height = 0;
+        glfwGetFramebufferSize(window_ptr, &actual_width, &actual_height);
+
+        glViewport(0, 0, actual_width, actual_height);
+        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+
+        auto camera_obj =
+            make_camera(static_cast<f32>(actual_width), static_cast<f32>(actual_height));
+
+        auto renderer_res = try_make_renderer();
+        if (not renderer_res)
+            return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
+
+        return window{window_ptr, camera_obj, std::move(*renderer_res)};
+    }
+
+    [[nodiscard]] static auto try_make(
+        const extent size, const std::string_view title = "No Title"
+    ) noexcept -> std::expected<window, error> {
+        return try_make(size.width, size.height, title);
+    }
+
     window(const window&) noexcept                    = delete;
     auto operator=(const window&) noexcept -> window& = delete;
 
@@ -142,49 +189,14 @@ class window final {
 };
 
 [[nodiscard]] inline auto try_make_window(
-    const u32 width, const u32 height, std::string_view title = "No Title"
+    const f32 width, const f32 height, std::string_view title = "No Title"
 ) noexcept -> std::expected<window, error> {
-    // GLFWの初期化（何回呼び出しても安全）
-    if (not static_cast<bool>(glfwInit()))
-        return make_error(runtime_error, "Failed to GLFW initialize. We recommend ending program.");
-
-    // これから作る画面のメタ設定
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
-
-    auto        str        = std::string{title};
-    auto* const window_ptr = glfwCreateWindow(
-        static_cast<i32>(width), static_cast<i32>(height), str.c_str(), nullptr, nullptr
-    );
-
-    if (window_ptr == nullptr) return make_error(runtime_error, "Failed to initialize window.");
-
-    glfwMakeContextCurrent(window_ptr);
-    gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
-
-    auto actual_width  = 0;
-    auto actual_height = 0;
-    glfwGetFramebufferSize(window_ptr, &actual_width, &actual_height);
-
-    glViewport(0, 0, actual_width, actual_height);
-    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-
-    auto camera_obj = make_camera(static_cast<f32>(actual_width), static_cast<f32>(actual_height));
-
-    auto renderer_res = try_make_renderer();
-    if (not renderer_res)
-        return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
-
-    return window{window_ptr, camera_obj, std::move(*renderer_res)};
+    return window::try_make(width, height, title);
 }
 
 [[nodiscard]] inline auto try_make_window(
     const extent size, std::string_view title = "No Title"
 ) noexcept -> std::expected<window, error> {
-    if (size.width <= 0.f) return make_error(logic_error, "Window width should be positive.");
-    if (size.height <= 0.f) return make_error(logic_error, "Window height should be positive.");
-    return try_make_window(static_cast<u32>(size.width), static_cast<u32>(size.height), title);
+    return window::try_make(size, title);
 }
 }  // namespace rin
