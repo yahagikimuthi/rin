@@ -165,7 +165,7 @@ struct extent final {
         return lhs;
     }
     [[nodiscard]] friend constexpr auto operator*(const f32 lhs, extent rhs) noexcept -> extent {
-        return rhs *= lhs;
+        return rhs * lhs;
     }
     [[nodiscard]] friend constexpr auto operator/(extent lhs, const f32 rhs) noexcept -> extent {
         lhs /= rhs;
