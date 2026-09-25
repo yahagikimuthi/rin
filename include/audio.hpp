@@ -24,47 +24,43 @@ class sound final {
     sound(const sound&) noexcept                    = delete;
     auto operator=(const sound&) noexcept -> sound& = delete;
 
-    sound(sound&& other) noexcept
-        : sound_{std::exchange(other.sound_, ma_sound{})},
-          is_initialized_{std::exchange(other.is_initialized_, false)} {}
+    sound(sound&& other) noexcept : sound_{std::move(other.sound_)} {}
     auto operator=(sound&& other) noexcept -> sound& {
         if (this == &other) return *this;
 
         destroy();
 
-        sound_          = std::exchange(other.sound_, ma_sound{});
-        is_initialized_ = std::exchange(other.is_initialized_, false);
+        sound_ = std::move(other.sound_);
         return *this;
     }
     ~sound() noexcept = default;
 
     [[nodiscard]] auto is_playing() const noexcept -> bool {
-        return is_initialized_ and ma_sound_is_playing(&sound_) == MA_TRUE;
+        return sound_ and ma_sound_is_playing(sound_.get()) == MA_TRUE;
     }
 
     void play() noexcept {
-        if (is_initialized_) ma_sound_start(&sound_);
+        if (sound_) ma_sound_start(sound_.get());
     }
     void stop() noexcept {
-        if (is_initialized_) ma_sound_stop(&sound_);
+        if (sound_) ma_sound_stop(sound_.get());
     }
     void looping(const bool loop) noexcept {
-        if (is_initialized_) ma_sound_set_looping(&sound_, loop ? MA_TRUE : MA_FALSE);
+        if (sound_) ma_sound_set_looping(sound_.get(), loop ? MA_TRUE : MA_FALSE);
     }
     void volume(const f32 volume) noexcept {
-        if (is_initialized_) ma_sound_set_volume(&sound_, volume);
+        if (sound_) ma_sound_set_volume(sound_.get(), volume);
     }
 
   private:
     explicit sound() noexcept = default;
     void destroy() noexcept {
-        if (not is_initialized_) return;
-        ma_sound_uninit(&sound_);
-        is_initialized_ = false;
+        if (not sound_) return;
+        ma_sound_uninit(sound_.get());
+        sound_ = nullptr;
     }
 
-    ma_sound sound_{};
-    bool     is_initialized_{false};
+    std::unique_ptr<ma_sound> sound_{std::make_unique<ma_sound>()};
 };
 
 class audio_engine final {
@@ -99,11 +95,10 @@ class audio_engine final {
 
         auto       sound_obj = sound{};
         const auto result    = ma_sound_init_from_file(
-            engine_.get(), path.string().c_str(), 0, nullptr, nullptr, &sound_obj.sound_
+            engine_.get(), path.string().c_str(), 0, nullptr, nullptr, sound_obj.sound_.get()
         );
         if (result != MA_SUCCESS) return make_error(logic_error, "Failed to load sound file.");
 
-        sound_obj.is_initialized_ = true;
         return sound_obj;
     }
 
@@ -116,9 +111,11 @@ class audio_engine final {
         : engine_{std::move(engine)} {}
 
     void destroy() noexcept {
-        if (not engine_) return;
+        if (not engine_) {
+            return;
+        }
         ma_engine_uninit(engine_.get());
-        engine_ = nullptr;
+        engine_.reset();
     }
 
     std::unique_ptr<ma_engine> engine_;
