@@ -24,9 +24,7 @@ class timer final {
     static inline constinit f64 delta_time_{};
 };
 
-[[gnu::always_inline]] constexpr auto tick_time() noexcept -> f32 { return timer::tick(); }
+constexpr auto tick_time() noexcept -> f32 { return timer::tick(); }
 
-[[nodiscard]] [[gnu::always_inline]] constexpr auto delta_time() noexcept -> f32 {
-    return timer::delta_time();
-}
+[[nodiscard]] constexpr auto delta_time() noexcept -> f32 { return timer::delta_time(); }
 }  // namespace rin
