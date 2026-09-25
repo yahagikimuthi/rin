@@ -37,35 +37,6 @@ class renderer final {
 
     void use() noexcept { shader_.use(); }
 
-    void draw(
-        const vertex_vector&                vec,
-        const std::optional<const texture&> tex,
-        const camera&                       camera_obj,
-        const bool                          is_text = false
-    ) noexcept {
-        shader_.set_mat4(shader::u_Transform, camera_obj.calc_view_position_mat());
-        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
-
-        if (tex) {
-            tex->bind(0);
-            shader_.set_int(shader::u_Texture, 0);
-            shader_.set_bool(shader::u_UseTexture, true);
-        } else {
-            shader_.set_bool(shader::u_UseTexture, false);
-        }
-
-        mesh_.update_vertices(vec);
-        if (not is_text and  // 文字列の場合、EBOを使用すると壊れます
-            vec.type() == primitive_type::triangles) {
-            const auto vertex_cnt = static_cast<u32>(vec.size());
-            const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
-            mesh_.draw_elements(index_data.ebo, index_data.index_count, vec.type());
-            return;
-        }
-
-        mesh_.draw_arrays(static_cast<GLsizei>(vec.size()), vec.type());
-    }
-
     void draw(const vertex_vector& vec, const camera& camera) noexcept {
         draw(vec, std::nullopt, camera);
     }
@@ -123,6 +94,35 @@ class renderer final {
         : shader_{std::move(shader_object)}, mesh_{make_mesh(default_vbo_buffer)} {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    void draw(
+        const vertex_vector&                vec,
+        const std::optional<const texture&> tex,
+        const camera&                       camera_obj,
+        const bool                          is_text = false
+    ) noexcept {
+        shader_.set_mat4(shader::u_Transform, camera_obj.calc_view_position_mat());
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
+
+        if (tex) {
+            tex->bind(0);
+            shader_.set_int(shader::u_Texture, 0);
+            shader_.set_bool(shader::u_UseTexture, true);
+        } else {
+            shader_.set_bool(shader::u_UseTexture, false);
+        }
+
+        mesh_.update_vertices(vec);
+        if (not is_text and  // 文字列の場合、EBOを使用すると壊れます
+            vec.type() == primitive_type::triangles) {
+            const auto vertex_cnt = static_cast<u32>(vec.size());
+            const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
+            mesh_.draw_elements(index_data.ebo, index_data.index_count, vec.type());
+            return;
+        }
+
+        mesh_.draw_arrays(static_cast<GLsizei>(vec.size()), vec.type());
     }
 
     ebo_manager ebo_manager_{make_ebo_manager()};
