@@ -3,7 +3,6 @@
 #include <expected>
 #include <filesystem>
 #include <utility>
-#include "others/type.hpp"
 
 #define MINIAUDIO_IMPLEMENTATION
 #pragma GCC diagnostic push
@@ -14,6 +13,7 @@
 #pragma GCC diagnostic pop
 
 #include "others/error.hpp"
+#include "others/type.hpp"
 
 namespace rin {
 class sound final {
@@ -95,7 +95,7 @@ class audio_engine final {
 
     ~audio_engine() noexcept { destroy(); }
 
-    [[nodiscard]] auto load_sound(const std::filesystem::path& path) noexcept
+    [[nodiscard]] auto try_load_sound(const std::filesystem::path& path) noexcept
         -> std::expected<sound, error> {
         if (not is_initialized_) return make_error(logic_error, "Audio engine is not initialized.");
 
@@ -114,8 +114,7 @@ class audio_engine final {
     }
 
   private:
-    explicit audio_engine(const ma_engine engine) noexcept
-        : engine_{engine}, is_initialized_{true} {}
+    explicit audio_engine(const ma_engine engine) noexcept : engine_{engine} {}
 
     void destroy() noexcept {
         if (not is_initialized_) return;
@@ -124,6 +123,10 @@ class audio_engine final {
     }
 
     ma_engine engine_{};
-    bool      is_initialized_{false};
+    bool      is_initialized_{true};
 };
+
+[[nodiscard]] inline auto try_make_audio_engine() noexcept -> std::expected<audio_engine, error> {
+    return audio_engine::create();
+}
 }  // namespace rin
