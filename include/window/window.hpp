@@ -95,7 +95,10 @@ class window final {
         : input_{other.input_},
           camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
-          renderer_{std::move(other.renderer_)} {}
+          renderer_{std::move(other.renderer_)} {
+        glfwSetWindowUserPointer(window_, this);
+    }
+
     auto operator=(window&& other) noexcept -> window& {
         if (this == &other) return *this;
 
@@ -107,10 +110,14 @@ class window final {
         window_   = std::exchange(other.window_, nullptr);
         camera_   = other.camera_;
         renderer_ = std::move(other.renderer_);
+
+        glfwSetWindowUserPointer(window_, this);
         return *this;
     }
+
     ~window() noexcept {
         if (window_ != nullptr) {
+            glfwSetWindowUserPointer(window_, nullptr);
             glfwDestroyWindow(window_);
             window_ = nullptr;
         }
@@ -170,6 +177,13 @@ class window final {
     ) noexcept
         : camera_{camera_object}, window_{window_ptr}, renderer_{std::move(renderer_object)} {
         ++window_cnt_;
+
+        glfwSetWindowUserPointer(window_, this);
+        glfwSetFramebufferSizeCallback(window_, [](GLFWwindow* win, i32 w, i32 h) noexcept -> void {
+            auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+            if (self != nullptr)
+                self->camera_.window_size(static_cast<f32>(w), static_cast<f32>(h));
+        });
 
         // デバッグ出力の有効化
         glEnable(GL_DEBUG_OUTPUT);
