@@ -26,26 +26,26 @@ class key_input final {
         }
     }
 
-    [[nodiscard]] auto is_down(const key key_button) const noexcept -> bool {
-        const auto idx = key_to_size_t(key_button);
+    [[nodiscard]] auto is_down(const key button) const noexcept -> bool {
+        const auto idx = to_size_t(button);
         return current_[idx];
     }
 
-    [[nodiscard]] auto is_pressed(const key key_button) const noexcept -> bool {
-        const auto idx = key_to_size_t(key_button);
+    [[nodiscard]] auto is_pressed(const key button) const noexcept -> bool {
+        const auto idx = to_size_t(button);
         return current_[idx] and not previous_[idx];
     }
 
-    [[nodiscard]] auto is_released(const key key_button) const noexcept -> bool {
-        const auto idx = key_to_size_t(key_button);
+    [[nodiscard]] auto is_released(const key button) const noexcept -> bool {
+        const auto idx = to_size_t(button);
         return not current_[idx] and previous_[idx];
     }
 
   private:
     explicit key_input() noexcept = default;
 
-    [[nodiscard]] static auto key_to_size_t(const key key_button) noexcept -> std::size_t {
-        return static_cast<std::size_t>(std::to_underlying(key_button));
+    [[nodiscard]] static auto to_size_t(const key button) noexcept -> std::size_t {
+        return static_cast<std::size_t>(button);
     }
 
     std::array<bool, GLFW_KEY_LAST> current_{};
@@ -127,16 +127,16 @@ class input final {
         mouse_position_ = {.x = static_cast<f32>(x), .y = static_cast<f32>(y)};
     }
 
-    [[nodiscard]] auto is_key_down(const key key_button) const noexcept -> bool {
-        return key_.is_down(key_button);
+    [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {
+        return key_.is_down(button);
     }
 
-    [[nodiscard]] auto is_key_pressed(const key key_button) const noexcept -> bool {
-        return key_.is_pressed(key_button);
+    [[nodiscard]] auto is_key_pressed(const key button) const noexcept -> bool {
+        return key_.is_pressed(button);
     }
 
-    [[nodiscard]] auto is_key_released(const key key_button) const noexcept -> bool {
-        return key_.is_released(key_button);
+    [[nodiscard]] auto is_key_released(const key button) const noexcept -> bool {
+        return key_.is_released(button);
     }
 
     [[nodiscard]] auto is_mouse_down(const mouse button) const noexcept -> bool {
@@ -147,7 +147,7 @@ class input final {
         return mouse_.is_pressed(button);
     }
 
-    [[nodiscard]] auto is_released(const mouse button) const noexcept -> bool {
+    [[nodiscard]] auto is_mouse_released(const mouse button) const noexcept -> bool {
         return mouse_.is_released(button);
     }
 
@@ -157,9 +157,6 @@ class input final {
 
   private:
     explicit input() noexcept = default;
-    [[nodiscard]] static auto key_to_size_t(const key key_button) noexcept -> std::size_t {
-        return static_cast<std::size_t>(std::to_underlying(key_button));
-    }
 
     key_input   key_{make_key_input()};
     mouse_input mouse_{make_mouse_input()};
