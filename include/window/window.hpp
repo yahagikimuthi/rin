@@ -79,7 +79,12 @@ class window final {
         if (not renderer_res)
             return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
-        return window{window_ptr, camera_obj, std::move(*renderer_res)};
+        return window{
+            window_ptr,
+            camera_obj,
+            std::move(*renderer_res),
+            {.width = static_cast<f32>(actual_width), .height = static_cast<f32>(actual_height)}
+        };
     }
 
     [[nodiscard]] static auto try_make(
@@ -95,7 +100,8 @@ class window final {
         : input_{other.input_},
           camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
-          renderer_{std::move(other.renderer_)} {
+          renderer_{std::move(other.renderer_)},
+          size_{other.size_} {
         glfwSetWindowUserPointer(window_, this);
     }
 
@@ -110,6 +116,7 @@ class window final {
         window_   = std::exchange(other.window_, nullptr);
         camera_   = other.camera_;
         renderer_ = std::move(other.renderer_);
+        size_     = other.size_;
 
         glfwSetWindowUserPointer(window_, this);
         return *this;
@@ -169,13 +176,21 @@ class window final {
     [[nodiscard]] auto is_key_released(const key key_button) const noexcept -> bool {
         return input_.is_key_released(key_button);
     }
-    [[nodiscard]] auto mouse_position() const noexcept -> vec2 { return input_.mouse_position(); }
+    [[nodiscard]] auto mouse_position() const noexcept -> vec2 {
+        return input_.mouse_position(size_);
+    }
 
   private:
     explicit window(
-        GLFWwindow* const window_ptr, const camera& camera_object, renderer renderer_object
+        GLFWwindow* const window_ptr,
+        const camera&     camera_object,
+        renderer          renderer_object,
+        const extent&     size
     ) noexcept
-        : camera_{camera_object}, window_{window_ptr}, renderer_{std::move(renderer_object)} {
+        : camera_{camera_object},
+          window_{window_ptr},
+          renderer_{std::move(renderer_object)},
+          size_{size} {
         ++window_cnt_;
 
         glfwSetWindowUserPointer(window_, this);
@@ -188,7 +203,11 @@ class window final {
             auto actual_height = 0;
             glfwGetFramebufferSize(win, &actual_width, &actual_height);
 
-            self->camera_.window_size(static_cast<f32>(w), static_cast<f32>(h));
+            const auto casted_w = static_cast<f32>(actual_width);
+            const auto casted_h = static_cast<f32>(actual_height);
+
+            self->size_ = rin::extent{.width = casted_w, .height = casted_h};
+            self->camera_.window_size(casted_w, casted_h);
         });
 
         // デバッグ出力の有効化
@@ -205,6 +224,7 @@ class window final {
     camera                      camera_;
     GLFWwindow*                 window_;
     renderer                    renderer_;
+    extent                      size_;
     static inline constinit int window_cnt_{};
 };
 

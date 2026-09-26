@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "GLFW/glfw3.h"
+#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "window/key.hpp"
@@ -44,7 +45,14 @@ class input final {
         const auto idx = key_to_size_t(key_button);
         return not current_keys_[idx] and previous_keys_[idx];
     }
-    [[nodiscard]] constexpr auto mouse_position() const noexcept -> vec2 { return mouse_position_; }
+    [[nodiscard]] constexpr auto mouse_position(const extent& window_size) const noexcept -> vec2 {
+        if (window_size.width <= 0.f or window_size.height <= 0.f) return {.x = 0.f, .y = 0.f};
+
+        const auto norm_x = mouse_position_.x / window_size.width;
+        const auto norm_y = 1.f - (mouse_position_.y / window_size.height);
+
+        return {.x = norm_x * virtual_window_size.width, .y = norm_y * virtual_window_size.height};
+    }
 
   private:
     explicit constexpr input() noexcept = default;
