@@ -63,7 +63,7 @@ class renderer final {
 
         const auto vertex_cnt = static_cast<u32>(tmp_vertex_buff.size());
         const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
-        mesh_.draw_elements(index_data.ebo, index_data.index_count, tmp_vertex_buff.type());
+        mesh_.draw_elements(index_data.ebo, index_data.index_count, primitive_triangles);
     }
 
     void draw(const text& tex, const camera& camera) noexcept {
