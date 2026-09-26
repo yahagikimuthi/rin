@@ -20,6 +20,7 @@
 #include "texture/text.hpp"
 #include "vertex.hpp"
 #include "window/input.hpp"
+#include "window/mouse.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(
@@ -167,15 +168,30 @@ class window final {
 
     void display() noexcept { glfwSwapBuffers(window_); }
 
-    [[nodiscard]] auto is_key_down(const key key_button) const noexcept -> bool {
-        return input_.is_key_down(key_button);
+    [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {
+        return input_.is_key_down(button);
     }
-    [[nodiscard]] auto is_key_pressed(const key key_button) const noexcept -> bool {
-        return input_.is_key_pressed(key_button);
+
+    [[nodiscard]] auto is_key_pressed(const key button) const noexcept -> bool {
+        return input_.is_key_pressed(button);
     }
-    [[nodiscard]] auto is_key_released(const key key_button) const noexcept -> bool {
-        return input_.is_key_released(key_button);
+
+    [[nodiscard]] auto is_key_released(const key button) const noexcept -> bool {
+        return input_.is_key_released(button);
     }
+
+    [[nodiscard]] auto is_mouse_down(const mouse button) const noexcept -> bool {
+        return input_.is_mouse_down(button);
+    }
+
+    [[nodiscard]] auto is_mouse_pressed(const mouse button) const noexcept -> bool {
+        return input_.is_mouse_pressed(button);
+    }
+
+    [[nodiscard]] auto is_mouse_released(const mouse button) const noexcept -> bool {
+        return input_.is_mouse_released(button);
+    }
+
     [[nodiscard]] auto mouse_position() const noexcept -> vec2 {
         return input_.mouse_position(size_);
     }
