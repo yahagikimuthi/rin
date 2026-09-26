@@ -41,15 +41,36 @@ class renderer final {
         draw(vec, std::nullopt, camera);
     }
 
-    void draw(sprite& sprite, const camera& camera) noexcept {
-        draw(sprite.calc_vertices(), sprite.setting_texture(), camera);
+    void draw(sprite& spr, const camera& camera) noexcept {
+        const auto tex = spr.setting_texture();
+        if (not tex) return;
+
+        tex->bind(0);
+        static auto tmp_vertex_buff = make_vertex_vector(primitive_triangles);
+        tmp_vertex_buff.clear();
+        spr.append_to(tmp_vertex_buff);
+
+        const auto model = spr.calc_transfrom_mat();
+        const auto vp    = camera.calc_view_position_mat();
+        const auto mvp   = vp * model;
+
+        shader_.set_mat4(shader::u_Transform, mvp);
+        shader_.set_bool(shader::u_UseTexture, true);
+
+        mesh_.update_vertices(tmp_vertex_buff);
+        const auto vertex_cnt = static_cast<u32>(tmp_vertex_buff.size());
+        const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
+        mesh_.draw_elements(index_data.ebo, index_data.index_count, tmp_vertex_buff.type());
     }
 
     void draw(const text& tex, const camera& camera) noexcept {
         const auto font_obj = tex.setting_font();
         if (not font_obj) return;
 
-        auto vec      = make_vertex_vector(primitive_triangles);
+        static auto vec = make_vertex_vector(primitive_triangles);
+        vec.clear();
+        vec.reserve(6);
+
         auto cursor_x = tex.position().x;
         auto cursor_y = tex.position().y;
 
@@ -98,7 +119,7 @@ class renderer final {
 
     void draw(
         const vertex_vector&                vec,
-        const std::optional<const texture&> tex,
+        const std::optional<const texture&> texture_ref,
         const camera&                       camera_obj,
         const bool                          is_text = false
     ) noexcept {
@@ -108,8 +129,8 @@ class renderer final {
         shader_.set_mat4(shader::u_Transform, transform);
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
 
-        if (tex) {
-            tex->bind(0);
+        if (texture_ref) {
+            texture_ref->bind(0);
             shader_.set_int(shader::u_Texture, 0);
             shader_.set_bool(shader::u_UseTexture, true);
         } else {
