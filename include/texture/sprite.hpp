@@ -34,7 +34,7 @@ class sprite final {
     void origin(const vec2 o) noexcept { origin_ = o; }
     void origin(const f32 x, const f32 y) noexcept { origin_ = {.x = x, .y = y}; }
     void color(const rgba& col) noexcept { color_ = col; }
-    void color(const u8 r, const u8 g, const u8 b, const u8 a = 255.f) noexcept {
+    void color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
         color_ = {.r = r, .g = g, .b = b, .a = a};
     }
 
@@ -55,7 +55,6 @@ class sprite final {
     void append_to(vertex_vector& out_vertices) const noexcept {
         if (not tex_) return;
 
-        assert(out_vertices.empty());
         out_vertices.reserve(6);
 
         const auto tex_w = tex_->size().width;
