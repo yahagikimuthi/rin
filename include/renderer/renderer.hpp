@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cmath>
 #include <expected>
 #include <glm/ext/matrix_float4x4.hpp>
@@ -58,6 +59,8 @@ class renderer final {
         shader_.set_bool(shader::u_UseTexture, true);
 
         mesh_.update_vertices(tmp_vertex_buff);
+        assert(tmp_vertex_buff.type() == primitive_triangles);
+
         const auto vertex_cnt = static_cast<u32>(tmp_vertex_buff.size());
         const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
         mesh_.draw_elements(index_data.ebo, index_data.index_count, tmp_vertex_buff.type());
