@@ -16,7 +16,7 @@ class sprite final {
   public:
     [[nodiscard]] static auto make(const texture& tex) noexcept -> sprite { return sprite{tex}; }
 
-    void settle_texture(const texture& tex) noexcept {
+    void setting_texture(const texture& tex) noexcept {
         tex_.emplace(tex);
         tex_rect_ = uv_rectangle{
             .x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height
@@ -32,12 +32,12 @@ class sprite final {
         return vertices_;
     }
 
-    [[nodiscard]] auto settle_texture() const noexcept -> std::optional<const texture&> {
+    [[nodiscard]] auto setting_texture() const noexcept -> std::optional<const texture&> {
         return tex_;
     }
 
   private:
-    explicit sprite(const texture& tex) noexcept { settle_texture(tex); }
+    explicit sprite(const texture& tex) noexcept { setting_texture(tex); }
     void update_vertices() noexcept {
         if (not tex_) return;
 

@@ -21,7 +21,7 @@ class text final {
     }
     [[nodiscard]] auto position() const noexcept -> vec2 { return position_; }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
-    [[nodiscard]] auto settle_font() const noexcept -> std::optional<const font&> { return font_; }
+    [[nodiscard]] auto setting_font() const noexcept -> std::optional<const font&> { return font_; }
 
     void string(const string_literal auto& str) noexcept { tex_str = std::string_view{str}; }
     void string(const std::string_view str) noexcept { tex_str = std::string{str}; }
@@ -31,7 +31,7 @@ class text final {
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
         color_ = {.r = r, .g = g, .b = b, .a = a};
     }
-    void settle_font(const font& font_obj) noexcept { font_.emplace(font_obj); }
+    void setting_font(const font& font_obj) noexcept { font_.emplace(font_obj); }
 
   private:
     explicit text(const font& font_obj) noexcept : font_{font_obj} {}

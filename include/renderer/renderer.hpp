@@ -42,11 +42,11 @@ class renderer final {
     }
 
     void draw(sprite& sprite, const camera& camera) noexcept {
-        draw(sprite.calc_vertices(), sprite.settle_texture(), camera);
+        draw(sprite.calc_vertices(), sprite.setting_texture(), camera);
     }
 
     void draw(const text& tex, const camera& camera) noexcept {
-        const auto font_obj = tex.settle_font();
+        const auto font_obj = tex.setting_font();
         if (not font_obj) return;
 
         auto vec      = make_vertex_vector(primitive_triangles);
@@ -86,7 +86,7 @@ class renderer final {
             cursor_x += g->advance;
         }
 
-        draw(vec, font_obj->settle_texture(), camera, true);
+        draw(vec, font_obj->setting_texture(), camera, true);
     }
 
   private:
