@@ -6,6 +6,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 
@@ -24,8 +25,8 @@ struct camera final {
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
 
     [[nodiscard]] constexpr auto calc_view_position_mat() const noexcept -> glm::mat4 {
-        constexpr auto virtual_w = 800.0f;
-        constexpr auto virtual_h = 600.0f;
+        constexpr auto virtual_w = virtual_window_size.width;
+        constexpr auto virtual_h = virtual_window_size.height;
 
         const auto view_w = virtual_w / zoom_;
         const auto view_h = virtual_h / zoom_;
