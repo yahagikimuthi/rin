@@ -43,7 +43,6 @@ class sprite final {
         uv_rect_ = uv_rectangle{
             .x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height
         };
-        dirty_ = true;
     }
 
     [[nodiscard]] auto calc_transfrom_mat() const noexcept -> glm::mat4 {
@@ -94,7 +93,6 @@ class sprite final {
     vec2                          scale_{.x = 1.f, .y = 1.f};
     vec2                          origin_;
     f32                           rotation_{0.f};
-    bool                          dirty_{true};
 };  // namespace rin
 
 [[nodiscard]] inline auto make_sprite(const texture& tex) noexcept -> sprite {
