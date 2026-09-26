@@ -24,8 +24,11 @@ struct camera final {
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
 
     [[nodiscard]] constexpr auto calc_view_position_mat() const noexcept -> glm::mat4 {
-        const auto view_w = window_size_.width / zoom_;
-        const auto view_h = window_size_.height / zoom_;
+        constexpr auto virtual_w = 800.0f;
+        constexpr auto virtual_h = 600.0f;
+
+        const auto view_w = virtual_w / zoom_;
+        const auto view_h = virtual_h / zoom_;
 
         const auto projection = glm::ortho(0.0f, view_w, 0.0f, view_h, -1.0f, 1.0f);
 
