@@ -33,6 +33,7 @@ class texture final {
     ) noexcept -> texture {
         return texture{width, height, pixels};
     }
+
     [[nodiscard]] static auto try_make(const std::filesystem::path& path) noexcept
         -> std::expected<texture, error> {
         stbi_set_flip_vertically_on_load(static_cast<int>(true));
@@ -42,7 +43,7 @@ class texture final {
         auto channels = 0;
 
         auto* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
-        if (data == nullptr) return make_error(logic_error, "Failed to load file.");
+        if (data == nullptr) return make_error(logic_error, "Failed to load texture file.");
 
         auto tex = texture{static_cast<u32>(width), static_cast<u32>(height), data};
 
@@ -66,12 +67,9 @@ class texture final {
     }
     ~texture() noexcept { destroy(); }
 
-    void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
+    [[nodiscard]] auto size() const noexcept -> extent { return size_; }
 
-    template <typename Self>
-    [[nodiscard]] auto size(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).size_;
-    }
+    void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
 
   private:
     explicit texture(const u32 width, const u32 height, const u8* const pixels) noexcept
