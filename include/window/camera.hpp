@@ -24,13 +24,13 @@ struct camera final {
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
 
     [[nodiscard]] constexpr auto calc_view_position_mat() const noexcept -> glm::mat4 {
-        const auto half_w = (window_size_.width * 0.5f) / zoom_;
-        const auto half_h = (window_size_.height * 0.5f) / zoom_;
+        const auto view_w = window_size_.width / zoom_;
+        const auto view_h = window_size_.height / zoom_;
 
-        const auto projection = glm::ortho(-half_w, half_w, -half_h, half_h, -1.f, 1.f);
+        const auto projection = glm::ortho(0.0f, view_w, 0.0f, view_h, -1.0f, 1.0f);
 
         const auto view =
-            glm::translate(glm::mat4(1.f), glm::vec3(-static_cast<glm::vec2>(position_), 0.f));
+            glm::translate(glm::mat4(1.0f), glm::vec3(-position_.x, -position_.y, 0.0f));
 
         return projection * view;
     }
