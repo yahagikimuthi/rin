@@ -181,8 +181,14 @@ class window final {
         glfwSetWindowUserPointer(window_, this);
         glfwSetFramebufferSizeCallback(window_, [](GLFWwindow* win, i32 w, i32 h) noexcept -> void {
             auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
-            if (self != nullptr)
-                self->camera_.window_size(static_cast<f32>(w), static_cast<f32>(h));
+            if (self == nullptr) return;
+            glViewport(0, 0, w, h);
+
+            auto actual_width  = 0;
+            auto actual_height = 0;
+            glfwGetFramebufferSize(win, &actual_width, &actual_height);
+
+            self->camera_.window_size(static_cast<f32>(w), static_cast<f32>(h));
         });
 
         // デバッグ出力の有効化
