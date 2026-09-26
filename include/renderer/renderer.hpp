@@ -102,7 +102,10 @@ class renderer final {
         const camera&                       camera_obj,
         const bool                          is_text = false
     ) noexcept {
-        shader_.set_mat4(shader::u_Transform, camera_obj.calc_view_position_mat());
+        const auto transform = glm::translate(
+            camera_obj.calc_view_position_mat(), glm::vec3{vec.position().x, vec.position().y, 0.f}
+        );
+        shader_.set_mat4(shader::u_Transform, transform);
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
 
         if (tex) {

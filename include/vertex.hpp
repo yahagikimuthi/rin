@@ -39,6 +39,8 @@ class vertex_vector final {
         return vertex_vector{type};
     }
 
+    [[nodiscard]] auto position() const noexcept -> vec2 { return position_; }
+
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
     void emplace_back(Args&&... args) noexcept {
@@ -81,9 +83,13 @@ class vertex_vector final {
 
     [[nodiscard]] auto get() const noexcept -> std::span<const vertex> { return vec_; }
 
+    void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
+    void position(const vec2 pos) noexcept { position_ = pos; }
+
   private:
     explicit vertex_vector(const primitive_type type) noexcept : type_{type} {}
     std::vector<vertex> vec_;
+    vec2                position_{};
     primitive_type      type_;
 };
 
