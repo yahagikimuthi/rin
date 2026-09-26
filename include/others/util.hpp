@@ -60,7 +60,9 @@ struct vec2 final {
     f32 x{};
     f32 y{};
 
-    [[nodiscard]] constexpr auto hypot() const noexcept -> f32 { return std::hypot(x, y); }
+    [[nodiscard]] constexpr auto abs() const noexcept -> f32 { return std::hypot(x, y); }
+
+    [[nodiscard]] constexpr auto sum_square() const noexcept -> f32 { return (x * x) + (y * y); }
 
     constexpr auto operator+=(const vec2 other) noexcept -> vec2& {
         x += other.x;
