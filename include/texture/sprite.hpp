@@ -57,6 +57,7 @@ class sprite final {
     explicit sprite(const texture& tex) noexcept { setting_texture(tex); }
 
     void update_vertices() noexcept {
+        if (not tex_) return;
         const auto tex_w = tex_->size().width;
         const auto tex_h = tex_->size().height;
 
