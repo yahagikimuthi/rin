@@ -84,7 +84,7 @@ class renderer final {
         for (const auto c : tex.string()) {
             if (c == '\n') {
                 cursor_x = tex.position().x;
-                cursor_y += font_obj->font_size();
+                cursor_y += font_obj->size();
                 continue;
             }
 
