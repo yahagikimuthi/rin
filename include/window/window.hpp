@@ -136,30 +136,6 @@ class window final {
         if (--window_cnt_ == 0) glfwTerminate();
     }
 
-    [[nodiscard]] auto is_open() const noexcept -> bool {
-        return not static_cast<bool>(glfwWindowShouldClose(window_));
-    }
-
-    void poll_events() noexcept {
-        glfwPollEvents();
-        input_.update(window_);
-        renderer_.use();
-    }
-
-    static void clear(
-        const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 a = 1.f
-    ) noexcept {
-        glClearColor(r, g, b, a);
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
-    static void clear(const rgba& color) noexcept { clear(color.r, color.g, color.b, color.a); }
-
-    void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
-
-    void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
-
-    void draw(text& tex) noexcept { renderer_.draw(tex, camera_); }
-
     [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
 
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
@@ -197,6 +173,32 @@ class window final {
     [[nodiscard]] auto mouse_position() const noexcept -> vec2 {
         return input_.mouse_position(size_);
     }
+
+    [[nodiscard]] auto size() noexcept -> extent { return size_; }
+
+    [[nodiscard]] auto is_open() const noexcept -> bool {
+        return not static_cast<bool>(glfwWindowShouldClose(window_));
+    }
+
+    void poll_events() noexcept {
+        glfwPollEvents();
+        input_.update(window_);
+        renderer_.use();
+    }
+
+    static void clear(
+        const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 a = 1.f
+    ) noexcept {
+        glClearColor(r, g, b, a);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    static void clear(const rgba& color) noexcept { clear(color.r, color.g, color.b, color.a); }
+
+    void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
+
+    void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
+
+    void draw(text& tex) noexcept { renderer_.draw(tex, camera_); }
 
   private:
     explicit window(
