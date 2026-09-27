@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -41,7 +40,7 @@ inline constexpr auto primitive_triangle_fan   = primitive_type::triangle_fan;
 class vertex_vector final {
   public:
     using reference              = std::vector<vertex>::reference;
-    using const_reference        = std::vector<vertex>::const_iterator;
+    using const_reference        = std::vector<vertex>::const_reference;
     using iterator               = std::vector<vertex>::iterator;
     using const_iterator         = std::vector<vertex>::const_iterator;
     using size_type              = std::vector<vertex>::size_type;
@@ -107,6 +106,21 @@ class vertex_vector final {
     void reserve(const size_type n) noexcept { vec_.reserve(n); }
     void shrink_to_fit() noexcept { vec_.shrink_to_fit(); }
 
+    [[nodiscard]] auto operator[](const size_type i) noexcept -> reference { return vec_[i]; }
+    [[nodiscard]] auto operator[](const size_type i) const noexcept -> const_reference {
+        return vec_[i];
+    }
+    [[nodiscard]] auto at(const size_type i) noexcept -> reference { return vec_.at(i); }
+    [[nodiscard]] auto at(const size_type i) const noexcept -> const_reference {
+        return vec_.at(i);
+    }
+    [[nodiscard]] auto data() noexcept -> pointer { return vec_.data(); }
+    [[nodiscard]] auto data() const noexcept -> const_pointer { return vec_.data(); }
+    [[nodiscard]] auto front() noexcept -> reference { return vec_.front(); }
+    [[nodiscard]] auto front() const noexcept -> const_reference { return vec_.front(); }
+    [[nodiscard]] auto back() noexcept -> reference { return vec_.back(); }
+    [[nodiscard]] auto back() const noexcept -> const_reference { return vec_.back(); }
+
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
     void emplace_back(Args&&... args) noexcept {
@@ -114,31 +128,6 @@ class vertex_vector final {
     }
 
     void clear() noexcept { vec_.clear(); }
-
-    template <typename Self>
-    [[nodiscard]] auto operator[](this Self&& self, const std::size_t i) noexcept -> auto&& {
-        return std::forward<Self>(self).vec_[i];
-    }
-
-    template <typename Self>
-    [[nodiscard]] auto at(this Self&& self, const std::size_t i) noexcept -> auto&& {
-        return std::forward<Self>(self).vec_.at(i);
-    }
-
-    template <typename Self>
-    [[nodiscard]] auto data(this Self&& self) noexcept -> auto* {
-        return std::forward<Self>(self).vec_.data();
-    }
-
-    template <typename Self>
-    [[nodiscard]] auto front(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).vec_.front();
-    }
-
-    template <typename Self>
-    [[nodiscard]] auto back(this Self&& self) noexcept -> auto&& {
-        return std::forward<Self>(self).vec_.back();
-    }
 
     [[nodiscard]] auto type() const noexcept -> primitive_type { return type_; }
 
