@@ -187,6 +187,10 @@ class vertex_vector final {
     }
     void clear() noexcept { vec_.clear(); }
 
+    [[nodiscard]] auto get_allocator() const noexcept -> allocator_type {
+        return vec_.get_allocator();
+    }
+
     [[nodiscard]] auto type() const noexcept -> primitive_type { return type_; }
 
     [[nodiscard]] auto get() const noexcept -> std::span<const vertex> { return vec_; }
