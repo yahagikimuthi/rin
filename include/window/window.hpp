@@ -156,7 +156,7 @@ class window final {
 
     void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
 
-    void draw(const text& tex) noexcept { renderer_.draw(tex, camera_); }
+    void draw(text& tex) noexcept { renderer_.draw(tex, camera_); }
 
     [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <cmath>
 #include <expected>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -67,52 +66,24 @@ class renderer final {
         mesh_.draw_elements(index_data.ebo, index_data.index_count, primitive_triangles);
     }
 
-    // TODO 毎回文字列の計算をするのは思いため、textクラスの内部にキャッシュを持たせるべき
-    void draw(const text& tex, const camera& camera) noexcept {
-        const auto font_obj = tex.setting_font();
-        if (not font_obj) return;
+    void draw(text& tex, const camera& camera_obj) noexcept {
+        if (not tex.font_) return;
 
-        static auto vec = make_vertex_vector(primitive_triangles);
-        vec.clear();
-        vec.reserve(6);
+        const auto& vertices = tex.calc_vertices();
 
-        auto cursor_x = tex.position().x;
-        auto cursor_y = tex.position().y;
+        const auto transform = glm::translate(
+            camera_obj.calc_view_position_mat(),
+            glm::vec3{vertices.position().x, vertices.position().y, 0.f}
+        );
+        shader_.set_mat4(shader::u_Transform, transform);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
 
-        const auto color = tex.color();
+        tex.font_->setting_texture().bind(0);
+        shader_.set_int(shader::u_Texture, 0);
+        shader_.set_bool(shader::u_UseTexture, true);
 
-        for (const auto c : tex.string()) {
-            if (c == '\n') {
-                cursor_x = tex.position().x;
-                cursor_y += font_obj->size();
-                continue;
-            }
-
-            const auto g = font_obj->glyph_of_point(static_cast<char32_t>(c));
-            if (not g) continue;
-
-            const auto x0 = std::floor(cursor_x + g->bearing.x);
-            const auto y0 = std::floor(cursor_y + g->bearing.y);
-            const auto x1 = x0 + g->size.width;
-            const auto y1 = y0 + g->size.height;
-
-            const auto u0 = g->uv_rect.x;
-            const auto v0 = g->uv_rect.y;
-            const auto u1 = g->uv_rect.x + g->uv_rect.width;
-            const auto v1 = g->uv_rect.y + g->uv_rect.height;
-
-            vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
-            vec.emplace_back(vec2{.x = x1, .y = y0}, uv{.u = u1, .v = v0}, color);
-            vec.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color);
-
-            vec.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color);
-            vec.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color);
-            vec.emplace_back(vec2{.x = x0, .y = y1}, uv{.u = u0, .v = v1}, color);
-
-            cursor_x += g->advance;
-        }
-
-        draw(vec, font_obj->setting_texture(), camera, true);
+        mesh_.update_vertices(vertices);
+        mesh_.draw_arrays(static_cast<GLsizei>(vertices.size()), vertices.type());
     }
 
   private:
@@ -126,8 +97,7 @@ class renderer final {
     void draw(
         const vertex_vector&                vec,
         const std::optional<const texture&> texture_ref,
-        const camera&                       camera_obj,
-        const bool                          is_text = false
+        const camera&                       camera_obj
     ) noexcept {
         const auto transform = glm::translate(
             camera_obj.calc_view_position_mat(), glm::vec3{vec.position().x, vec.position().y, 0.f}
@@ -144,8 +114,7 @@ class renderer final {
         }
 
         mesh_.update_vertices(vec);
-        if (not is_text and  // 文字列の場合、EBOを使用すると壊れます
-            vec.type() == primitive_type::triangles) {
+        if (vec.type() == primitive_type::triangles) {
             const auto vertex_cnt = static_cast<u32>(vec.size());
             const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
             mesh_.draw_elements(index_data.ebo, index_data.index_count, vec.type());
