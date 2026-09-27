@@ -47,13 +47,29 @@ class vertex_vector final {
     [[nodiscard]] auto rotation() const noexcept -> f32 { return rotation_; }
     [[nodiscard]] auto origin() const noexcept -> vec2 { return origin_; }
 
-    void position(const vec2 pos) noexcept { position_ = pos; }
-    void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
-    void scale(const vec2 scale) noexcept { scale_ = scale; }
-    void scale(const f32 x, const f32 y) noexcept { scale_ = {.x = x, .y = y}; }
-    void rotation(const f32 radian) noexcept { rotation_ = radian; }
-    void origin(const vec2 origin) noexcept { origin_ = origin; }
-    void origin(const f32 x, const f32 y) noexcept { origin_ = {.x = x, .y = y}; }
+    auto position(const vec2 pos) noexcept -> vertex_vector& { return position(pos.x, pos.y); }
+    auto position(const f32 x, const f32 y) noexcept -> vertex_vector& {
+        position_ = {.x = x, .y = y};
+        return *this;
+    }
+    auto scale(const vec2 scale_vec) noexcept -> vertex_vector& {
+        return scale(scale_vec.x, scale_vec.y);
+    }
+    auto scale(const f32 x, const f32 y) noexcept -> vertex_vector& {
+        scale_ = {.x = x, .y = y};
+        return *this;
+    }
+    auto rotation(const f32 radian) noexcept -> vertex_vector& {
+        rotation_ = radian;
+        return *this;
+    }
+    auto origin(const vec2 origin_vec) noexcept -> vertex_vector& {
+        return origin(origin_vec.x, origin_vec.y);
+    }
+    auto origin(const f32 x, const f32 y) noexcept -> vertex_vector& {
+        origin_ = {.x = x, .y = y};
+        return *this;
+    }
 
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
