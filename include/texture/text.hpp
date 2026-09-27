@@ -60,6 +60,8 @@ class text final {
     }
 
   private:
+    explicit text(const font& font_obj) noexcept : font_{font_obj} {}
+
     void update_vertices() noexcept {
         if (not font_) return;
         vertices_.clear();
@@ -98,7 +100,6 @@ class text final {
         }
     }
 
-    explicit text(const font& font_obj) noexcept : font_{font_obj} {}
     vertex_vector              vertices_{make_vertex_vector(primitive_triangles)};
     str_t                      tex_str;
     rgba                       color_;
