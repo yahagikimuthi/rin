@@ -12,7 +12,7 @@
 
 namespace rin {
 class text final {
-    using str_t = std::variant<std::string, std::string_view>;
+    using str_t = std::variant<std::string_view, std::string>;
 
     static constexpr auto base_font_size = 48.f;
 
@@ -106,7 +106,7 @@ class text final {
     }
 
     vertex_vector              vertices_{make_vertex_vector(primitive_triangles)};
-    str_t                      tex_str;
+    str_t                      tex_str{std::string_view{""}};
     rgba                       color_;
     std::optional<const font&> font_{std::nullopt};
     f32                        size_{0.f};
