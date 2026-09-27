@@ -1,9 +1,13 @@
 #pragma once
 
+#include <bits/ranges_base.h>
+#include <bits/stl_iterator_base_types.h>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
+#include <initializer_list>
 #include <span>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -121,12 +125,66 @@ class vertex_vector final {
     [[nodiscard]] auto back() noexcept -> reference { return vec_.back(); }
     [[nodiscard]] auto back() const noexcept -> const_reference { return vec_.back(); }
 
+    template <typename InputIterator, typename = std::_RequireInputIter<InputIterator>>
+    void assign(InputIterator first, InputIterator last) noexcept {
+        vec_.assign(first, last);
+    }
+    void assign(size_type n, const vertex& v) noexcept { vec_.assign(n, v); }
+    void assign(std::initializer_list<vertex> list) noexcept { vec_.assign(list); }
+
+    template <std::__detail::__container_compatible_range<vertex> R>
+    void assign_range(R&& range) noexcept {
+        vec_.assign_range(std::forward<R>(range));
+    }
+
+    void push_back(const vertex& v) noexcept { vec_.push_back(v); }
+
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
     void emplace_back(Args&&... args) noexcept {
         vec_.emplace_back(std::forward<Args>(args)...);
     }
 
+    template <std::__detail::__container_compatible_range<vertex> R>
+    void append_range(R&& range) noexcept {
+        vec_.append_range(range);
+    }
+
+    void pop_back() noexcept { vec_.pop_back(); }
+
+    auto insert(const iterator& position, const vertex& v) noexcept -> iterator {
+        return vec_.insert(position, v);
+    }
+
+    auto insert(const iterator& position, size_type n, const vertex& v) noexcept -> iterator {
+        return vec_.insert(position, n, v);
+    }
+
+    template <typename InputIterator, typename = std::_RequireInputIter<InputIterator>>
+    auto insert(const iterator& position, InputIterator first, InputIterator last) noexcept
+        -> iterator {
+        return vec_.insert(position, first, last);
+    }
+
+    auto insert(const iterator& position, std::initializer_list<vertex> v) noexcept -> iterator {
+        return vec_.insert(position, v);
+    }
+
+    template <typename... Args>
+        requires std::is_constructible_v<vertex, Args...>
+    auto emplace(const iterator& position, Args&&... args) noexcept -> iterator {
+        return vec_.emplace(position, std::forward<Args>(args)...);
+    }
+
+    template <std::__detail::__container_compatible_range<vertex> R>
+    auto insert_range(const iterator& pos, R&& range) noexcept -> iterator {
+        return vec_.insert_range(pos, std::forward<R>(range));
+    }
+
+    auto erase(const iterator& position) noexcept -> iterator { return vec_.erase(position); }
+    auto erase(const iterator& first, const iterator& last) -> iterator {
+        return vec_.erase(first, last);
+    }
     void clear() noexcept { vec_.clear(); }
 
     [[nodiscard]] auto type() const noexcept -> primitive_type { return type_; }
