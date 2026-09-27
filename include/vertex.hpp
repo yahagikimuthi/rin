@@ -98,14 +98,21 @@ class vertex_vector final {
     [[nodiscard]] auto crbegin() const noexcept -> const_reverse_iterator { return vec_.crbegin(); }
     [[nodiscard]] auto crend() const noexcept -> const_reverse_iterator { return vec_.crend(); }
 
+    [[nodiscard]] auto size() const noexcept -> size_type { return vec_.size(); }
+    [[nodiscard]] auto max_size() const noexcept -> size_type { return vec_.max_size(); }
+    [[nodiscard]] auto capacity() const noexcept -> size_type { return vec_.capacity(); }
+    [[nodiscard]] auto empty() const noexcept -> bool { return vec_.empty(); }
+
+    void resize(const size_type n) noexcept { vec_.resize(n); }
+    void reserve(const size_type n) noexcept { vec_.reserve(n); }
+    void shrink_to_fit() noexcept { vec_.shrink_to_fit(); }
+
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
     void emplace_back(Args&&... args) noexcept {
         vec_.emplace_back(std::forward<Args>(args)...);
     }
 
-    void resize(const std::size_t n) noexcept { vec_.resize(n); }
-    void reserve(const std::size_t n) noexcept { vec_.reserve(n); }
     void clear() noexcept { vec_.clear(); }
 
     template <typename Self>
@@ -132,9 +139,6 @@ class vertex_vector final {
     [[nodiscard]] auto back(this Self&& self) noexcept -> auto&& {
         return std::forward<Self>(self).vec_.back();
     }
-
-    [[nodiscard]] auto size() const noexcept -> std::size_t { return vec_.size(); }
-    [[nodiscard]] auto empty() const noexcept -> bool { return size() == 0; }
 
     [[nodiscard]] auto type() const noexcept -> primitive_type { return type_; }
 
