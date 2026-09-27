@@ -37,8 +37,24 @@ class renderer final {
 
     void use() noexcept { shader_.use(); }
 
-    void draw(const vertex_vector& vec, const camera& camera) noexcept {
-        draw(vec, std::nullopt, camera);
+    void draw(const vertex_vector& vertices, const camera& camera_obj) noexcept {
+        const auto transform = glm::translate(
+            camera_obj.calc_view_position_mat(),
+            glm::vec3{vertices.position().x, vertices.position().y, 0.f}
+        );
+        shader_.set_mat4(shader::u_Transform, transform);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
+        shader_.set_bool(shader::u_UseTexture, false);
+
+        mesh_.update_vertices(vertices);
+        if (vertices.type() != primitive_triangles) {
+            mesh_.draw_arrays(static_cast<GLsizei>(vertices.size()), vertices.type());
+            return;
+        }
+
+        const auto vertex_cnt = static_cast<u32>(vertices.size());
+        const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
+        mesh_.draw_elements(index_data.ebo, index_data.index_count, vertices.type());
     }
 
     void draw(sprite& spr, const camera& camera) noexcept {
@@ -91,37 +107,6 @@ class renderer final {
         : shader_{std::move(shader_object)}, mesh_{make_mesh(default_vbo_buffer)} {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-
-    //? 過度に関数を共通化するのは読みにくい可能性がある
-    void draw(
-        const vertex_vector&                vec,
-        const std::optional<const texture&> texture_ref,
-        const camera&                       camera_obj
-    ) noexcept {
-        const auto transform = glm::translate(
-            camera_obj.calc_view_position_mat(), glm::vec3{vec.position().x, vec.position().y, 0.f}
-        );
-        shader_.set_mat4(shader::u_Transform, transform);
-        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
-
-        if (texture_ref) {
-            texture_ref->bind(0);
-            shader_.set_int(shader::u_Texture, 0);
-            shader_.set_bool(shader::u_UseTexture, true);
-        } else {
-            shader_.set_bool(shader::u_UseTexture, false);
-        }
-
-        mesh_.update_vertices(vec);
-        if (vec.type() == primitive_type::triangles) {
-            const auto vertex_cnt = static_cast<u32>(vec.size());
-            const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
-            mesh_.draw_elements(index_data.ebo, index_data.index_count, vec.type());
-            return;
-        }
-
-        mesh_.draw_arrays(static_cast<GLsizei>(vec.size()), vec.type());
     }
 
     ebo_manager ebo_manager_{make_ebo_manager()};
