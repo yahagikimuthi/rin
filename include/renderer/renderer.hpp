@@ -2,14 +2,7 @@
 
 #include <cassert>
 #include <expected>
-#include <glm/ext/matrix_float4x4.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/vector_float2.hpp>
-#include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/trigonometric.hpp>
 #include <optional>
 #include <utility>
 
@@ -38,11 +31,10 @@ class renderer final {
     void use() noexcept { shader_.use(); }
 
     void draw(const vertex_vector& vertices, const camera& camera_obj) noexcept {
-        const auto transform = glm::translate(
-            camera_obj.calc_view_position_mat(),
-            glm::vec3{vertices.position().x, vertices.position().y, 0.f}
-        );
-        shader_.set_mat4(shader::u_Transform, transform);
+        const auto model = vertices.calc_transform_mat();
+        const auto vp    = camera_obj.calc_view_position_mat();
+        const auto mvp   = vp * model;
+        shader_.set_mat4(shader::u_Transform, mvp);
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
         shader_.set_bool(shader::u_UseTexture, false);
 
@@ -64,7 +56,7 @@ class renderer final {
         tex->bind(0);
         const auto& vertices = spr.calc_vertices();
 
-        const auto model = spr.calc_transfrom_mat();
+        const auto model = vertices.calc_transform_mat();
         const auto vp    = camera.calc_view_position_mat();
         const auto mvp   = vp * model;
 
@@ -86,11 +78,11 @@ class renderer final {
 
         const auto& vertices = tex.calc_vertices();
 
-        const auto transform = glm::translate(
-            camera_obj.calc_view_position_mat(),
-            glm::vec3{vertices.position().x, vertices.position().y, 0.f}
-        );
-        shader_.set_mat4(shader::u_Transform, transform);
+        const auto vp    = camera_obj.calc_view_position_mat();
+        const auto model = vertices.calc_transform_mat();
+        const auto mvp   = vp * model;
+
+        shader_.set_mat4(shader::u_Transform, mvp);
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
 
         shader_.set_int(shader::u_Texture, 0);

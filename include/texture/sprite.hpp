@@ -17,28 +17,22 @@ class sprite final {
   public:
     [[nodiscard]] static auto make(const texture& tex) noexcept -> sprite { return sprite{tex}; }
 
-    [[nodiscard]] auto position() const noexcept -> vec2 { return position_; }
-    [[nodiscard]] auto scale() const noexcept -> vec2 { return scale_; }
-    [[nodiscard]] auto rotation() const noexcept -> f32 { return rotation_; }
-    [[nodiscard]] auto origin() const noexcept -> vec2 { return origin_; }
+    [[nodiscard]] auto position() const noexcept -> vec2 { return vertices_.position(); }
+    [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
+    [[nodiscard]] auto rotation() const noexcept -> f32 { return vertices_.rotation(); }
+    [[nodiscard]] auto origin() const noexcept -> vec2 { return vertices_.origin(); }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
     [[nodiscard]] auto setting_texture() const noexcept -> std::optional<const texture&> {
         return tex_;
     }
 
-    void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
-    void position(const f32 x, const f32 y) noexcept {
-        dirty_    = true;
-        position_ = {.x = x, .y = y};
-    }
-    void scale(const vec2 s) noexcept { scale_ = s; }
-    void scale(const f32 x, const f32 y) noexcept { scale_ = {.x = x, .y = y}; }
-    void rotation(const f32 r) noexcept { rotation_ = r; }
-    void origin(const vec2 o) noexcept { origin(o.x, o.y); }
-    void origin(const f32 x, const f32 y) noexcept {
-        dirty_  = true;
-        origin_ = {.x = x, .y = y};
-    }
+    void position(const vec2 pos) noexcept { vertices_.position(pos); }
+    void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
+    void scale(const vec2 scale) noexcept { vertices_.scale(scale); }
+    void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
+    void rotation(const f32 radian) noexcept { vertices_.rotation(radian); }
+    void origin(const vec2 origin) noexcept { vertices_.origin(origin); }
+    void origin(const f32 x, const f32 y) noexcept { vertices_.origin(x, y); }
     void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
         dirty_ = true;
@@ -51,13 +45,6 @@ class sprite final {
         uv_rect_ = uv_rectangle{
             .x = uv_rect_.x, .y = uv_rect_.y, .width = tex.size().width, .height = tex.size().height
         };
-    }
-
-    [[nodiscard]] auto calc_transfrom_mat() const noexcept -> glm::mat4 {
-        auto model = glm::translate(glm::mat4(1.f), glm::vec3{position_.x, position_.y, 0.f});
-        if (rotation_ != 0.f) model = glm::rotate(model, rotation_, glm::vec3{0.f, 0.f, 1.f});
-        model = glm::scale(model, glm::vec3{scale_.x, scale_.y, 1.f});
-        return model;
     }
 
     [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
@@ -81,10 +68,10 @@ class sprite final {
         const auto w = uv_rect_.width;
         const auto h = uv_rect_.height;
 
-        const auto p0 = vec2{.x = -origin_.x, .y = -origin_.y};
-        const auto p1 = vec2{.x = -origin_.x + w, .y = -origin_.y};
-        const auto p2 = vec2{.x = -origin_.x + w, .y = -origin_.y + h};
-        const auto p3 = vec2{.x = -origin_.x, .y = -origin_.y + h};
+        const auto p0 = vec2{.x = 0.f, .y = 0.f};
+        const auto p1 = vec2{.x = 0.f + w, .y = 0.f};
+        const auto p2 = vec2{.x = 0.f + w, .y = 0.f + h};
+        const auto p3 = vec2{.x = 0.f, .y = 0.f + h};
 
         vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
         vertices_.emplace_back(p1, uv{.u = u1, .v = v0}, color_);
@@ -99,10 +86,7 @@ class sprite final {
     std::optional<const texture&> tex_;
     uv_rectangle                  uv_rect_{};
     rgba                          color_{white};
-    vec2                          position_;
-    vec2                          scale_{.x = 1.f, .y = 1.f};
     vec2                          origin_;
-    f32                           rotation_{0.f};
     bool                          dirty_{true};
 };  // namespace rin
 
