@@ -185,6 +185,12 @@ class vertex_vector final {
     auto erase(const iterator& first, const iterator& last) -> iterator {
         return vec_.erase(first, last);
     }
+
+    template <typename Predicate>
+    auto erase_if(Predicate&& pred) noexcept -> size_type {
+        return std::erase_if(vec_, std::forward<Predicate>(pred));
+    }
+
     void clear() noexcept { vec_.clear(); }
 
     [[nodiscard]] auto get_allocator() const noexcept -> allocator_type {
