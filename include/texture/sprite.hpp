@@ -86,7 +86,6 @@ class sprite final {
     std::optional<const texture&> tex_;
     uv_rectangle                  uv_rect_{};
     rgba                          color_{white};
-    vec2                          origin_;
     bool                          dirty_{true};
 };  // namespace rin
 
