@@ -174,8 +174,6 @@ class window final {
         return input_.mouse_position(size_);
     }
 
-    [[nodiscard]] auto size() noexcept -> extent { return size_; }
-
     [[nodiscard]] auto is_open() const noexcept -> bool {
         return not static_cast<bool>(glfwWindowShouldClose(window_));
     }
