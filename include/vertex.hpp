@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstddef>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float3.hpp>
 #include <span>
 #include <utility>
 #include <vector>
@@ -40,6 +43,17 @@ class vertex_vector final {
     }
 
     [[nodiscard]] auto position() const noexcept -> vec2 { return position_; }
+    [[nodiscard]] auto scale() const noexcept -> vec2 { return scale_; }
+    [[nodiscard]] auto rotation() const noexcept -> f32 { return rotation_; }
+    [[nodiscard]] auto origin() const noexcept -> vec2 { return origin_; }
+
+    void position(const vec2 pos) noexcept { position_ = pos; }
+    void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
+    void scale(const vec2 scale) noexcept { scale_ = scale; }
+    void scale(const f32 x, const f32 y) noexcept { scale_ = {.x = x, .y = y}; }
+    void rotation(const f32 radian) noexcept { rotation_ = radian; }
+    void origin(const vec2 origin) noexcept { origin_ = origin; }
+    void origin(const f32 x, const f32 y) noexcept { origin_ = {.x = x, .y = y}; }
 
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
@@ -83,13 +97,24 @@ class vertex_vector final {
 
     [[nodiscard]] auto get() const noexcept -> std::span<const vertex> { return vec_; }
 
-    void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
-    void position(const vec2 pos) noexcept { position_ = pos; }
+    [[nodiscard]] auto calc_transform_mat() const noexcept -> glm::mat4 {
+        auto model = glm::translate(glm::mat4(1.f), glm::vec3{position_.x, position_.y, 0.f});
+        if (rotation_ != 0.f) model = glm::rotate(model, rotation_, glm::vec3{0.f, 0.f, 1.f});
+        model = glm::scale(model, glm::vec3{scale_.x, scale_.y, 1.f});
+
+        if (origin_.x != 0.f or origin_.y != 0.f)
+            model = glm::translate(model, glm::vec3{-origin_.x, -origin_.y, 0.f});
+
+        return model;
+    }
 
   private:
     explicit vertex_vector(const primitive_type type) noexcept : type_{type} {}
     std::vector<vertex> vec_;
     vec2                position_{};
+    vec2                scale_{.x = 1.f, .y = 1.f};
+    vec2                origin_{.x = 0.f, .y = 0.f};
+    f32                 rotation_{};
     primitive_type      type_;
 };
 
