@@ -33,10 +33,7 @@ class text final {
         tex_str = std::string{str};
     }
     void position(const vec2& pos) noexcept { position(pos.x, pos.y); }
-    void position(const f32 x, const f32 y) noexcept {
-        dirty_ = true;
-        vertices_.position(x, y);
-    }
+    void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
     void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
         dirty_ = true;
