@@ -67,6 +67,7 @@ class renderer final {
         mesh_.draw_elements(index_data.ebo, index_data.index_count, primitive_triangles);
     }
 
+    // TODO 毎回文字列の計算をするのは思いため、textクラスの内部にキャッシュを持たせるべき
     void draw(const text& tex, const camera& camera) noexcept {
         const auto font_obj = tex.setting_font();
         if (not font_obj) return;
@@ -121,6 +122,7 @@ class renderer final {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
+    //? 過度に関数を共通化するのは読みにくい可能性がある
     void draw(
         const vertex_vector&                vec,
         const std::optional<const texture&> texture_ref,
