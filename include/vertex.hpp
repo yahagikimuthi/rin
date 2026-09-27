@@ -87,6 +87,17 @@ class vertex_vector final {
         return *this;
     }
 
+    [[nodiscard]] auto begin() noexcept -> iterator { return vec_.begin(); }
+    [[nodiscard]] auto begin() const noexcept -> const_iterator { return vec_.begin(); }
+    [[nodiscard]] auto end() noexcept -> iterator { return vec_.end(); }
+    [[nodiscard]] auto end() const noexcept -> const_iterator { return vec_.end(); }
+    [[nodiscard]] auto cbegin() const noexcept -> const_iterator { return vec_.cbegin(); }
+    [[nodiscard]] auto cend() const noexcept -> const_iterator { return vec_.cend(); }
+    [[nodiscard]] auto rbegin() noexcept -> reverse_iterator { return vec_.rbegin(); }
+    [[nodiscard]] auto rend() noexcept -> reverse_iterator { return vec_.rend(); }
+    [[nodiscard]] auto crbegin() const noexcept -> const_reverse_iterator { return vec_.crbegin(); }
+    [[nodiscard]] auto crend() const noexcept -> const_reverse_iterator { return vec_.crend(); }
+
     template <typename... Args>
         requires std::is_constructible_v<vertex, Args...>
     void emplace_back(Args&&... args) noexcept {
@@ -105,19 +116,6 @@ class vertex_vector final {
     template <typename Self>
     [[nodiscard]] auto at(this Self&& self, const std::size_t i) noexcept -> auto&& {
         return std::forward<Self>(self).vec_.at(i);
-    }
-
-    template <typename Self>
-    [[nodiscard]] auto begin(this Self&& self) noexcept -> auto {
-        return std::forward<Self>(self).vec_.begin();
-    }
-
-    template <typename Self>
-    [[nodiscard]] auto cbegin();
-
-    template <typename Self>
-    [[nodiscard]] auto end(this Self&& self) noexcept -> auto {
-        return std::forward<Self>(self).vec_.end();
     }
 
     template <typename Self>
