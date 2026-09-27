@@ -56,6 +56,7 @@ class renderer final {
         const auto mvp   = vp * model;
 
         shader_.set_mat4(shader::u_Transform, mvp);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
         shader_.set_bool(shader::u_UseTexture, true);
 
         mesh_.update_vertices(tmp_vertex_buff);
