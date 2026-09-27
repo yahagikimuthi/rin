@@ -38,13 +38,15 @@ inline void GLAPIENTRY message_callback(
 class window final {
   public:
     [[nodiscard]] static auto try_make(
-        const f32 width, const f32 height, std::string_view title
+        const f32 width, const f32 height, const std::string_view title, const bool vsync = true
     ) noexcept -> std::expected<window, error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
             return make_error(
                 runtime_error, "Failed to GLFW initialize. We recommend ending program."
             );
+
+        glfwSwapInterval(static_cast<i32>(vsync));
 
         // これから作る画面のメタ設定
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -89,9 +91,9 @@ class window final {
     }
 
     [[nodiscard]] static auto try_make(
-        const extent size, const std::string_view title = "No Title"
+        const extent size, const std::string_view title = "No Title", const bool vsync = true
     ) noexcept -> std::expected<window, error> {
-        return try_make(size.width, size.height, title);
+        return try_make(size.width, size.height, title, vsync);
     }
 
     window(const window&) noexcept                    = delete;
@@ -245,14 +247,14 @@ class window final {
 };
 
 [[nodiscard]] inline auto try_make_window(
-    const f32 width, const f32 height, std::string_view title = "No Title"
+    const f32 width, const f32 height, std::string_view title = "No Title", const bool vsync = true
 ) noexcept -> std::expected<window, error> {
-    return window::try_make(width, height, title);
+    return window::try_make(width, height, title, vsync);
 }
 
 [[nodiscard]] inline auto try_make_window(
-    const extent size, std::string_view title = "No Title"
+    const extent size, std::string_view title = "No Title", const bool vsync = true
 ) noexcept -> std::expected<window, error> {
-    return window::try_make(size, title);
+    return window::try_make(size, title, vsync);
 }
 }  // namespace rin
