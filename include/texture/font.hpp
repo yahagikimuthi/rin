@@ -74,8 +74,7 @@ class font final {
             rgba_pixels[(i * 4) + 3] = alpha;
         }
 
-        auto f  = font{make_texture(atlas_width, atlas_height, rgba_pixels.data())};
-        f.size_ = font_size;
+        auto f = font{make_texture(atlas_width, atlas_height, rgba_pixels.data())};
 
         for (const auto i : std::views::indices(96u)) {
             const auto& b         = baked_chars[i];
@@ -112,14 +111,11 @@ class font final {
 
     [[nodiscard]] auto setting_texture() const noexcept -> const texture& { return atlas_texture_; }
 
-    [[nodiscard]] auto size() const noexcept -> f32 { return size_; }
-
   private:
     explicit font(texture tex) noexcept : atlas_texture_(std::move(tex)) {}
 
     std::unordered_map<char32_t, glyph> glyphs_;
     texture                             atlas_texture_;
-    f32                                 size_{0.f};
 };
 
 [[nodiscard]] inline auto try_make_font(
