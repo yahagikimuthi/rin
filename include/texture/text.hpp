@@ -14,6 +14,8 @@ namespace rin {
 class text final {
     using str_t = std::variant<std::string, std::string_view>;
 
+    static constexpr auto base_font_size = 48.f;
+
   public:
     [[nodiscard]] static auto make(const font& font_ref) noexcept -> text { return text{font_ref}; }
 
@@ -23,6 +25,7 @@ class text final {
     [[nodiscard]] auto position() const noexcept -> vec2 { return vertices_.position(); }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
     [[nodiscard]] auto setting_font() const noexcept -> std::optional<const font&> { return font_; }
+    [[nodiscard]] auto size() const noexcept -> f32 { return size_; }
 
     void string(const string_literal auto& str) noexcept {
         dirty_  = true;
@@ -42,6 +45,11 @@ class text final {
     void setting_font(const font& font_obj) noexcept {
         dirty_ = true;
         font_.emplace(font_obj);
+    }
+    void size(const f32 s) noexcept {
+        size_            = s;
+        const auto scale = size_ / base_font_size;
+        vertices_.scale(scale, scale);
     }
 
     [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
@@ -68,7 +76,7 @@ class text final {
         for (const auto c : string()) {
             if (c == '\n') {
                 cursor_x = 0.f;
-                cursor_y = font_->size();
+                cursor_y = base_font_size;
                 continue;
             }
 
@@ -101,6 +109,7 @@ class text final {
     str_t                      tex_str;
     rgba                       color_;
     std::optional<const font&> font_{std::nullopt};
+    f32                        size_{0.f};
     bool                       dirty_{true};
 };
 
