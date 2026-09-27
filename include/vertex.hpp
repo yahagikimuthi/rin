@@ -15,6 +15,8 @@
 
 namespace rin {
 struct vertex final {
+    [[nodiscard]] auto operator==(const vertex&) const noexcept -> bool = default;
+
     vec2 position;
     uv   tex_coord;
     rgba color;
@@ -53,6 +55,8 @@ class vertex_vector final {
     [[nodiscard]] static auto make(const primitive_type type) noexcept -> vertex_vector {
         return vertex_vector{type};
     }
+
+    [[nodiscard]] auto operator==(const vertex_vector&) const noexcept -> bool = default;
 
     [[nodiscard]] auto position() const noexcept -> vec2 { return position_; }
     [[nodiscard]] auto scale() const noexcept -> vec2 { return scale_; }
