@@ -83,7 +83,8 @@ class renderer final {
     }
 
     void draw(text& tex, const camera& camera_obj) noexcept {
-        if (not tex.font_) return;
+        const auto result = tex.bind_font(0);
+        if (not result) return;
 
         const auto& vertices = tex.calc_vertices();
 
@@ -94,7 +95,6 @@ class renderer final {
         shader_.set_mat4(shader::u_Transform, transform);
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
 
-        tex.font_->setting_texture().bind(0);
         shader_.set_int(shader::u_Texture, 0);
         shader_.set_bool(shader::u_UseTexture, true);
 

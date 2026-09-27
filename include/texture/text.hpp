@@ -14,15 +14,13 @@ namespace rin {
 class text final {
     using str_t = std::variant<std::string, std::string_view>;
 
-    friend class renderer;
-
   public:
     [[nodiscard]] static auto make(const font& font_ref) noexcept -> text { return text{font_ref}; }
 
     [[nodiscard]] auto string() const noexcept -> std::string_view {
         return tex_str.visit([](auto&& str) noexcept -> std::string_view { return str; });
     }
-    [[nodiscard]] auto position() const noexcept -> vec2 { return position_; }
+    [[nodiscard]] auto position() const noexcept -> vec2 { return vertices_.position(); }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
     [[nodiscard]] auto setting_font() const noexcept -> std::optional<const font&> { return font_; }
 
@@ -36,8 +34,8 @@ class text final {
     }
     void position(const vec2& pos) noexcept { position(pos.x, pos.y); }
     void position(const f32 x, const f32 y) noexcept {
-        dirty_    = true;
-        position_ = {.x = x, .y = y};
+        dirty_ = true;
+        vertices_.position(x, y);
     }
     void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
@@ -55,16 +53,22 @@ class text final {
         return vertices_;
     }
 
+    [[nodiscard]] auto bind_font(const u32 unit) noexcept -> bool {
+        if (not font_) return false;
+        font_->setting_texture().bind(unit);
+        return true;
+    }
+
   private:
     void update_vertices() noexcept {
         if (not font_) return;
         vertices_.clear();
-        auto cursor_x = position_.x;
-        auto cursor_y = position_.y;
+        auto cursor_x = 0.f;
+        auto cursor_y = 0.f;
 
         for (const auto c : string()) {
             if (c == '\n') {
-                cursor_x = position_.x;
+                cursor_x = 0.f;
                 cursor_y = font_->size();
                 continue;
             }
@@ -98,7 +102,6 @@ class text final {
     vertex_vector              vertices_{make_vertex_vector(primitive_triangles)};
     str_t                      tex_str;
     rgba                       color_;
-    vec2                       position_;
     std::optional<const font&> font_{std::nullopt};
     bool                       dirty_{true};
 };
