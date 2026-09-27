@@ -38,6 +38,18 @@ inline constexpr auto primitive_triangle_fan   = primitive_type::triangle_fan;
 
 class vertex_vector final {
   public:
+    using reference              = std::vector<vertex>::reference;
+    using const_reference        = std::vector<vertex>::const_iterator;
+    using iterator               = std::vector<vertex>::iterator;
+    using const_iterator         = std::vector<vertex>::const_iterator;
+    using size_type              = std::vector<vertex>::size_type;
+    using difference_type        = std::vector<vertex>::difference_type;
+    using allocator_type         = std::vector<vertex>::allocator_type;
+    using pointer                = std::vector<vertex>::pointer;
+    using const_pointer          = std::vector<vertex>::const_pointer;
+    using reverse_iterator       = std::vector<vertex>::reverse_iterator;
+    using const_reverse_iterator = std::vector<vertex>::const_reverse_iterator;
+
     [[nodiscard]] static auto make(const primitive_type type) noexcept -> vertex_vector {
         return vertex_vector{type};
     }
@@ -95,6 +107,9 @@ class vertex_vector final {
     [[nodiscard]] auto begin(this Self&& self) noexcept -> auto {
         return std::forward<Self>(self).vec_.begin();
     }
+
+    template <typename Self>
+    [[nodiscard]] auto cbegin();
 
     template <typename Self>
     [[nodiscard]] auto end(this Self&& self) noexcept -> auto {
