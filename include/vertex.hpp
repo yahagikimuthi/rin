@@ -106,6 +106,16 @@ class vertex_vector final {
         return std::forward<Self>(self).vec_.data();
     }
 
+    template <typename Self>
+    [[nodiscard]] auto front(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).vec_.front();
+    }
+
+    template <typename Self>
+    [[nodiscard]] auto back(this Self&& self) noexcept -> auto&& {
+        return std::forward<Self>(self).vec_.back();
+    }
+
     [[nodiscard]] auto size() const noexcept -> std::size_t { return vec_.size(); }
     [[nodiscard]] auto empty() const noexcept -> bool { return size() == 0; }
 
