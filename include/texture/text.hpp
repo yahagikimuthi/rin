@@ -5,6 +5,7 @@
 #include <string_view>
 #include <variant>
 
+#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "texture/font.hpp"
@@ -13,8 +14,6 @@
 namespace rin {
 class text final {
     using str_t = std::variant<std::string_view, std::string>;
-
-    static constexpr auto base_font_size = 48.f;
 
   public:
     [[nodiscard]] static auto make(const font& font_ref) noexcept -> text { return text{font_ref}; }
@@ -48,7 +47,7 @@ class text final {
     }
     void size(const f32 s) noexcept {
         size_            = s;
-        const auto scale = size_ / base_font_size;
+        const auto scale = size_ / default_font_size;
         vertices_.scale(scale, scale);
     }
 
@@ -76,7 +75,7 @@ class text final {
         for (const auto c : string()) {
             if (c == '\n') {
                 cursor_x = 0.f;
-                cursor_y = base_font_size;
+                cursor_y = default_font_size;
                 continue;
             }
 

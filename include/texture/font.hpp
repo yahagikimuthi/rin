@@ -8,6 +8,7 @@
 #include <ranges>
 #include <unordered_map>
 #include <vector>
+#include "others/setting.hpp"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #pragma GCC diagnostic push
@@ -34,7 +35,6 @@ class font final {
   public:
     [[nodiscard]] static auto try_make(
         const std::filesystem::path& path,
-        const f32                    font_size,
         const u32                    atlas_width  = 1024,
         const u32                    atlas_height = 1024
     ) noexcept -> std::expected<font, error> {
@@ -53,7 +53,7 @@ class font final {
         const auto res = stbtt_BakeFontBitmap(
             font_buffer.data(),
             0,
-            font_size,
+            default_font_size,
             atlas_pixels.data(),
             static_cast<i32>(atlas_width),
             static_cast<i32>(atlas_height),
@@ -119,11 +119,8 @@ class font final {
 };
 
 [[nodiscard]] inline auto try_make_font(
-    const std::filesystem::path& path,
-    const f32                    font_size,
-    const u32                    atlas_width  = 1024,
-    const u32                    atlas_height = 1024
+    const std::filesystem::path& path, const u32 atlas_width = 1024, const u32 atlas_height = 1024
 ) noexcept -> std::expected<font, error> {
-    return font::try_make(path, font_size, atlas_width, atlas_height);
+    return font::try_make(path, atlas_width, atlas_height);
 }
 }  // namespace rin
