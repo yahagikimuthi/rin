@@ -62,9 +62,7 @@ class renderer final {
         if (not tex) return;
 
         tex->bind(0);
-        static auto tmp_vertex_buff = make_vertex_vector(primitive_triangles);
-        tmp_vertex_buff.clear();
-        spr.append_to(tmp_vertex_buff);
+        const auto& vertices = spr.calc_vertices();
 
         const auto model = spr.calc_transfrom_mat();
         const auto vp    = camera.calc_view_position_mat();
@@ -74,10 +72,10 @@ class renderer final {
         shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
         shader_.set_bool(shader::u_UseTexture, true);
 
-        mesh_.update_vertices(tmp_vertex_buff);
-        assert(tmp_vertex_buff.type() == primitive_triangles);
+        mesh_.update_vertices(vertices);
+        assert(vertices.type() == primitive_triangles);
 
-        const auto vertex_cnt = static_cast<u32>(tmp_vertex_buff.size());
+        const auto vertex_cnt = static_cast<u32>(vertices.size());
         const auto index_data = ebo_manager_.get_or_create(vertex_cnt);
         mesh_.draw_elements(index_data.ebo, index_data.index_count, primitive_triangles);
     }

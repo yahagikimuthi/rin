@@ -26,22 +26,30 @@ class sprite final {
         return tex_;
     }
 
-    void position(const vec2 pos) noexcept { position_ = pos; }
-    void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
+    void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
+    void position(const f32 x, const f32 y) noexcept {
+        dirty_    = true;
+        position_ = {.x = x, .y = y};
+    }
     void scale(const vec2 s) noexcept { scale_ = s; }
     void scale(const f32 x, const f32 y) noexcept { scale_ = {.x = x, .y = y}; }
     void rotation(const f32 r) noexcept { rotation_ = r; }
-    void origin(const vec2 o) noexcept { origin_ = o; }
-    void origin(const f32 x, const f32 y) noexcept { origin_ = {.x = x, .y = y}; }
-    void color(const rgba& col) noexcept { color_ = col; }
+    void origin(const vec2 o) noexcept { origin(o.x, o.y); }
+    void origin(const f32 x, const f32 y) noexcept {
+        dirty_  = true;
+        origin_ = {.x = x, .y = y};
+    }
+    void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
+        dirty_ = true;
         color_ = {.r = r, .g = g, .b = b, .a = a};
     }
 
     void setting_texture(const texture& tex) noexcept {
+        dirty_ = true;
         tex_.emplace(tex);
         uv_rect_ = uv_rectangle{
-            .x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height
+            .x = uv_rect_.x, .y = uv_rect_.y, .width = tex.size().width, .height = tex.size().height
         };
     }
 
@@ -52,11 +60,16 @@ class sprite final {
         return model;
     }
 
-    void append_to(vertex_vector& out_vertices) const noexcept {
-        if (not tex_) return;
+    [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
+        if (dirty_) update_vertices();
+        dirty_ = false;
+        return vertices_;
+    }
 
-        out_vertices.reserve(6);
+  private:
+    explicit sprite(const texture& tex) noexcept { setting_texture(tex); }
 
+    void update_vertices() noexcept {
         const auto tex_w = tex_->size().width;
         const auto tex_h = tex_->size().height;
 
@@ -73,18 +86,16 @@ class sprite final {
         const auto p2 = vec2{.x = -origin_.x + w, .y = -origin_.y + h};
         const auto p3 = vec2{.x = -origin_.x, .y = -origin_.y + h};
 
-        out_vertices.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
-        out_vertices.emplace_back(p1, uv{.u = u1, .v = v0}, color_);
-        out_vertices.emplace_back(p2, uv{.u = u1, .v = v1}, color_);
+        vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
+        vertices_.emplace_back(p1, uv{.u = u1, .v = v0}, color_);
+        vertices_.emplace_back(p2, uv{.u = u1, .v = v1}, color_);
 
-        out_vertices.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
-        out_vertices.emplace_back(p2, uv{.u = u1, .v = v1}, color_);
-        out_vertices.emplace_back(p3, uv{.u = u0, .v = v1}, color_);
+        vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
+        vertices_.emplace_back(p2, uv{.u = u1, .v = v1}, color_);
+        vertices_.emplace_back(p3, uv{.u = u0, .v = v1}, color_);
     }
 
-  private:
-    explicit sprite(const texture& tex) noexcept { setting_texture(tex); }
-
+    vertex_vector                 vertices_{make_vertex_vector(primitive_triangles)};
     std::optional<const texture&> tex_;
     uv_rectangle                  uv_rect_{};
     rgba                          color_{white};
@@ -92,6 +103,7 @@ class sprite final {
     vec2                          scale_{.x = 1.f, .y = 1.f};
     vec2                          origin_;
     f32                           rotation_{0.f};
+    bool                          dirty_{true};
 };  // namespace rin
 
 [[nodiscard]] inline auto make_sprite(const texture& tex) noexcept -> sprite {
