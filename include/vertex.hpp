@@ -90,6 +90,21 @@ class vertex_vector final {
         return *this;
     }
 
+    [[nodiscard]] auto calc_transform_mat() const noexcept -> glm::mat4 {
+        auto model = glm::translate(glm::mat4(1.f), glm::vec3{position_.x, position_.y, 0.f});
+        if (rotation_ != 0.f) model = glm::rotate(model, rotation_, glm::vec3{0.f, 0.f, 1.f});
+        model = glm::scale(model, glm::vec3{scale_.x, scale_.y, 1.f});
+
+        if (origin_.x != 0.f or origin_.y != 0.f)
+            model = glm::translate(model, glm::vec3{-origin_.x, -origin_.y, 0.f});
+
+        return model;
+    }
+
+    [[nodiscard]] auto type() const noexcept -> primitive_type { return type_; }
+
+    [[nodiscard]] auto span() const noexcept -> std::span<const vertex> { return vec_; }
+
     [[nodiscard]] auto begin() noexcept -> iterator { return vec_.begin(); }
     [[nodiscard]] auto begin() const noexcept -> const_iterator { return vec_.begin(); }
     [[nodiscard]] auto end() noexcept -> iterator { return vec_.end(); }
@@ -195,21 +210,6 @@ class vertex_vector final {
 
     [[nodiscard]] auto get_allocator() const noexcept -> allocator_type {
         return vec_.get_allocator();
-    }
-
-    [[nodiscard]] auto type() const noexcept -> primitive_type { return type_; }
-
-    [[nodiscard]] auto get() const noexcept -> std::span<const vertex> { return vec_; }
-
-    [[nodiscard]] auto calc_transform_mat() const noexcept -> glm::mat4 {
-        auto model = glm::translate(glm::mat4(1.f), glm::vec3{position_.x, position_.y, 0.f});
-        if (rotation_ != 0.f) model = glm::rotate(model, rotation_, glm::vec3{0.f, 0.f, 1.f});
-        model = glm::scale(model, glm::vec3{scale_.x, scale_.y, 1.f});
-
-        if (origin_.x != 0.f or origin_.y != 0.f)
-            model = glm::translate(model, glm::vec3{-origin_.x, -origin_.y, 0.f});
-
-        return model;
     }
 
   private:
