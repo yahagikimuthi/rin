@@ -18,7 +18,14 @@
 
 namespace rin {
 struct vertex final {
-    [[nodiscard]] auto operator==(const vertex&) const noexcept -> bool = default;
+    constexpr vertex() noexcept = default;
+    constexpr vertex(const vec2& Position, const uv& TexCoord, const rgba& Color) noexcept
+        : position{Position}, tex_coord{TexCoord}, color{Color} {}
+    constexpr vertex(const vec2& Position, const rgba& Color) noexcept
+        : position{Position}, color{Color} {}
+    constexpr vertex(const vec2& Position) noexcept : position{Position} {}
+
+    [[nodiscard]] constexpr auto operator==(const vertex&) const noexcept -> bool = default;
 
     vec2 position;
     uv   tex_coord;
