@@ -126,14 +126,10 @@ class window final {
     }
 
     ~window() noexcept {
-        if (window_ != nullptr) {
-            glfwSetWindowUserPointer(window_, nullptr);
-            glfwDestroyWindow(window_);
-            window_ = nullptr;
-            --window_cnt_;
-        }
-
-        if (--window_cnt_ == 0) glfwTerminate();
+        if (window_ == nullptr) return;
+        glfwSetWindowUserPointer(window_, nullptr);
+        glfwDestroyWindow(window_);
+        window_ = nullptr;
     }
 
     [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
@@ -209,8 +205,6 @@ class window final {
           window_{window_ptr},
           renderer_{std::move(renderer_object)},
           size_{size} {
-        ++window_cnt_;
-
         glfwSetWindowUserPointer(window_, this);
         glfwSetFramebufferSizeCallback(window_, [](GLFWwindow* win, i32 w, i32 h) noexcept -> void {
             auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
@@ -238,12 +232,11 @@ class window final {
         glDebugMessageCallback(message_callback, nullptr);
     }
 
-    input                       input_{make_input()};
-    camera                      camera_;
-    GLFWwindow*                 window_;
-    renderer                    renderer_;
-    extent                      size_;
-    static inline constinit int window_cnt_{};
+    input       input_{make_input()};
+    camera      camera_;
+    GLFWwindow* window_;
+    renderer    renderer_;
+    extent      size_;
 };
 
 [[nodiscard]] inline auto try_make_window(
