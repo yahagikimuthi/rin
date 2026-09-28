@@ -73,7 +73,7 @@ class renderer final {
     }
 
     void draw(text& tex, const camera& camera_obj) noexcept {
-        const auto result = tex.bind_font(0);
+        const auto result = bind_font(tex, 0);
         if (not result) return;
 
         const auto& vertices = calc_vertices(tex);

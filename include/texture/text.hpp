@@ -59,9 +59,9 @@ class text final {
         return self.vertices_;
     }
 
-    [[nodiscard]] auto bind_font(const u32 unit) noexcept -> bool {
-        if (not font_) return false;
-        bind(font_->setting_texture(), unit);
+    [[nodiscard]] friend auto bind_font(const text& self, const u32 unit) noexcept -> bool {
+        if (not self.font_) return false;
+        bind(self.font_->setting_texture(), unit);
         return true;
     }
 
