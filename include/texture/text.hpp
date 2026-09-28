@@ -84,23 +84,24 @@ class text final {
             const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
             if (not g) continue;
 
-            const auto x0 = std::floor(cursor_x + g->bearing.x);
-            const auto y0 = std::floor(cursor_y + g->bearing.y);
-            const auto x1 = x0 + g->size.width;
-            const auto y1 = y0 + g->size.height;
+            const auto x0             = std::floor(cursor_x + g->bearing.x);
+            const auto x1             = x0 + g->size.width;
+            const auto y1             = std::floor(cursor_y - g->bearing.y);  // 文字の上端
+            const auto x0_y0_bottom_y = y1 - g->size.height;                  // 文字の下端 (y0)
+            const auto y0             = x0_y0_bottom_y;
 
             const auto u0 = g->uv_rect.x;
-            const auto v0 = g->uv_rect.y;
             const auto u1 = g->uv_rect.x + g->uv_rect.width;
-            const auto v1 = g->uv_rect.y + g->uv_rect.height;
+            const auto v0 = g->uv_rect.y;                      // 画像上の「上端」
+            const auto v1 = g->uv_rect.y + g->uv_rect.height;  // 画像上の「下端」
 
-            vertices_.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color_);
-            vertices_.emplace_back(vec2{.x = x1, .y = y0}, uv{.u = u1, .v = v0}, color_);
-            vertices_.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color_);
+            vertices_.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v1}, color_);
+            vertices_.emplace_back(vec2{.x = x1, .y = y0}, uv{.u = u1, .v = v1}, color_);
+            vertices_.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v0}, color_);
 
-            vertices_.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v0}, color_);
-            vertices_.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v1}, color_);
-            vertices_.emplace_back(vec2{.x = x0, .y = y1}, uv{.u = u0, .v = v1}, color_);
+            vertices_.emplace_back(vec2{.x = x0, .y = y0}, uv{.u = u0, .v = v1}, color_);
+            vertices_.emplace_back(vec2{.x = x1, .y = y1}, uv{.u = u1, .v = v0}, color_);
+            vertices_.emplace_back(vec2{.x = x0, .y = y1}, uv{.u = u0, .v = v0}, color_);
 
             cursor_x += g->advance;
         }
