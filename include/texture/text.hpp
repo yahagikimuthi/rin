@@ -61,7 +61,7 @@ class text final {
 
     [[nodiscard]] auto bind_font(const u32 unit) noexcept -> bool {
         if (not font_) return false;
-        font_->setting_texture().bind(unit);
+        bind(font_->setting_texture(), unit);
         return true;
     }
 
