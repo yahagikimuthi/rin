@@ -8,7 +8,6 @@
 #include <ranges>
 #include <unordered_map>
 #include <vector>
-#include "others/setting.hpp"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #pragma GCC diagnostic push
@@ -19,6 +18,7 @@
 #pragma GCC diagnostic pop
 
 #include "others/error.hpp"
+#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "texture/texture.hpp"
 
