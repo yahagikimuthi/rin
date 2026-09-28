@@ -44,7 +44,8 @@ inline constexpr auto is_string_literal_v = string_literal<T>;
 
 constexpr void nothing([[maybe_unused]] auto&&... _) noexcept {}
 
-template <std::invocable<> F>
+template <typename F>
+    requires std::is_nothrow_invocable_v<F>
 class scope_exit final {
   public:
     [[nodiscard]] explicit scope_exit(F func) noexcept : exit_func_{func} {};
