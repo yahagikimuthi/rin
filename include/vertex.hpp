@@ -97,13 +97,14 @@ class vertex_vector final {
         return *this;
     }
 
-    [[nodiscard]] auto calc_transform_mat() const noexcept -> glm::mat4 {
-        auto model = glm::translate(glm::mat4(1.f), glm::vec3{position_.x, position_.y, 0.f});
-        if (rotation_ != 0.f) model = glm::rotate(model, rotation_, glm::vec3{0.f, 0.f, 1.f});
-        model = glm::scale(model, glm::vec3{scale_.x, scale_.y, 1.f});
-
-        if (origin_.x != 0.f or origin_.y != 0.f)
-            model = glm::translate(model, glm::vec3{-origin_.x, -origin_.y, 0.f});
+    [[nodiscard]] friend auto calc_transform_mat(const vertex_vector& self) noexcept -> glm::mat4 {
+        auto model =
+            glm::translate(glm::mat4(1.f), glm::vec3{self.position_.x, self.position_.y, 0.f});
+        if (self.rotation_ != 0.f)
+            model = glm::rotate(model, self.rotation_, glm::vec3{0.f, 0.f, 1.f});
+        model = glm::scale(model, glm::vec3{self.scale_.x, self.scale_.y, 1.f});
+        if (self.origin_.x != 0.f or self.origin_.y != 0.f)
+            model = glm::translate(model, glm::vec3{-self.origin_.x, -self.origin_.y, 0.f});
 
         return model;
     }

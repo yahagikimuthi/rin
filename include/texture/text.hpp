@@ -53,10 +53,10 @@ class text final {
         vertices_.scale(scale, scale);
     }
 
-    [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
-        if (dirty_) update_vertices();
-        dirty_ = false;
-        return vertices_;
+    [[nodiscard]] friend auto calc_vertices(text& self) noexcept -> const vertex_vector& {
+        if (self.dirty_) self.update_vertices();
+        self.dirty_ = false;
+        return self.vertices_;
     }
 
     [[nodiscard]] auto bind_font(const u32 unit) noexcept -> bool {

@@ -69,7 +69,9 @@ class texture final {
 
     [[nodiscard]] auto size() const noexcept -> extent { return size_; }
 
-    void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }  // NOLINT
+    friend void bind(const texture& self, const u32 unit) noexcept {
+        glBindTextureUnit(unit, self.id_);
+    }
 
   private:
     explicit texture(const u32 width, const u32 height, const u8* const pixels) noexcept

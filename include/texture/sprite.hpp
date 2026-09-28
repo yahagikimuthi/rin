@@ -47,10 +47,10 @@ class sprite final {
         };
     }
 
-    [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
-        if (dirty_) update_vertices();
-        dirty_ = false;
-        return vertices_;
+    [[nodiscard]] friend auto calc_vertices(sprite& self) noexcept -> const vertex_vector& {
+        if (self.dirty_) self.update_vertices();
+        self.dirty_ = false;
+        return self.vertices_;
     }
 
   private:
