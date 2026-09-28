@@ -130,8 +130,8 @@ class window final {
             glfwSetWindowUserPointer(window_, nullptr);
             glfwDestroyWindow(window_);
             window_ = nullptr;
+            --window_cnt_;
         }
-        --window_cnt_;
 
         if (--window_cnt_ == 0) glfwTerminate();
     }
