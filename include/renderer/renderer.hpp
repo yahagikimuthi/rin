@@ -7,7 +7,6 @@
 
 #include "others/error.hpp"
 #include "others/setting.hpp"
-#include "others/util.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
@@ -34,7 +33,7 @@ class renderer final {
         const auto vp    = camera_obj.calc_view_position_mat();
         const auto mvp   = vp * model;
         shader_.set_mat4(shader::u_Transform, mvp);
-        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(vertices.color()) / 255.f);
         shader_.set_bool(shader::u_UseTexture, false);
 
         mesh_.update_vertices(vertices);
@@ -59,7 +58,7 @@ class renderer final {
         const auto mvp   = vp * model;
 
         shader_.set_mat4(shader::u_Transform, mvp);
-        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(vertices.color()) / 255.f);
         shader_.set_bool(shader::u_UseTexture, true);
 
         mesh_.update_vertices(vertices);
@@ -80,7 +79,7 @@ class renderer final {
         const auto mvp   = vp * model;
 
         shader_.set_mat4(shader::u_Transform, mvp);
-        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(white) / 255.f);
+        shader_.set_vec4(shader::u_Color, static_cast<glm::vec4>(vertices.color()) / 255.f);
 
         shader_.set_int(shader::u_Texture, 0);
         shader_.set_bool(shader::u_UseTexture, true);
