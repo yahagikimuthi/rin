@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <compare>
-#include <concepts>
 #include <functional>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
@@ -22,9 +21,6 @@ struct is_variant_member<T, std::variant<Ts...>> final
     : std::bool_constant<(std::is_same_v<T, Ts> or ...)> {};
 
 template <typename T, typename Variant>
-concept variant_member = is_variant_member<T, Variant>::value;
-
-template <typename T, typename Variant>
 inline constexpr auto is_variant_member_v = is_variant_member<T, Variant>::value;
 
 template <typename... Ts>
@@ -35,8 +31,8 @@ struct overloaded final : public Ts... {
 template <typename T>
 struct is_string_literal final
     : std::bool_constant<
-          std::is_array_v<T> and std::same_as<std::remove_cvref_t<std::remove_extent_t<T>>, char>> {
-};
+          std::is_array_v<T> and
+          std::is_same_v<std::remove_cvref_t<std::remove_extent_t<T>>, char>> {};
 
 template <typename T>
 inline constexpr auto is_string_literal_v = is_string_literal<T>::value;
