@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <concepts>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -34,11 +35,19 @@ class text final {
         extent_dirty_   = true;
         tex_str         = std::string_view{str};
     }
+
     void string(const std::string_view str) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         tex_str         = std::string{str};
     }
+
+    template <typename T>
+        requires std::integral<T> or std::floating_point<T>
+    void string(T num) noexcept {
+        string(std::to_string(num));
+    }
+
     void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
     void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
     void origin(const vec2 o) noexcept { origin(o.x, o.y); }
