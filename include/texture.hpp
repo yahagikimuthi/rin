@@ -3,10 +3,10 @@
 #include <expected>
 #include <filesystem>
 #include <utility>
-#include "others/type.hpp"
+
+#include "glad/glad.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -16,7 +16,7 @@
 
 #include "detail/error.hpp"
 #include "extent.hpp"
-#include "renderer/ebo_manager.hpp"
+#include "type.hpp"
 
 namespace rin {
 struct uv_rectangle final {

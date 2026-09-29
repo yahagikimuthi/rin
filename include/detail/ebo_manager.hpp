@@ -7,7 +7,7 @@
 
 #include "glad/glad.h"
 
-#include "others/type.hpp"
+#include "type.hpp"
 
 namespace rin {
 struct polygon_index_data final {

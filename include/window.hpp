@@ -7,22 +7,20 @@
 #include <string_view>
 #include <utility>
 
-#include "glad/glad.h"
-
 #include "GLFW/glfw3.h"
-#include "camera.hpp"
+#include "detail/camera.hpp"
 #include "detail/error.hpp"
+#include "detail/input.hpp"
+#include "detail/renderer.hpp"
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"
-#include "others/type.hpp"
-#include "others/util.hpp"
-#include "renderer/renderer.hpp"
-#include "texture/sprite.hpp"
-#include "texture/text.hpp"
+#include "sprite.hpp"
+#include "text.hpp"
+#include "type.hpp"
+#include "util.hpp"
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
-#include "window/input.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(

@@ -8,7 +8,7 @@
 
 #include "glad/glad.h"
 
-#include "others/type.hpp"
+#include "type.hpp"
 #include "vertex_vector.hpp"
 
 namespace rin {

@@ -5,15 +5,15 @@
 #include <glm/ext/vector_float4.hpp>
 #include <utility>
 
+#include "detail/camera.hpp"
+#include "detail/ebo_manager.hpp"
 #include "detail/error.hpp"
+#include "detail/mesh.hpp"
+#include "detail/shader.hpp"
 #include "extent.hpp"
-#include "renderer/ebo_manager.hpp"
-#include "renderer/mesh.hpp"
-#include "renderer/shader.hpp"
-#include "texture//text.hpp"
-#include "texture/sprite.hpp"
+#include "sprite.hpp"
+#include "text.hpp"
 #include "vertex_vector.hpp"
-#include "window/camera.hpp"
 
 namespace rin {
 class renderer final {

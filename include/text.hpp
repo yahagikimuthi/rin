@@ -10,9 +10,9 @@
 
 #include "detail/others.hpp"
 #include "extent.hpp"
-#include "others/type.hpp"
-#include "others/util.hpp"
-#include "texture/font.hpp"
+#include "font.hpp"
+#include "type.hpp"
+#include "util.hpp"
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
 

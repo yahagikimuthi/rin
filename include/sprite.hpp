@@ -7,9 +7,9 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 
-#include "others/type.hpp"
-#include "others/util.hpp"
-#include "texture/texture.hpp"
+#include "texture.hpp"
+#include "type.hpp"
+#include "util.hpp"
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
 

@@ -1,15 +1,10 @@
 #pragma once
 
-#include <chrono>
-#include "glad/glad.h"
-
 #include "GLFW/glfw3.h"
-#include "others/type.hpp"
+#include "type.hpp"
 
 namespace rin {
 class timer final {
-    using clock = std::chrono::high_resolution_clock;
-
   public:
     [[nodiscard]] static auto make() noexcept -> timer { return timer{}; }
 

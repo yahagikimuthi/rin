@@ -9,7 +9,7 @@
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"
-#include "others/type.hpp"
+#include "type.hpp"
 #include "vec2.hpp"
 
 namespace rin {

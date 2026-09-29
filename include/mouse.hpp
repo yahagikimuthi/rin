@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GLFW/glfw3.h"
-#include "others/type.hpp"
+#include "type.hpp"
 
 namespace rin {
 enum class mouse : u8 {

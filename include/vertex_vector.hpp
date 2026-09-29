@@ -13,8 +13,8 @@
 
 #include "glad/glad.h"
 
-#include "others/type.hpp"
-#include "others/util.hpp"
+#include "type.hpp"
+#include "util.hpp"
 #include "vec2.hpp"
 
 namespace rin {

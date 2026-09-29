@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "detail/others.hpp"
-#include "others/type.hpp"
+#include "type.hpp"
 
 namespace rin {
 enum class error_type : u8 { logic, runtime };

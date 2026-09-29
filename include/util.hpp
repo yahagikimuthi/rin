@@ -4,7 +4,7 @@
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
 
-#include "others/type.hpp"
+#include "type.hpp"
 
 namespace rin {
 struct rgba final {
