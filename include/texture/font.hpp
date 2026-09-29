@@ -6,6 +6,7 @@
 #include <fstream>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <unordered_map>
 #include <vector>
 
@@ -17,6 +18,7 @@
 #include "stb_truetype.h"
 #pragma GCC diagnostic pop
 
+#include "others/default_font_data.hpp"
 #include "others/error.hpp"
 #include "others/setting.hpp"
 #include "others/type.hpp"
@@ -42,16 +44,26 @@ class font final {
         if (not file.is_open()) {
             return std::unexpected(make_error(logic_error, "Failed to open font file."));
         }
-        const auto file_size   = file.tellg();
-        auto       font_buffer = std::vector<u8>(static_cast<size_t>(file_size));
+        const auto               file_size   = file.tellg();
+        static thread_local auto font_buffer = std::vector<u8>{};
+        font_buffer.resize(static_cast<std::size_t>(file_size));
         file.seekg(0, std::ios::beg);
         file.read(reinterpret_cast<char*>(font_buffer.data()), file_size);  // NOLINT
 
+        return try_make(font_buffer, atlas_width, atlas_height);
+    }
+
+    [[nodiscard]] static auto try_make(
+        const std::span<const u8> buffer       = default_font_binary,
+        const u32                 atlas_width  = 1024,
+        const u32                 atlas_height = 1024
+    ) noexcept -> std::expected<font, error> {
+        if (buffer.empty()) return make_error(logic_error, "Buffer size is expected positive.");
         auto atlas_pixels = std::vector<u8>(static_cast<std::size_t>(atlas_width * atlas_height));
         auto baked_chars  = std::vector<stbtt_bakedchar>(96);  // ASCII 32..127 (96文字)
 
         const auto res = stbtt_BakeFontBitmap(
-            font_buffer.data(),
+            buffer.data(),
             0,
             default_font_size,
             atlas_pixels.data(),
@@ -122,5 +134,13 @@ class font final {
     const std::filesystem::path& path, const u32 atlas_width = 1024, const u32 atlas_height = 1024
 ) noexcept -> std::expected<font, error> {
     return font::try_make(path, atlas_width, atlas_height);
+}
+
+[[nodiscard]] inline auto try_make_font(
+    const std::span<const u8> buffer       = default_font_binary,
+    const u32                 atlas_width  = 1024,
+    const u32                 atlas_height = 1024
+) noexcept -> std::expected<font, error> {
+    return font::try_make(buffer, atlas_width, atlas_height);
 }
 }  // namespace rin
