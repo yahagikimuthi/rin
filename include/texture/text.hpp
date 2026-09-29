@@ -26,7 +26,7 @@ class text final {
     }
     [[nodiscard]] auto position() const noexcept -> vec2 { return vertices_.position(); }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
-    [[nodiscard]] auto setting_font() const noexcept -> std::optional<const font&> { return font_; }
+    [[nodiscard]] auto setting_font() const noexcept -> const font& { return font_; }
     [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
 
     template <typename T>
@@ -63,10 +63,10 @@ class text final {
         vertices_dirty_ = true;
         color_          = {.r = r, .g = g, .b = b, .a = a};
     }
-    void setting_font(const font& font_obj) noexcept {
+    void setting_font(const font& font_ref) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;
-        font_           = font_obj;
+        font_           = std::cref(font_ref);
     }
     void scale(const vec2 s) noexcept { vertices_.scale(s); }
     void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
@@ -83,9 +83,8 @@ class text final {
         return self.vertices_;
     }
 
-    [[nodiscard]] friend auto bind_font(const text& self, const u32 unit) noexcept -> bool {
+    friend void bind(const text& self, const u32 unit) noexcept {
         bind(self.font_.get().setting_texture(), unit);
-        return true;
     }
 
   private:

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <cassert>
+#include <functional>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
-#include <optional>
 
 #include "others/type.hpp"
 #include "others/util.hpp"
@@ -22,9 +22,7 @@ class sprite final {
     [[nodiscard]] auto rotation() const noexcept -> f32 { return vertices_.rotation(); }
     [[nodiscard]] auto origin() const noexcept -> vec2 { return vertices_.origin(); }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
-    [[nodiscard]] auto setting_texture() const noexcept -> std::optional<const texture&> {
-        return tex_;
-    }
+    [[nodiscard]] auto setting_texture() const noexcept -> const texture& { return tex_; }
 
     void position(const vec2 pos) noexcept { vertices_.position(pos); }
     void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
@@ -40,8 +38,8 @@ class sprite final {
     }
 
     void setting_texture(const texture& tex) noexcept {
-        dirty_ = true;
-        tex_.emplace(tex);
+        dirty_   = true;
+        tex_     = std::cref(tex);
         uv_rect_ = uv_rectangle{
             .x = uv_rect_.x, .y = uv_rect_.y, .width = tex.size().width, .height = tex.size().height
         };
@@ -54,12 +52,13 @@ class sprite final {
     }
 
   private:
-    explicit sprite(const texture& tex) noexcept { setting_texture(tex); }
+    explicit sprite(const texture& tex) noexcept
+        : tex_{std::cref(tex)},
+          uv_rect_{.x = 0.f, .y = 0.f, .width = tex.size().width, .height = tex.size().height} {}
 
     void update_vertices() noexcept {
-        if (not tex_) return;
-        const auto tex_w = tex_->size().width;
-        const auto tex_h = tex_->size().height;
+        const auto tex_w = tex_.get().size().width;
+        const auto tex_h = tex_.get().size().height;
 
         const auto u0 = uv_rect_.x / tex_w;
         const auto v0 = uv_rect_.y / tex_h;
@@ -83,11 +82,11 @@ class sprite final {
         vertices_.emplace_back(p3, uv{.u = u0, .v = v1}, color_);
     }
 
-    vertex_vector                 vertices_{make_vertex_vector(primitive_triangles)};
-    std::optional<const texture&> tex_;
-    uv_rectangle                  uv_rect_{};
-    rgba                          color_{white};
-    bool                          dirty_{true};
+    vertex_vector                         vertices_{make_vertex_vector(primitive_triangles)};
+    std::reference_wrapper<const texture> tex_;
+    uv_rectangle                          uv_rect_{};
+    rgba                                  color_{white};
+    bool                                  dirty_{true};
 };  // namespace rin
 
 [[nodiscard]] inline auto make_sprite(const texture& tex) noexcept -> sprite {

@@ -3,7 +3,6 @@
 #include <cassert>
 #include <expected>
 #include <glm/ext/vector_float4.hpp>
-#include <optional>
 #include <utility>
 
 #include "others/error.hpp"
@@ -50,10 +49,9 @@ class renderer final {
     }
 
     void draw(sprite& spr, const camera& camera) noexcept {
-        const auto tex = spr.setting_texture();
-        if (not tex) return;
+        const auto& tex = spr.setting_texture();
 
-        bind(*tex, 0);
+        bind(tex, 0);
         const auto& vertices = calc_vertices(spr);
 
         const auto model = calc_transform_mat(vertices);
@@ -73,8 +71,7 @@ class renderer final {
     }
 
     void draw(text& tex, const camera& camera_obj) noexcept {
-        const auto result = bind_font(tex, 0);
-        if (not result) return;
+        bind(tex, 0);
 
         const auto& vertices = calc_vertices(tex);
 
