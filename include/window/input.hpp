@@ -8,9 +8,9 @@
 #include "GLFW/glfw3.h"
 #include "extent.hpp"
 #include "key.hpp"
+#include "mouse.hpp"
 #include "others/type.hpp"
 #include "vec2.hpp"
-#include "window/mouse.hpp"
 
 namespace rin {
 class key_input final {

@@ -14,6 +14,7 @@
 #include "detail/error.hpp"
 #include "extent.hpp"
 #include "key.hpp"
+#include "mouse.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"
@@ -22,7 +23,6 @@
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
 #include "window/input.hpp"
-#include "window/mouse.hpp"
 
 namespace rin {
 inline void GLAPIENTRY message_callback(
