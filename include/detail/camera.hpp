@@ -13,10 +13,7 @@
 namespace rin::detail {
 struct camera final {
   public:
-    explicit camera(const f32 window_width, const f32 window_height) noexcept
-        : window_size_{.width = window_width, .height = window_height} {}
-    explicit camera(const extent window_size) noexcept
-        : camera(window_size.width, window_size.height) {}
+    explicit camera() noexcept = default;
 
     [[nodiscard]] constexpr auto position() const noexcept -> vec2 { return position_; }
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
@@ -41,13 +38,9 @@ struct camera final {
     constexpr void position(const vec2 position) noexcept { position_ = position; }
     constexpr void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
     constexpr void zoom(const f32 zoom) noexcept { zoom_ = (zoom > 0.f) ? zoom : 0.1f; }
-    constexpr void window_size(const f32 width, const f32 height) noexcept {
-        window_size_ = {.width = width, .height = height};
-    }
 
   private:
-    vec2   position_{.x = 0.f, .y = 0.f};
-    extent window_size_;
-    f32    zoom_{1.f};
+    vec2 position_{.x = 0.f, .y = 0.f};
+    f32  zoom_{1.f};
 };
 }  // namespace rin::detail
