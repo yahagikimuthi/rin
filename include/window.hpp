@@ -213,21 +213,42 @@ class window final {
           size_{size},
           virtual_size_{virtual_size} {
         glfwSetWindowUserPointer(window_, this);
-        glfwSetFramebufferSizeCallback(window_, [](GLFWwindow* win, i32 w, i32 h) noexcept -> void {
-            auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
-            if (self == nullptr) return;
-            glViewport(0, 0, w, h);
+        glfwSetFramebufferSizeCallback(
+            window_, [](GLFWwindow* win, i32 window_w, i32 window_h) noexcept -> void {
+                auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+                if (self == nullptr) return;
 
-            auto actual_width  = 0;
-            auto actual_height = 0;
-            glfwGetFramebufferSize(win, &actual_width, &actual_height);
+                const auto target_aspect = self->virtual_size_.width / self->virtual_size_.height;
+                const auto window_aspect = static_cast<f32>(window_w) / static_cast<f32>(window_h);
 
-            const auto casted_w = static_cast<f32>(actual_width);
-            const auto casted_h = static_cast<f32>(actual_height);
+                auto vp_x = 0;
+                auto vp_y = 0;
+                auto vp_w = window_w;
+                auto vp_h = window_h;
+                if (window_aspect > target_aspect) {
+                    vp_w = window_h * static_cast<i32>(target_aspect);
+                    vp_x = (window_w - vp_w) / 2;
+                } else {
+                    vp_h = window_w / static_cast<i32>(target_aspect);
+                    vp_y = (window_h - vp_h) / 2;
+                }
+                glViewport(0, 0, window_w, window_h);
+                glClearColor(0.f, 0.f, 0.f, 0.f);
+                glClear(GL_COLOR_BUFFER_BIT);
 
-            self->size_ = rin::extent{.width = casted_w, .height = casted_h};
-            self->camera_.window_size(casted_w, casted_h);
-        });
+                glViewport(vp_x, vp_y, vp_w, vp_h);
+
+                auto actual_width  = 0;
+                auto actual_height = 0;
+                glfwGetFramebufferSize(win, &actual_width, &actual_height);
+
+                const auto casted_w = static_cast<f32>(actual_width);
+                const auto casted_h = static_cast<f32>(actual_height);
+
+                self->size_ = rin::extent{.width = casted_w, .height = casted_h};
+                self->camera_.window_size(casted_w, casted_h);
+            }
+        );
 
         // デバッグ出力の有効化
         glEnable(GL_DEBUG_OUTPUT);
