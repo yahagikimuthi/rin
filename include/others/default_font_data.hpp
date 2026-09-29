@@ -4,7 +4,7 @@
 
 #include "others/type.hpp"
 
-namespace rin {
+namespace rin::detail {
 
 // デフォルトのフォントはProggy Clean
 inline constexpr auto default_font_binary = std::array<u8, 41208>{
@@ -2585,4 +2585,4 @@ inline constexpr auto default_font_binary = std::array<u8, 41208>{
     0x23, 0x30, 0x78, 0x30, 0x30, 0x39, 0x65, 0x0e, 0x75, 0x6e, 0x69, 0x63, 0x6f, 0x64, 0x65, 0x23,
     0x30, 0x78, 0x30, 0x30, 0x39, 0x66, 0x00, 0x00
 };
-}  // namespace rin
+}  // namespace rin::detail

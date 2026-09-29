@@ -7,7 +7,6 @@
 
 #include "glad/glad.h"
 
-#include "others/setting.hpp"
 #include "others/type.hpp"
 
 namespace rin {
@@ -23,7 +22,7 @@ class ebo_manager {
     [[nodiscard]] auto get_or_create(const u32 vertex_count) noexcept -> polygon_index_data {
         const auto actual_vertex = std::max(vertex_count, 3u);
 
-        if (actual_vertex <= default_circle_segments) {
+        if (actual_vertex <= 64) {
             auto& slot = default_slots_[actual_vertex];
             if (slot.ebo == 0) slot = create_index_data(actual_vertex);
             return slot;
@@ -100,8 +99,8 @@ class ebo_manager {
         }
     }
 
-    std::array<polygon_index_data, default_circle_segments + 1> default_slots_{};
-    std::vector<polygon_index_data>                             unexpected_slots_;
+    std::array<polygon_index_data, 64 + 1> default_slots_{};
+    std::vector<polygon_index_data>        unexpected_slots_;
 };
 
 [[nodiscard]] inline auto make_ebo_manager() noexcept -> ebo_manager { return ebo_manager::make(); }

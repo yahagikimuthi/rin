@@ -6,7 +6,6 @@
 #include <utility>
 
 #include "others/error.hpp"
-#include "others/setting.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
@@ -92,7 +91,7 @@ class renderer final {
 
   private:
     explicit renderer(shader shader_object) noexcept
-        : shader_{std::move(shader_object)}, mesh_{make_mesh(default_vbo_buffer)} {
+        : shader_{std::move(shader_object)}, mesh_{make_mesh(1024)} {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }

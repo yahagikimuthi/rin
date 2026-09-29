@@ -20,12 +20,11 @@
 
 #include "others/default_font_data.hpp"
 #include "others/error.hpp"
-#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "texture/texture.hpp"
 
 namespace rin {
-
+inline constexpr auto default_font_size = 48.f;
 class font final {
     struct glyph final {
         uv_rectangle uv_rect{};
@@ -54,7 +53,7 @@ class font final {
     }
 
     [[nodiscard]] static auto try_make(
-        const std::span<const u8> buffer       = default_font_binary,
+        const std::span<const u8> buffer       = detail::default_font_binary,
         const u32                 atlas_width  = 1024,
         const u32                 atlas_height = 1024
     ) noexcept -> std::expected<font, error> {
@@ -137,7 +136,7 @@ class font final {
 }
 
 [[nodiscard]] inline auto try_make_font(
-    const std::span<const u8> buffer       = default_font_binary,
+    const std::span<const u8> buffer       = detail::default_font_binary,
     const u32                 atlas_width  = 1024,
     const u32                 atlas_height = 1024
 ) noexcept -> std::expected<font, error> {

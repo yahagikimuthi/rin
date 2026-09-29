@@ -6,7 +6,6 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 

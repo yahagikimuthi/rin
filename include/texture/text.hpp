@@ -8,7 +8,6 @@
 #include <string_view>
 #include <variant>
 
-#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "texture/font.hpp"
