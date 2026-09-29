@@ -1,7 +1,6 @@
 #pragma once
 
 #include <compare>
-#include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
 
 #include "type.hpp"
@@ -38,11 +37,4 @@ inline constexpr auto blue    = rgba{.r = 0, .g = 0, .b = 255};
 inline constexpr auto navy    = rgba{.r = 0, .g = 0, .b = 128};
 inline constexpr auto fuchsia = rgba{.r = 255, .g = 0, .b = 255};
 inline constexpr auto purple  = rgba{.r = 128, .g = 0, .b = 128};
-
-struct uv final {
-    f32 u{0.f};
-    f32 v{0.f};
-
-    auto operator==(const uv&) const noexcept -> bool = default;
-};
 }  // namespace rin

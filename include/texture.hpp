@@ -14,7 +14,7 @@
 #include "stb_image.h"
 #pragma GCC diagnostic pop
 
-#include "detail/error.hpp"
+#include "error.hpp"
 #include "extent.hpp"
 #include "type.hpp"
 

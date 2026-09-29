@@ -7,9 +7,9 @@
 
 #include "detail/camera.hpp"
 #include "detail/ebo_manager.hpp"
-#include "detail/error.hpp"
 #include "detail/mesh.hpp"
 #include "detail/shader.hpp"
+#include "error.hpp"
 #include "extent.hpp"
 #include "sprite.hpp"
 #include "text.hpp"

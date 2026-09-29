@@ -10,7 +10,7 @@
 
 #include "detail/graphics.hpp"
 
-#include "detail/error.hpp"
+#include "error.hpp"
 #include "type.hpp"
 
 namespace rin {

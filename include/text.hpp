@@ -8,11 +8,12 @@
 #include <string_view>
 #include <variant>
 
+#include "color.hpp"
 #include "detail/others.hpp"
 #include "extent.hpp"
 #include "font.hpp"
 #include "type.hpp"
-#include "util.hpp"
+#include "uv.hpp"
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
 

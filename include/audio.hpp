@@ -13,7 +13,7 @@
 #include "miniaudio.h"
 #pragma GCC diagnostic pop
 
-#include "detail/error.hpp"
+#include "error.hpp"
 #include "type.hpp"
 
 namespace rin {

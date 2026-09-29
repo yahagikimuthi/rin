@@ -9,14 +9,14 @@
 
 #include "detail/graphics.hpp"
 
+#include "color.hpp"
 #include "detail/camera.hpp"
-#include "detail/error.hpp"
 #include "detail/input.hpp"
+#include "error.hpp"
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"
 #include "type.hpp"
-#include "util.hpp"
 #include "vec2.hpp"
 
 #include "detail/renderer.hpp"

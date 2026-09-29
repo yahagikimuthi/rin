@@ -13,8 +13,9 @@
 
 #include "detail/graphics.hpp"
 
+#include "color.hpp"
 #include "type.hpp"
-#include "util.hpp"
+#include "uv.hpp"
 #include "vec2.hpp"
 
 namespace rin {

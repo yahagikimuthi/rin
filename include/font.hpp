@@ -19,7 +19,7 @@
 #pragma GCC diagnostic pop
 
 #include "detail/default_font_data.hpp"
-#include "detail/error.hpp"
+#include "error.hpp"
 #include "extent.hpp"
 #include "texture.hpp"
 #include "type.hpp"
