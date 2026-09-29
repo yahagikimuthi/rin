@@ -1,82 +1,12 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
-#include <compare>
-#include <functional>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
-#include <type_traits>
-#include <utility>
-#include <variant>
 
 #include "others/type.hpp"
 
 namespace rin {
-template <typename T, typename Variant>
-struct is_variant_member final : std::false_type {};
-
-template <typename T, typename... Ts>
-struct is_variant_member<T, std::variant<Ts...>> final
-    : std::bool_constant<(std::is_same_v<T, Ts> or ...)> {};
-
-template <typename T, typename Variant>
-inline constexpr auto is_variant_member_v = is_variant_member<T, Variant>::value;
-
-template <typename... Ts>
-struct overloaded final : public Ts... {
-    using Ts::operator()...;
-};
-
-template <typename T>
-struct is_string_literal final
-    : std::bool_constant<
-          std::is_array_v<T> and
-          std::is_same_v<std::remove_cvref_t<std::remove_extent_t<T>>, char>> {};
-
-template <typename T>
-inline constexpr auto is_string_literal_v = is_string_literal<T>::value;
-
-constexpr void nothing([[maybe_unused]] auto&&... _) noexcept {}
-
-template <typename F>
-    requires std::is_nothrow_invocable_v<F>
-class scope_exit final {
-  public:
-    [[nodiscard]] explicit scope_exit(F func) noexcept : exit_func_{func} {};
-    scope_exit(const scope_exit&) noexcept                   = delete;
-    auto operator=(const scope_exit) noexcept -> scope_exit& = delete;
-
-    scope_exit(scope_exit&& other) noexcept
-        : exit_func_{std::move(other.exit_func_)},
-          is_valid_{std::exchange(other.is_valid_, false)} {}
-    auto operator=(scope_exit&& other) noexcept -> scope_exit& {
-        if (this == &other) return *this;
-        exit_func_ = std::move(other.exit_func_);
-        is_valid_  = std::exchange(other.is_valid_, false);
-        return *this;
-    }
-
-    ~scope_exit() noexcept {
-        if (is_valid_) std::invoke(exit_func_);
-    }
-
-    [[nodiscard]] auto is_valid() const noexcept -> bool { return is_valid_; }
-
-    void active() noexcept { is_valid_ = true; }
-    void release() noexcept { is_valid_ = false; }
-
-  private:
-    F    exit_func_;
-    bool is_valid_{true};
-};
-
-template <typename F>
-    requires std::is_constructible_v<scope_exit<F>, F>
-[[nodiscard]] auto make_scope_exit(F&& func) noexcept -> auto {
-    return scope_exit{func};
-}
-
 struct vec2 final {
     f32 x{};
     f32 y{};

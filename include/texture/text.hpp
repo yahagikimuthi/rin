@@ -8,6 +8,7 @@
 #include <string_view>
 #include <variant>
 
+#include "detail/others.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "texture/font.hpp"
@@ -29,7 +30,7 @@ class text final {
     [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
 
     template <typename T>
-        requires is_string_literal_v<T>
+        requires detail::is_string_literal_v<T>
     void string(const T& str) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;

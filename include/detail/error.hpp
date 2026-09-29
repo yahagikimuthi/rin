@@ -8,8 +8,8 @@
 #include <variant>
 #include <vector>
 
+#include "detail/others.hpp"
 #include "others/type.hpp"
-#include "others/util.hpp"
 
 namespace rin {
 enum class error_type : u8 { logic, runtime };
@@ -35,7 +35,7 @@ class error final {
 
   public:
     template <typename T>
-        requires is_string_literal_v<T>
+        requires detail::is_string_literal_v<T>
     [[nodiscard]] static auto make(const error_type type, const T& message) noexcept
         -> std::unexpected<error> {
         const auto codes = error_code{.type = type, .message = std::string_view{message}};
@@ -44,7 +44,7 @@ class error final {
     }
 
     template <typename T>
-        requires is_string_literal_v<T>
+        requires detail::is_string_literal_v<T>
     [[nodiscard]] static auto make(
         const error_type type, const T& message, const error& child_error
     ) noexcept -> std::unexpected<error> {
@@ -115,14 +115,14 @@ class error final {
 };
 
 template <typename T>
-    requires is_string_literal_v<T>
+    requires detail::is_string_literal_v<T>
 [[nodiscard]] constexpr auto make_error(const error_type type, const T& message) noexcept
     -> std::unexpected<error> {
     return error::make(type, message);
 }
 
 template <typename T>
-    requires is_string_literal_v<T>
+    requires detail::is_string_literal_v<T>
 [[nodiscard]] constexpr auto make_error(
     const error_type type, const T& message, const error& child_error
 ) noexcept -> std::unexpected<error> {
