@@ -4,10 +4,8 @@
 #include <cstddef>
 #include <glm/ext/vector_float2.hpp>
 #include <ranges>
-#include <utility>
 
 #include "GLFW/glfw3.h"
-#include "others/setting.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "window/key.hpp"
