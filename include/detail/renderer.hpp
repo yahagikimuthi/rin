@@ -15,11 +15,11 @@
 #include "text.hpp"
 #include "vertex_vector.hpp"
 
-namespace rin {
+namespace rin::detail {
 class renderer final {
   public:
     [[nodiscard]] static auto try_make() noexcept -> std::expected<renderer, error> {
-        auto shader_res = try_make_shader();
+        auto shader_res = shader::try_make();
         if (not shader_res)
             return make_error(runtime_error, "Failed to create shader.", shader_res.error());
 
@@ -92,17 +92,13 @@ class renderer final {
 
   private:
     explicit renderer(shader shader_object) noexcept
-        : shader_{std::move(shader_object)}, mesh_{make_mesh(1024)} {
+        : shader_{std::move(shader_object)}, mesh_{1024} {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    ebo_manager ebo_manager_{make_ebo_manager()};
+    ebo_manager ebo_manager_;
     shader      shader_;
     mesh        mesh_;
 };
-
-[[nodiscard]] inline auto try_make_renderer() noexcept -> std::expected<renderer, error> {
-    return renderer::try_make();
-}
-}  // namespace rin
+}  // namespace rin::detail

@@ -42,7 +42,7 @@ class sprite final {
     void setting_texture(const texture& tex) noexcept {
         dirty_   = true;
         tex_     = std::cref(tex);
-        uv_rect_ = uv_rectangle{
+        uv_rect_ = detail::uv_rectangle{
             .x = uv_rect_.x, .y = uv_rect_.y, .width = tex.size().width, .height = tex.size().height
         };
     }
@@ -86,7 +86,7 @@ class sprite final {
 
     vertex_vector                         vertices_{primitive_triangles};
     std::reference_wrapper<const texture> tex_;
-    uv_rectangle                          uv_rect_{};
+    detail::uv_rectangle                  uv_rect_{};
     rgba                                  color_{white};
     bool                                  dirty_{true};
 };  // namespace rin

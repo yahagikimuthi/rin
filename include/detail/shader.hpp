@@ -13,7 +13,7 @@
 #include "error.hpp"
 #include "type.hpp"
 
-namespace rin {
+namespace rin::detail {
 constexpr const char* vertex_shader_source = R"(
     #version 450 core
     
@@ -153,8 +153,4 @@ class shader final {
 
     GLuint program_id_{};
 };
-
-[[nodiscard]] inline auto try_make_shader() noexcept -> std::expected<shader, error> {
-    return shader::try_make();
-}
-}  // namespace rin
+}  // namespace rin::detail

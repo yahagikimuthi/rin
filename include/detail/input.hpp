@@ -12,10 +12,10 @@
 #include "type.hpp"
 #include "vec2.hpp"
 
-namespace rin {
+namespace rin::detail {
 class key_input final {
   public:
-    [[nodiscard]] static auto make() noexcept -> key_input { return key_input{}; }
+    explicit key_input() noexcept = default;
 
     void update(GLFWwindow* win) noexcept {
         previous_ = current_;
@@ -41,8 +41,6 @@ class key_input final {
     }
 
   private:
-    explicit key_input() noexcept = default;
-
     [[nodiscard]] static auto to_size_t(const key button) noexcept -> std::size_t {
         return static_cast<std::size_t>(button);
     }
@@ -51,11 +49,9 @@ class key_input final {
     std::array<bool, GLFW_KEY_LAST> previous_{};
 };
 
-[[nodiscard]] inline auto make_key_input() noexcept -> key_input { return key_input::make(); }
-
 class mouse_input final {
   public:
-    [[nodiscard]] static auto make() noexcept -> mouse_input { return mouse_input{}; }
+    explicit mouse_input() noexcept = default;
 
     void update(GLFWwindow* win) noexcept {
         previous_ = curent_;
@@ -98,8 +94,6 @@ class mouse_input final {
     }
 
   private:
-    explicit mouse_input() noexcept = default;
-
     [[nodiscard]] static auto to_size_t(const mouse button) noexcept -> std::size_t {
         return static_cast<std::size_t>(button);
     }
@@ -109,11 +103,9 @@ class mouse_input final {
     vec2                                     position_;
 };
 
-[[nodiscard]] inline auto make_mouse_input() noexcept -> mouse_input { return mouse_input::make(); }
-
 class input final {
   public:
-    [[nodiscard]] static auto make() noexcept -> input { return input{}; }
+    explicit input() noexcept = default;
 
     void update(GLFWwindow* win) noexcept {
         if (win == nullptr) return;
@@ -159,12 +151,9 @@ class input final {
     }
 
   private:
-    explicit input() noexcept = default;
-
-    key_input   key_{make_key_input()};
-    mouse_input mouse_{make_mouse_input()};
+    key_input   key_;
+    mouse_input mouse_;
     vec2        mouse_position_{};
 };
 
-[[nodiscard]] inline auto make_input() noexcept -> input { return input::make(); }
-}  // namespace rin
+}  // namespace rin::detail

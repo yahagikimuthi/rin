@@ -18,14 +18,16 @@
 #include "extent.hpp"
 #include "type.hpp"
 
-namespace rin {
+namespace rin::detail {
 struct uv_rectangle final {
     f32 x;
     f32 y;
     f32 width;
     f32 height;
 };
+}  // namespace rin::detail
 
+namespace rin {
 class texture final {
   public:
     [[nodiscard]] static auto make(

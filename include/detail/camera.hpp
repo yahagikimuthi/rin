@@ -10,16 +10,13 @@
 #include "type.hpp"
 #include "vec2.hpp"
 
-namespace rin {
+namespace rin::detail {
 struct camera final {
   public:
-    [[nodiscard]] static auto make(const f32 window_width, const f32 window_height) noexcept
-        -> camera {
-        return camera{window_width, window_height};
-    }
-    [[nodiscard]] static auto make(const extent window_size) noexcept -> camera {
-        return make(window_size.width, window_size.height);
-    }
+    explicit camera(const f32 window_width, const f32 window_height) noexcept
+        : window_size_{.width = window_width, .height = window_height} {}
+    explicit camera(const extent window_size) noexcept
+        : camera(window_size.width, window_size.height) {}
 
     [[nodiscard]] constexpr auto position() const noexcept -> vec2 { return position_; }
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
@@ -49,19 +46,8 @@ struct camera final {
     }
 
   private:
-    explicit constexpr camera(const f32 window_width, const f32 window_height) noexcept
-        : window_size_{.width = window_width, .height = window_height} {}
-
     vec2   position_{.x = 0.f, .y = 0.f};
     extent window_size_;
     f32    zoom_{1.f};
 };
-
-[[nodiscard]] inline auto make_camera(const f32 window_width, const f32 window_height) noexcept
-    -> camera {
-    return camera::make(window_width, window_height);
-}
-[[nodiscard]] inline auto make_camera(const extent window_size) noexcept -> camera {
-    return camera::make(window_size);
-}
-}  // namespace rin
+}  // namespace rin::detail

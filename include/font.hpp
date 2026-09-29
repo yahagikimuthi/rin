@@ -25,16 +25,18 @@
 #include "type.hpp"
 #include "vec2.hpp"
 
+namespace rin::detail {
+struct glyph final {
+    uv_rectangle uv_rect{};
+    extent       size{};
+    vec2         bearing{};
+    f32          advance{};
+};
+}  // namespace rin::detail
+
 namespace rin {
 inline constexpr auto default_font_size = 48.f;
 class font final {
-    struct glyph final {
-        uv_rectangle uv_rect{};
-        extent       size{};
-        vec2         bearing{};
-        f32          advance{};
-    };
-
   public:
     [[nodiscard]] static auto try_make(
         const std::filesystem::path& path,
@@ -93,9 +95,9 @@ class font final {
             const auto& b         = baked_chars[i];
             const auto  codepoint = static_cast<char32_t>(32 + i);
 
-            auto g = glyph{
+            auto g = detail::glyph{
                 .uv_rect =
-                    uv_rectangle{
+                    detail::uv_rectangle{
                         .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
                         .y      = static_cast<f32>(b.y0) / static_cast<f32>(atlas_height),
                         .width  = static_cast<f32>(b.x1 - b.x0) / static_cast<f32>(atlas_width),
@@ -116,7 +118,7 @@ class font final {
     }
 
     [[nodiscard]] auto glyph_of_point(const char32_t codepoint) const noexcept
-        -> std::optional<const glyph&> {
+        -> std::optional<const detail::glyph&> {
         const auto it = glyphs_.find(codepoint);
         if (it != glyphs_.end()) return it->second;
         return std::nullopt;
@@ -127,8 +129,8 @@ class font final {
   private:
     explicit font(texture tex) noexcept : atlas_texture_(std::move(tex)) {}
 
-    std::unordered_map<char32_t, glyph> glyphs_;
-    texture                             atlas_texture_;
+    std::unordered_map<char32_t, detail::glyph> glyphs_;
+    texture                                     atlas_texture_;
 };
 
 [[nodiscard]] inline auto try_make_font(

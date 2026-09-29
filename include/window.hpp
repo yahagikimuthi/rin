@@ -78,9 +78,9 @@ class window final {
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
         auto camera_obj =
-            make_camera(static_cast<f32>(actual_width), static_cast<f32>(actual_height));
+            detail::camera{static_cast<f32>(actual_width), static_cast<f32>(actual_height)};
 
-        auto renderer_res = try_make_renderer();
+        auto renderer_res = detail::renderer::try_make();
         if (not renderer_res)
             return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
@@ -201,11 +201,11 @@ class window final {
 
   private:
     explicit window(
-        GLFWwindow* const window_ptr,
-        const camera&     camera_object,
-        renderer          renderer_object,
-        const extent&     size,
-        const extent&     virtual_size
+        GLFWwindow* const     window_ptr,
+        const detail::camera& camera_object,
+        detail::renderer      renderer_object,
+        const extent&         size,
+        const extent&         virtual_size
     ) noexcept
         : camera_{camera_object},
           window_{window_ptr},
@@ -239,12 +239,12 @@ class window final {
         glDebugMessageCallback(message_callback, nullptr);
     }
 
-    input       input_{make_input()};
-    camera      camera_;
-    GLFWwindow* window_;
-    renderer    renderer_;
-    extent      size_;
-    extent      virtual_size_;
+    detail::input    input_;
+    detail::camera   camera_;
+    GLFWwindow*      window_;
+    detail::renderer renderer_;
+    extent           size_;
+    extent           virtual_size_;
 };
 
 [[nodiscard]] inline auto try_make_window(
