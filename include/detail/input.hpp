@@ -71,15 +71,43 @@ class mouse_input final {
     [[nodiscard]] auto position(
         const extent& window_size, const extent& virtual_window_size
     ) const noexcept -> vec2 {
-        assert(
-            window_size.width > 0.f and window_size.height > 0.f and virtual_window_size > 0.f and
-            virtual_window_size > 0.f
-        );
+        if (window_size.width <= 0.f || window_size.height <= 0.f) {
+            return vec2{0.f, 0.f};
+        }
 
-        const auto norm_x = position_.x / window_size.width;
-        const auto norm_y = 1.f - (position_.y / window_size.height);
+        const auto target_aspect = virtual_window_size.width / virtual_window_size.height;
+        const auto window_aspect = window_size.width / window_size.height;
 
-        return {.x = norm_x * virtual_window_size.width, .y = norm_y * virtual_window_size.height};
+        auto render_w = window_size.width;
+        auto render_h = window_size.height;
+        auto offset_x = 0.f;
+        auto offset_y = 0.f;
+
+        if (window_aspect > target_aspect) {
+            // 左右に黒帯
+            render_w = window_size.height * target_aspect;
+            offset_x = (window_size.width - render_w) * 0.5f;
+        } else {
+            // 上下に黒帯
+            render_h = window_size.width / target_aspect;
+            offset_y = (window_size.height - render_h) * 0.5f;
+        }
+
+        // 1. 黒帯のオフセットを除外し、描画領域内での 0.0 ~ 1.0 に正規化
+        const auto norm_x = (position_.x - offset_x) / render_w;
+
+        // GLFWのマウス(yは上から下) を 左下原点(yは下から上) に反転させて正規化
+        const auto norm_y = 1.f - ((position_.y - offset_y) / render_h);
+
+        // 2. 仮想解像度にスケール
+        const auto virt_x = norm_x * virtual_window_size.width;
+        const auto virt_y = norm_y * virtual_window_size.height;
+
+        // ※ 必要に応じて clamp (黒帯部分を押し出す場合はコメント解除)
+        // virt_x = std::clamp(virt_x, 0.f, virtual_window_size.width);
+        // virt_y = std::clamp(virt_y, 0.f, virtual_window_size.height);
+
+        return vec2{.x = virt_x, .y = virt_y};
     }
 
     [[nodiscard]] auto is_down(const mouse button) const noexcept -> bool {
