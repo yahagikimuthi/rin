@@ -24,9 +24,11 @@ struct camera final {
     [[nodiscard]] constexpr auto position() const noexcept -> vec2 { return position_; }
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
 
-    [[nodiscard]] constexpr auto calc_view_position_mat() const noexcept -> glm::mat4 {
-        constexpr auto virtual_w = virtual_window_size.width;
-        constexpr auto virtual_h = virtual_window_size.height;
+    [[nodiscard]] constexpr auto calc_view_position_mat(
+        const extent& virtual_window_size
+    ) const noexcept -> glm::mat4 {
+        const auto virtual_w = virtual_window_size.width;
+        const auto virtual_h = virtual_window_size.height;
 
         const auto view_w = virtual_w / zoom_;
         const auto view_h = virtual_h / zoom_;

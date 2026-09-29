@@ -72,7 +72,9 @@ class mouse_input final {
         position_ = {.x = static_cast<f32>(x), .y = static_cast<f32>(y)};
     }
 
-    [[nodiscard]] auto position(const extent window_size) const noexcept -> vec2 {
+    [[nodiscard]] auto position(
+        const extent& window_size, const extent& virtual_window_size
+    ) const noexcept -> vec2 {
         if (window_size.width <= 0.f or window_size.height <= 0.f) return {.x = 0.f, .y = 0.f};
 
         const auto norm_x = position_.x / window_size.width;
@@ -151,8 +153,10 @@ class input final {
         return mouse_.is_released(button);
     }
 
-    [[nodiscard]] auto mouse_position(const extent window_size) const noexcept -> vec2 {
-        return mouse_.position(window_size);
+    [[nodiscard]] auto mouse_position(
+        const extent& window_size, const extent& virtual_window_size
+    ) const noexcept -> vec2 {
+        return mouse_.position(window_size, virtual_window_size);
     }
 
   private:

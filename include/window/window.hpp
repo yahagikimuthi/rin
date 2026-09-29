@@ -86,7 +86,8 @@ class window final {
             window_ptr,
             camera_obj,
             std::move(*renderer_res),
-            {.width = static_cast<f32>(actual_width), .height = static_cast<f32>(actual_height)}
+            {.width = static_cast<f32>(actual_width), .height = static_cast<f32>(actual_height)},
+            {.width = width, .height = height}
         };
     }
 
@@ -104,7 +105,8 @@ class window final {
           camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
           renderer_{std::move(other.renderer_)},
-          size_{other.size_} {
+          size_{other.size_},
+          virtual_size_{other.virtual_size_} {
         glfwSetWindowUserPointer(window_, this);
     }
 
@@ -115,11 +117,12 @@ class window final {
             glfwDestroyWindow(window_);
             window_ = nullptr;
         }
-        input_    = other.input_;
-        window_   = std::exchange(other.window_, nullptr);
-        camera_   = other.camera_;
-        renderer_ = std::move(other.renderer_);
-        size_     = other.size_;
+        input_        = other.input_;
+        window_       = std::exchange(other.window_, nullptr);
+        camera_       = other.camera_;
+        renderer_     = std::move(other.renderer_);
+        size_         = other.size_;
+        virtual_size_ = other.virtual_size_;
 
         glfwSetWindowUserPointer(window_, this);
         return *this;
@@ -167,7 +170,7 @@ class window final {
     }
 
     [[nodiscard]] auto mouse_position() const noexcept -> vec2 {
-        return input_.mouse_position(size_);
+        return input_.mouse_position(size_, virtual_size_);
     }
 
     [[nodiscard]] auto is_open() const noexcept -> bool {
@@ -188,23 +191,25 @@ class window final {
     }
     static void clear(const rgba& color) noexcept { clear(color.r, color.g, color.b, color.a); }
 
-    void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_); }
+    void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_, virtual_size_); }
 
-    void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_); }
+    void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_, virtual_size_); }
 
-    void draw(text& tex) noexcept { renderer_.draw(tex, camera_); }
+    void draw(text& tex) noexcept { renderer_.draw(tex, camera_, virtual_size_); }
 
   private:
     explicit window(
         GLFWwindow* const window_ptr,
         const camera&     camera_object,
         renderer          renderer_object,
-        const extent&     size
+        const extent&     size,
+        const extent&     virtual_size
     ) noexcept
         : camera_{camera_object},
           window_{window_ptr},
           renderer_{std::move(renderer_object)},
-          size_{size} {
+          size_{size},
+          virtual_size_{virtual_size} {
         glfwSetWindowUserPointer(window_, this);
         glfwSetFramebufferSizeCallback(window_, [](GLFWwindow* win, i32 w, i32 h) noexcept -> void {
             auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
@@ -237,6 +242,7 @@ class window final {
     GLFWwindow* window_;
     renderer    renderer_;
     extent      size_;
+    extent      virtual_size_;
 };
 
 [[nodiscard]] inline auto try_make_window(
