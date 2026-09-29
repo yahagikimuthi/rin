@@ -8,6 +8,7 @@
 
 #include "others/type.hpp"
 #include "others/util.hpp"
+#include "vec2.hpp"
 
 namespace rin {
 struct camera final {

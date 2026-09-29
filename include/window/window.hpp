@@ -18,6 +18,7 @@
 #include "renderer/renderer.hpp"
 #include "texture/sprite.hpp"
 #include "texture/text.hpp"
+#include "vec2.hpp"
 #include "vertex.hpp"
 #include "window/input.hpp"
 #include "window/mouse.hpp"

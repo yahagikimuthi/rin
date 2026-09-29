@@ -12,6 +12,7 @@
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "texture/font.hpp"
+#include "vec2.hpp"
 #include "vertex.hpp"
 
 namespace rin {

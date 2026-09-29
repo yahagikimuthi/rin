@@ -8,6 +8,7 @@
 #include "GLFW/glfw3.h"
 #include "others/type.hpp"
 #include "others/util.hpp"
+#include "vec2.hpp"
 #include "window/key.hpp"
 #include "window/mouse.hpp"
 

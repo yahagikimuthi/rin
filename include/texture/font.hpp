@@ -22,6 +22,7 @@
 #include "detail/error.hpp"
 #include "others/type.hpp"
 #include "texture/texture.hpp"
+#include "vec2.hpp"
 
 namespace rin {
 inline constexpr auto default_font_size = 48.f;
