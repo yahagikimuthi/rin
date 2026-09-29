@@ -11,8 +11,8 @@
 
 #include "GLFW/glfw3.h"
 #include "camera.hpp"
+#include "detail/error.hpp"
 #include "key.hpp"
-#include "others/error.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "renderer/renderer.hpp"

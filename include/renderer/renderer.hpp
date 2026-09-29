@@ -5,7 +5,7 @@
 #include <glm/ext/vector_float4.hpp>
 #include <utility>
 
-#include "others/error.hpp"
+#include "detail/error.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"

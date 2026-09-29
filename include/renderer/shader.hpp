@@ -10,7 +10,7 @@
 
 #include "glad/glad.h"
 
-#include "others/error.hpp"
+#include "detail/error.hpp"
 #include "others/type.hpp"
 
 namespace rin {

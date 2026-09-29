@@ -18,8 +18,8 @@
 #include "stb_truetype.h"
 #pragma GCC diagnostic pop
 
-#include "others/default_font_data.hpp"
-#include "others/error.hpp"
+#include "detail/default_font_data.hpp"
+#include "detail/error.hpp"
 #include "others/type.hpp"
 #include "texture/texture.hpp"
 

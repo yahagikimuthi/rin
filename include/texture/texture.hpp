@@ -14,7 +14,7 @@
 #include "stb_image.h"
 #pragma GCC diagnostic pop
 
-#include "others/error.hpp"
+#include "detail/error.hpp"
 #include "others/util.hpp"
 #include "renderer/ebo_manager.hpp"
 
