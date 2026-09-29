@@ -7,19 +7,21 @@
 #include <string_view>
 #include <utility>
 
-#include "GLFW/glfw3.h"
+#include "detail/graphics.hpp"
+
 #include "detail/camera.hpp"
 #include "detail/error.hpp"
 #include "detail/input.hpp"
-#include "detail/renderer.hpp"
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"
-#include "sprite.hpp"
-#include "text.hpp"
 #include "type.hpp"
 #include "util.hpp"
 #include "vec2.hpp"
+
+#include "detail/renderer.hpp"
+#include "sprite.hpp"
+#include "text.hpp"
 #include "vertex_vector.hpp"
 
 namespace rin {

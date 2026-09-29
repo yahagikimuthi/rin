@@ -5,7 +5,7 @@
 #include <glm/ext/vector_float2.hpp>
 #include <ranges>
 
-#include "GLFW/glfw3.h"
+#include "detail/graphics.hpp"
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"

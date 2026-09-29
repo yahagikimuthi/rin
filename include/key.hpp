@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GLFW/glfw3.h"
+#include "detail/graphics.hpp"
 #include "type.hpp"
 
 namespace rin {

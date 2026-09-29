@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "glad/glad.h"
+#include "detail/graphics.hpp"
 
 #include "type.hpp"
 #include "util.hpp"

@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <utility>
 
-#include "glad/glad.h"
+#include "detail/graphics.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #pragma GCC diagnostic push

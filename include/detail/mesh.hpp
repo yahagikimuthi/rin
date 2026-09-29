@@ -6,7 +6,7 @@
 #include <span>
 #include <utility>
 
-#include "glad/glad.h"
+#include "detail/graphics.hpp"
 
 #include "type.hpp"
 #include "vertex_vector.hpp"

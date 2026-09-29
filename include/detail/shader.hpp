@@ -8,7 +8,7 @@
 #include <string_view>
 #include <utility>
 
-#include "glad/glad.h"
+#include "detail/graphics.hpp"
 
 #include "detail/error.hpp"
 #include "type.hpp"
