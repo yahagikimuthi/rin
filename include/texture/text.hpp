@@ -27,7 +27,9 @@ class text final {
     [[nodiscard]] auto setting_font() const noexcept -> std::optional<const font&> { return font_; }
     [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
 
-    void string(const string_literal auto& str) noexcept {
+    template <typename T>
+        requires is_string_literal_v<T>
+    void string(const T& str) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         tex_str         = std::string_view{str};

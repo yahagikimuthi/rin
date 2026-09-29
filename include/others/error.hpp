@@ -34,16 +34,19 @@ class error final {
     };
 
   public:
-    [[nodiscard]] static auto make(
-        const error_type type, const string_literal auto& message
-    ) noexcept -> std::unexpected<error> {
+    template <typename T>
+        requires is_string_literal_v<T>
+    [[nodiscard]] static auto make(const error_type type, const T& message) noexcept
+        -> std::unexpected<error> {
         const auto codes = error_code{.type = type, .message = std::string_view{message}};
         const auto out   = error{std::vector{codes}};
         return std::unexpected{out};
     }
 
+    template <typename T>
+        requires is_string_literal_v<T>
     [[nodiscard]] static auto make(
-        const error_type type, const string_literal auto& message, const error& child_error
+        const error_type type, const T& message, const error& child_error
     ) noexcept -> std::unexpected<error> {
         auto codes = std::vector<error_code>{};
         codes.reserve(1 + child_error.codes_.size());
@@ -111,14 +114,17 @@ class error final {
     std::vector<error_code> codes_;
 };
 
-[[nodiscard]] constexpr auto make_error(
-    const error_type type, const string_literal auto& message
-) noexcept -> std::unexpected<error> {
+template <typename T>
+    requires is_string_literal_v<T>
+[[nodiscard]] constexpr auto make_error(const error_type type, const T& message) noexcept
+    -> std::unexpected<error> {
     return error::make(type, message);
 }
 
+template <typename T>
+    requires is_string_literal_v<T>
 [[nodiscard]] constexpr auto make_error(
-    const error_type type, const string_literal auto& message, const error& child_error
+    const error_type type, const T& message, const error& child_error
 ) noexcept -> std::unexpected<error> {
     return error::make(type, message, child_error);
 }
