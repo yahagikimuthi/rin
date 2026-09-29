@@ -15,7 +15,7 @@
 #pragma GCC diagnostic pop
 
 #include "detail/error.hpp"
-#include "others/util.hpp"
+#include "extent.hpp"
 #include "renderer/ebo_manager.hpp"
 
 namespace rin {

@@ -20,6 +20,7 @@
 
 #include "detail/default_font_data.hpp"
 #include "detail/error.hpp"
+#include "extent.hpp"
 #include "others/type.hpp"
 #include "texture/texture.hpp"
 #include "vec2.hpp"

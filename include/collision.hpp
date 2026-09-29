@@ -5,8 +5,8 @@
 #include <limits>
 #include <optional>
 
+#include "extent.hpp"
 #include "others/type.hpp"
-#include "others/util.hpp"
 #include "vec2.hpp"
 
 namespace rin {

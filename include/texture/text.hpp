@@ -9,6 +9,7 @@
 #include <variant>
 
 #include "detail/others.hpp"
+#include "extent.hpp"
 #include "others/type.hpp"
 #include "others/util.hpp"
 #include "texture/font.hpp"

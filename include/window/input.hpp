@@ -6,8 +6,8 @@
 #include <ranges>
 
 #include "GLFW/glfw3.h"
+#include "extent.hpp"
 #include "others/type.hpp"
-#include "others/util.hpp"
 #include "vec2.hpp"
 #include "window/key.hpp"
 #include "window/mouse.hpp"

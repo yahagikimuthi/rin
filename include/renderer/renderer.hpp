@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "detail/error.hpp"
+#include "extent.hpp"
 #include "renderer/ebo_manager.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/shader.hpp"
