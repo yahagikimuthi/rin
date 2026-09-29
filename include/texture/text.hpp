@@ -28,12 +28,14 @@ class text final {
     [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
 
     void string(const string_literal auto& str) noexcept {
-        dirty_  = true;
-        tex_str = std::string_view{str};
+        vertices_dirty_ = true;
+        extent_dirty_   = true;
+        tex_str         = std::string_view{str};
     }
     void string(const std::string_view str) noexcept {
-        dirty_  = true;
-        tex_str = std::string{str};
+        vertices_dirty_ = true;
+        extent_dirty_   = true;
+        tex_str         = std::string{str};
     }
     void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
     void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
@@ -46,25 +48,26 @@ class text final {
     }
     void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
-        dirty_ = true;
-        color_ = {.r = r, .g = g, .b = b, .a = a};
+        vertices_dirty_ = true;
+        color_          = {.r = r, .g = g, .b = b, .a = a};
     }
     void setting_font(const font& font_obj) noexcept {
-        dirty_ = true;
+        vertices_dirty_ = true;
+        extent_dirty_   = true;
         font_.emplace(font_obj);
     }
     void scale(const vec2 s) noexcept { vertices_.scale(s); }
     void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
 
-    [[nodiscard]] auto calc_extent() const noexcept -> extent {
+    [[nodiscard]] auto calc_extent() noexcept -> extent {
         const auto base_extent = calc_base_extent();
         const auto scale       = vertices_.scale();
         return extent{.width = base_extent.width * scale.x, .height = base_extent.height * scale.y};
     }
 
     [[nodiscard]] friend auto calc_vertices(text& self) noexcept -> const vertex_vector& {
-        if (self.dirty_) self.update_vertices();
-        self.dirty_ = false;
+        if (self.vertices_dirty_) self.update_vertices();
+        self.vertices_dirty_ = false;
         return self.vertices_;
     }
 
@@ -77,21 +80,42 @@ class text final {
   private:
     explicit text(const font& font_obj) noexcept : font_{font_obj} {}
 
-    [[nodiscard]] auto calc_base_extent() const noexcept -> extent {
+    [[nodiscard]] auto calc_base_extent() noexcept -> extent {
         if (not font_) return extent{};
 
-        auto width      = 0.f;
-        auto max_height = 0.f;
+        if (not extent_dirty_) return base_extent_;
+
+        auto max_width      = 0.f;
+        auto current_line_w = 0.f;
+
+        const auto line_height = default_font_size;
+        auto       line_count  = 1;
 
         for (const auto c : string()) {
+            if (c == '\n') {
+                max_width      = std::max(max_width, current_line_w);
+                current_line_w = 0.f;
+                line_count++;
+                continue;
+            }
+            if (c == '\r') {
+                continue;  // '\r\n' 対策として '\r' は無視
+            }
+
             const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
             if (not g) continue;
 
-            width += g->advance;
-            const auto glyph_h = g->size.height;
-            max_height         = std::max(max_height, glyph_h);
+            current_line_w += g->advance;
         }
-        return extent{.width = width, .height = max_height};
+
+        max_width = std::max(max_width, current_line_w);
+
+        const auto total_height = static_cast<f32>(line_count) * line_height;
+
+        base_extent_  = extent{.width = max_width, .height = total_height};
+        extent_dirty_ = false;
+
+        return base_extent_;
     }
 
     void update_vertices() noexcept {
@@ -136,8 +160,10 @@ class text final {
     vertex_vector              vertices_{make_vertex_vector(primitive_triangles)};
     str_t                      tex_str{std::string_view{""}};
     rgba                       color_;
+    extent                     base_extent_{};
     std::optional<const font&> font_{std::nullopt};
-    bool                       dirty_{true};
+    bool                       vertices_dirty_{true};
+    bool                       extent_dirty_{true};
 };
 
 [[nodiscard]] inline auto make_text(const font& font_ref) noexcept -> text {
