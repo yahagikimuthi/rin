@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -24,7 +25,7 @@ class text final {
     [[nodiscard]] auto position() const noexcept -> vec2 { return vertices_.position(); }
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
     [[nodiscard]] auto setting_font() const noexcept -> std::optional<const font&> { return font_; }
-    [[nodiscard]] auto size() const noexcept -> f32 { return size_; }
+    [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
 
     void string(const string_literal auto& str) noexcept {
         dirty_  = true;
@@ -47,10 +48,27 @@ class text final {
         dirty_ = true;
         font_.emplace(font_obj);
     }
-    void size(const f32 s) noexcept {
-        size_            = s;
-        const auto scale = size_ / default_font_size;
-        vertices_.scale(scale, scale);
+    void scale(const vec2 s) noexcept { vertices_.scale(s); }
+    void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
+
+    [[nodiscard]] auto calc_extent() const noexcept -> extent {
+        if (not font_) return extent{};
+
+        auto width      = 0.f;
+        auto max_height = 0.f;
+
+        for (const auto c : string()) {
+            const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
+            if (not g) continue;
+
+            width += g->advance;
+            const auto glyph_h = g->size.height;
+            max_height         = std::max(max_height, glyph_h);
+        }
+
+        const auto scale = vertices_.scale();
+
+        return extent{.width = width * scale.x, .height = max_height * scale.y};
     }
 
     [[nodiscard]] friend auto calc_vertices(text& self) noexcept -> const vertex_vector& {
@@ -111,7 +129,6 @@ class text final {
     str_t                      tex_str{std::string_view{""}};
     rgba                       color_;
     std::optional<const font&> font_{std::nullopt};
-    f32                        size_{0.f};
     bool                       dirty_{true};
 };
 
