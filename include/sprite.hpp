@@ -9,7 +9,7 @@
 
 #include "color.hpp"
 #include "texture.hpp"
-#include "type.hpp"
+#include "types.hpp"
 #include "uv.hpp"
 #include "vec2.hpp"
 #include "vertex_vector.hpp"

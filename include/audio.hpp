@@ -14,7 +14,7 @@
 #pragma GCC diagnostic pop
 
 #include "error.hpp"
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin {
 class sound final {

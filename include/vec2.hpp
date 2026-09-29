@@ -3,7 +3,7 @@
 #include <cmath>
 #include <glm/ext/vector_float2.hpp>
 
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin {
 struct vec2 final {

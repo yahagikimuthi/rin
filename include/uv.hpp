@@ -2,7 +2,7 @@
 
 #include <compare>
 
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin {
 struct uv final {

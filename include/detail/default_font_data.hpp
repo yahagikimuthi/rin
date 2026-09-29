@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin::detail {
 

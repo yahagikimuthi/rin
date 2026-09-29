@@ -8,7 +8,7 @@
 
 #include "detail/graphics.hpp"
 
-#include "type.hpp"
+#include "types.hpp"
 #include "vertex_vector.hpp"
 
 namespace rin::detail {

@@ -16,7 +16,7 @@
 
 #include "error.hpp"
 #include "extent.hpp"
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin::detail {
 struct uv_rectangle final {

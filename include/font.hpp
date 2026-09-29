@@ -22,7 +22,7 @@
 #include "error.hpp"
 #include "extent.hpp"
 #include "texture.hpp"
-#include "type.hpp"
+#include "types.hpp"
 #include "vec2.hpp"
 
 namespace rin::detail {

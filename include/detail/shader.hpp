@@ -11,7 +11,7 @@
 #include "detail/graphics.hpp"
 
 #include "error.hpp"
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin::detail {
 constexpr const char* vertex_shader_source = R"(

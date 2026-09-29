@@ -6,7 +6,7 @@
 #include <optional>
 
 #include "extent.hpp"
-#include "type.hpp"
+#include "types.hpp"
 #include "vec2.hpp"
 
 namespace rin {

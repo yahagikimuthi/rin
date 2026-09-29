@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "extent.hpp"
-#include "type.hpp"
+#include "types.hpp"
 #include "vec2.hpp"
 
 namespace rin::detail {

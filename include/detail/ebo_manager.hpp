@@ -7,7 +7,7 @@
 
 #include "detail/graphics.hpp"
 
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin::detail {
 struct polygon_index_data final {

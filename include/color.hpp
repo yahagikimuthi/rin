@@ -3,7 +3,7 @@
 #include <compare>
 #include <glm/ext/vector_float4.hpp>
 
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin {
 struct rgba final {

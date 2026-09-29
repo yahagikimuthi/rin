@@ -1,7 +1,7 @@
 #pragma once
 
 #include "detail/graphics.hpp"
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin {
 enum class key : u16 {

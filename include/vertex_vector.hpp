@@ -14,7 +14,7 @@
 #include "detail/graphics.hpp"
 
 #include "color.hpp"
-#include "type.hpp"
+#include "types.hpp"
 #include "uv.hpp"
 #include "vec2.hpp"
 

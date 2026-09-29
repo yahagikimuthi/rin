@@ -16,7 +16,7 @@
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"
-#include "type.hpp"
+#include "types.hpp"
 #include "vec2.hpp"
 
 #include "detail/renderer.hpp"

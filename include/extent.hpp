@@ -3,7 +3,7 @@
 #include <compare>
 #include <glm/ext/vector_float2.hpp>
 
-#include "type.hpp"
+#include "types.hpp"
 
 namespace rin {
 struct extent final {
