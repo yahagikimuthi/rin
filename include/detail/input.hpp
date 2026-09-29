@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <glm/ext/vector_float2.hpp>
 #include <ranges>
@@ -70,7 +71,10 @@ class mouse_input final {
     [[nodiscard]] auto position(
         const extent& window_size, const extent& virtual_window_size
     ) const noexcept -> vec2 {
-        if (window_size.width <= 0.f or window_size.height <= 0.f) return {.x = 0.f, .y = 0.f};
+        assert(
+            window_size.width > 0.f and window_size.height > 0.f and virtual_window_size > 0.f and
+            virtual_window_size > 0.f
+        );
 
         const auto norm_x = position_.x / window_size.width;
         const auto norm_y = 1.f - (position_.y / window_size.height);
