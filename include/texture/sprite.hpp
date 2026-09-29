@@ -82,7 +82,7 @@ class sprite final {
         vertices_.emplace_back(p3, uv{.u = u0, .v = v1}, color_);
     }
 
-    vertex_vector                         vertices_{make_vertex_vector(primitive_triangles)};
+    vertex_vector                         vertices_{primitive_triangles};
     std::reference_wrapper<const texture> tex_;
     uv_rectangle                          uv_rect_{};
     rgba                                  color_{white};

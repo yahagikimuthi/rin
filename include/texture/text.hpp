@@ -164,7 +164,7 @@ class text final {
         }
     }
 
-    vertex_vector                      vertices_{make_vertex_vector(primitive_triangles)};
+    vertex_vector                      vertices_{primitive_triangles};
     str_t                              tex_str{std::string_view{""}};
     rgba                               color_;
     extent                             base_extent_{};

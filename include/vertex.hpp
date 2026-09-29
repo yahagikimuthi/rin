@@ -62,9 +62,7 @@ class vertex_vector final {
     using reverse_iterator       = std::vector<vertex>::reverse_iterator;
     using const_reverse_iterator = std::vector<vertex>::const_reverse_iterator;
 
-    [[nodiscard]] static auto make(const primitive_type type) noexcept -> vertex_vector {
-        return vertex_vector{type};
-    }
+    explicit vertex_vector(const primitive_type type) noexcept : type_{type} {}
 
     [[nodiscard]] auto operator==(const vertex_vector&) const noexcept -> bool = default;
 
@@ -221,7 +219,6 @@ class vertex_vector final {
     }
 
   private:
-    explicit vertex_vector(const primitive_type type) noexcept : type_{type} {}
     std::vector<vertex> vec_;
     vec2                position_{};
     vec2                scale_{.x = 1.f, .y = 1.f};
@@ -229,8 +226,4 @@ class vertex_vector final {
     f32                 rotation_{};
     primitive_type      type_;
 };
-
-[[nodiscard]] inline auto make_vertex_vector(const primitive_type type) noexcept -> vertex_vector {
-    return vertex_vector::make(type);
-}
 }  // namespace rin
