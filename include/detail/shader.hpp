@@ -100,8 +100,8 @@ class shader final {
 
     ~shader() noexcept { destroy(); }
 
-    friend void bind(const shader& self) noexcept {
-        if (self.program_id_ != 0) glUseProgram(self.program_id_);
+    void bind() const noexcept {
+        if (program_id_ != 0) glUseProgram(program_id_);
     }
 
     // 以下はGPUに描画をセットする関数。直後にMesh::draw()が呼び出されるのを期待する

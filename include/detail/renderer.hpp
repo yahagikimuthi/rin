@@ -26,7 +26,7 @@ class renderer final {
         return renderer{std::move(*shader_res)};
     }
 
-    void use() noexcept { bind(shader_); }
+    void use() noexcept { shader_.bind(); }
 
     void draw(
         const vertex_vector& vertices, const camera& camera_obj, const extent& virtual_window_size
