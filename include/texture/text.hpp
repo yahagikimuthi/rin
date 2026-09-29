@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -65,7 +66,7 @@ class text final {
     void setting_font(const font& font_obj) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;
-        font_.emplace(font_obj);
+        font_           = font_obj;
     }
     void scale(const vec2 s) noexcept { vertices_.scale(s); }
     void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
@@ -83,8 +84,7 @@ class text final {
     }
 
     [[nodiscard]] friend auto bind_font(const text& self, const u32 unit) noexcept -> bool {
-        if (not self.font_) return false;
-        bind(self.font_->setting_texture(), unit);
+        bind(self.font_.get().setting_texture(), unit);
         return true;
     }
 
@@ -92,8 +92,6 @@ class text final {
     explicit text(const font& font_obj) noexcept : font_{font_obj} {}
 
     [[nodiscard]] auto calc_base_extent() noexcept -> extent {
-        if (not font_) return extent{};
-
         if (not extent_dirty_) return base_extent_;
 
         auto max_width      = 0.f;
@@ -113,7 +111,7 @@ class text final {
                 continue;  // '\r\n' 対策として '\r' は無視
             }
 
-            const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
+            const auto g = font_.get().glyph_of_point(static_cast<char32_t>(c));
             if (not g) continue;
 
             current_line_w += g->advance;
@@ -130,7 +128,6 @@ class text final {
     }
 
     void update_vertices() noexcept {
-        if (not font_) return;
         vertices_.clear();
         auto cursor_x = 0.f;
         auto cursor_y = 0.f;
@@ -142,7 +139,7 @@ class text final {
                 continue;
             }
 
-            const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
+            const auto g = font_.get().glyph_of_point(static_cast<char32_t>(c));
             if (not g) continue;
 
             const auto x0             = std::floor(cursor_x + g->bearing.x);
@@ -168,13 +165,13 @@ class text final {
         }
     }
 
-    vertex_vector              vertices_{make_vertex_vector(primitive_triangles)};
-    str_t                      tex_str{std::string_view{""}};
-    rgba                       color_;
-    extent                     base_extent_{};
-    std::optional<const font&> font_{std::nullopt};
-    bool                       vertices_dirty_{true};
-    bool                       extent_dirty_{true};
+    vertex_vector                      vertices_{make_vertex_vector(primitive_triangles)};
+    str_t                              tex_str{std::string_view{""}};
+    rgba                               color_;
+    extent                             base_extent_{};
+    std::reference_wrapper<const font> font_;
+    bool                               vertices_dirty_{true};
+    bool                               extent_dirty_{true};
 };
 
 [[nodiscard]] inline auto make_text(const font& font_ref) noexcept -> text {
