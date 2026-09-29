@@ -70,6 +70,7 @@ class vertex_vector final {
     [[nodiscard]] auto scale() const noexcept -> vec2 { return scale_; }
     [[nodiscard]] auto rotation() const noexcept -> f32 { return rotation_; }
     [[nodiscard]] auto origin() const noexcept -> vec2 { return origin_; }
+    [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
 
     auto position(const vec2 pos) noexcept -> vertex_vector& { return position(pos.x, pos.y); }
     auto position(const f32 x, const f32 y) noexcept -> vertex_vector& {
@@ -92,6 +93,13 @@ class vertex_vector final {
     }
     auto origin(const f32 x, const f32 y) noexcept -> vertex_vector& {
         origin_ = {.x = x, .y = y};
+        return *this;
+    }
+    auto color(const rgba& col) noexcept -> vertex_vector& {
+        return color(col.r, col.g, col.b, col.a);
+    }
+    auto color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept -> vertex_vector& {
+        color_ = {.r = r, .g = g, .b = b, .a = a};
         return *this;
     }
 
@@ -220,6 +228,7 @@ class vertex_vector final {
 
   private:
     std::vector<vertex> vec_;
+    rgba                color_{white};
     vec2                position_{};
     vec2                scale_{.x = 1.f, .y = 1.f};
     vec2                origin_{.x = 0.f, .y = 0.f};
