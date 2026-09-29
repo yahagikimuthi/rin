@@ -88,8 +88,8 @@ class text final {
         auto max_width      = 0.f;
         auto current_line_w = 0.f;
 
-        const auto line_height = default_font_size;
-        auto       line_count  = 1;
+        constexpr auto line_height = default_font_size;
+        auto           line_count  = 1;
 
         for (const auto c : string()) {
             if (c == '\n') {
