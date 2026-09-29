@@ -37,8 +37,13 @@ class text final {
     }
     void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
     void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
-    void origin(const vec2 o) noexcept { vertices_.origin(o); }
-    void origin(const f32 x, const f32 y) noexcept { vertices_.origin(x, y); }
+    void origin(const vec2 o) noexcept { origin(o.x, o.y); }
+    void origin(const f32 x, const f32 y) noexcept {
+        const auto scale   = vertices_.scale();
+        const auto local_x = (scale.x != 0.f) ? x / scale.x : x;
+        const auto local_y = (scale.y != 0.f) ? y / scale.y : y;
+        vertices_.origin(local_x, local_y);
+    }
     void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
         dirty_ = true;
@@ -52,23 +57,9 @@ class text final {
     void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
 
     [[nodiscard]] auto calc_extent() const noexcept -> extent {
-        if (not font_) return extent{};
-
-        auto width      = 0.f;
-        auto max_height = 0.f;
-
-        for (const auto c : string()) {
-            const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
-            if (not g) continue;
-
-            width += g->advance;
-            const auto glyph_h = g->size.height;
-            max_height         = std::max(max_height, glyph_h);
-        }
-
-        const auto scale = vertices_.scale();
-
-        return extent{.width = width * scale.x, .height = max_height * scale.y};
+        const auto base_extent = calc_base_extent();
+        const auto scale       = vertices_.scale();
+        return extent{.width = base_extent.width * scale.x, .height = base_extent.height * scale.y};
     }
 
     [[nodiscard]] friend auto calc_vertices(text& self) noexcept -> const vertex_vector& {
@@ -85,6 +76,23 @@ class text final {
 
   private:
     explicit text(const font& font_obj) noexcept : font_{font_obj} {}
+
+    [[nodiscard]] auto calc_base_extent() const noexcept -> extent {
+        if (not font_) return extent{};
+
+        auto width      = 0.f;
+        auto max_height = 0.f;
+
+        for (const auto c : string()) {
+            const auto g = font_->glyph_of_point(static_cast<char32_t>(c));
+            if (not g) continue;
+
+            width += g->advance;
+            const auto glyph_h = g->size.height;
+            max_height         = std::max(max_height, glyph_h);
+        }
+        return extent{.width = width, .height = max_height};
+    }
 
     void update_vertices() noexcept {
         if (not font_) return;
