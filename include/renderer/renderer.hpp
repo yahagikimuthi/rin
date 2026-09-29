@@ -12,7 +12,7 @@
 #include "renderer/shader.hpp"
 #include "texture//text.hpp"
 #include "texture/sprite.hpp"
-#include "vertex.hpp"
+#include "vertex_vector.hpp"
 #include "window/camera.hpp"
 
 namespace rin {

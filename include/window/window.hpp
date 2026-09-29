@@ -20,7 +20,7 @@
 #include "texture/sprite.hpp"
 #include "texture/text.hpp"
 #include "vec2.hpp"
-#include "vertex.hpp"
+#include "vertex_vector.hpp"
 #include "window/input.hpp"
 #include "window/mouse.hpp"
 

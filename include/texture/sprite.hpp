@@ -11,7 +11,7 @@
 #include "others/util.hpp"
 #include "texture/texture.hpp"
 #include "vec2.hpp"
-#include "vertex.hpp"
+#include "vertex_vector.hpp"
 
 namespace rin {
 class sprite final {

@@ -9,7 +9,7 @@
 #include "glad/glad.h"
 
 #include "others/type.hpp"
-#include "vertex.hpp"
+#include "vertex_vector.hpp"
 
 namespace rin {
 class mesh final {
