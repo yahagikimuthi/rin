@@ -35,7 +35,7 @@ class fps_counter final {
     [[nodiscard]] auto fps() const noexcept -> f32 { return current_fps_; }
 
   private:
-    f32 update_interval_{1.0f};  // 表示更新の間隔 (秒)
+    static constexpr auto update_interval_ = 1.0f;  // 表示更新の間隔 (秒)
 
     time_point last_time_{clock::now()};
     time_point fps_last_updated_{last_time_};
