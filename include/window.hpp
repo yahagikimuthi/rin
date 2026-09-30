@@ -7,21 +7,18 @@
 #include <string_view>
 #include <utility>
 
-#include "detail/graphics.hpp"
-
-#include "color.hpp"
 #include "detail/camera.hpp"
+#include "detail/fbo_manager.hpp"
 #include "detail/input.hpp"
+#include "detail/renderer.hpp"
 #include "error.hpp"
 #include "extent.hpp"
 #include "key.hpp"
 #include "mouse.hpp"
-#include "types.hpp"
-#include "vec2.hpp"
-
-#include "detail/renderer.hpp"
 #include "sprite.hpp"
 #include "text.hpp"
+#include "types.hpp"
+#include "vec2.hpp"
 #include "vertex_vector.hpp"
 
 namespace rin {
@@ -55,15 +52,18 @@ class window final {
                 runtime_error, "Failed to GLFW initialize. We recommend ending program."
             );
 
-        glfwSwapInterval(static_cast<i32>(vsync));
-
         // これから作る画面のメタ設定
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
+#ifndef NDEBUG
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
+#else
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
+#endif
 
         auto        str        = std::string{title};
         auto* const window_ptr = glfwCreateWindow(
@@ -77,6 +77,7 @@ class window final {
         if (window_ptr == nullptr) return make_error(runtime_error, "Failed to initialize window.");
 
         glfwMakeContextCurrent(window_ptr);
+        glfwSwapInterval(static_cast<i32>(vsync));
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
 
         auto actual_width  = 0;
@@ -90,9 +91,13 @@ class window final {
         if (not renderer_res)
             return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
+        auto fbo = detail::fbo_manager::try_make();
+        if (not fbo) return make_error(runtime_error, "Failed to create FBO.", fbo.error());
+
         return window{
             window_ptr,
             std::move(*renderer_res),
+            std::move(*fbo),
             {.width = static_cast<f32>(actual_width), .height = static_cast<f32>(actual_height)},
             {.width = width, .height = height}
         };
@@ -112,6 +117,7 @@ class window final {
           camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
           renderer_{std::move(other.renderer_)},
+          fbo_manager_{std::move(other.fbo_manager_)},
           vp_{other.vp_},
           size_{other.size_},
           virtual_size_{other.virtual_size_} {
@@ -189,15 +195,39 @@ class window final {
         input_.update(window_);
     }
 
-    void begin_render(
-        const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 a = 1.f
-    ) noexcept {
-        renderer_.use();
-        glClearColor(r, g, b, a);
+    void begin_render() noexcept {
+        fbo_manager_.bind(virtual_size_);
+
+        glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        renderer_.use();
     }
-    void begin_render(const rgba& color) noexcept {
-        begin_render(color.r, color.g, color.b, color.a);
+
+    void end_render() noexcept {
+        fbo_manager_.bind_for_bit();
+
+        glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
+        glClearColor(0.f, 0.f, 0.f, 1.f);
+        glDrawBuffer(GL_BACK);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glBlitFramebuffer(
+            0,
+            0,
+            static_cast<i32>(virtual_size_.width),
+            static_cast<i32>(virtual_size_.height),
+            vp_.x,
+            vp_.y,
+            vp_.x + vp_.w,
+            vp_.y + vp_.h,
+            GL_COLOR_BUFFER_BIT,
+            GL_NEAREST
+        );
+
+        fbo_manager_.unbind();
+
+        glfwSwapBuffers(window_);
     }
 
     void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_, virtual_size_); }
@@ -206,20 +236,19 @@ class window final {
 
     void draw(text& tex) noexcept { renderer_.draw(tex, camera_, virtual_size_); }
 
-    void end_render() noexcept {
-        glViewport(vp_.x, vp_.y, vp_.w, vp_.h);
-        glfwSwapBuffers(window_);
-    }
+    [[nodiscard]] auto native_window() noexcept -> GLFWwindow* { return window_; }
 
   private:
     explicit window(
-        GLFWwindow* const window_ptr,
-        detail::renderer  renderer_object,
-        const extent&     size,
-        const extent&     virtual_size
+        GLFWwindow* const   window_ptr,
+        detail::renderer    renderer_object,
+        detail::fbo_manager fbo,
+        const extent&       size,
+        const extent&       virtual_size
     ) noexcept
         : window_{window_ptr},
           renderer_{std::move(renderer_object)},
+          fbo_manager_{std::move(fbo)},
           size_{size},
           virtual_size_{virtual_size} {
         glfwSetWindowUserPointer(window_, this);
@@ -234,6 +263,7 @@ class window final {
         auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
         if (self == nullptr || fb_w <= 0 || fb_h <= 0) return;
 
+        // 仮想サイズとのアスペクト比計算
         const auto target_aspect = self->virtual_size_.width / self->virtual_size_.height;
         const auto fb_aspect     = static_cast<f32>(fb_w) / static_cast<f32>(fb_h);
 
@@ -257,19 +287,17 @@ class window final {
             .h = static_cast<i32>(vp_h)
         };
 
-        auto win_w = 0;
-        auto win_h = 0;
-        glfwGetWindowSize(win, &win_w, &win_h);
-        self->size_ = extent{.width = static_cast<f32>(win_w), .height = static_cast<f32>(win_h)};
+        self->size_ = extent{.width = static_cast<f32>(fb_w), .height = static_cast<f32>(fb_h)};
     }
 
-    detail::input    input_;
-    detail::camera   camera_;
-    GLFWwindow*      window_;
-    detail::renderer renderer_;
-    view_point       vp_{};
-    extent           size_;
-    extent           virtual_size_;
+    detail::input       input_;
+    detail::camera      camera_;
+    GLFWwindow*         window_;  // 所有権を持たない
+    detail::renderer    renderer_;
+    detail::fbo_manager fbo_manager_;
+    view_point          vp_{};
+    extent              size_;
+    extent              virtual_size_;
 };
 
 [[nodiscard]] inline auto try_make_window(
