@@ -66,11 +66,10 @@ class shader final {
     static constexpr auto u_Texture    = "u_Texture"sv;
 
     [[nodiscard]] static auto try_make() noexcept -> std::expected<shader, error> {
-        const auto vertex_shader = shader::compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
+        const auto vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_source);
         if (not vertex_shader) return make_error(logic_error, "Failed to compile vertex shader.");
 
-        const auto fragment_shader =
-            shader::compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
+        const auto fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
         if (not fragment_shader)
             return make_error(logic_error, "Failed to compile fragment shader.");
 
