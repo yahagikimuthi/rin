@@ -88,6 +88,10 @@ class mesh final {
             "larger vertices buffer."
         );
 
+        glNamedBufferData(
+            vbo_, static_cast<GLintptr>(max_vertices_ * sizeof(vertex)), nullptr, GL_DYNAMIC_DRAW
+        );
+
         const auto upload_size = static_cast<GLsizeiptr>(vertices.size() * sizeof(vertex));
         glNamedBufferSubData(vbo_, 0, upload_size, vertices.data());
     }
