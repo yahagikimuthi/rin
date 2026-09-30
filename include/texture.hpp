@@ -83,11 +83,11 @@ class texture final {
         glCreateTextures(GL_TEXTURE_2D, 1, &id_);
 
         // ミップマップレベルを生成
-        const auto mipLevels =
+        const auto mip_levels =
             static_cast<GLsizei>(std::floor(std::log2(std::max(width, height)))) + 1;
 
         glTextureStorage2D(
-            id_, mipLevels, GL_RGBA8, static_cast<GLsizei>(width), static_cast<GLsizei>(height)
+            id_, mip_levels, GL_RGBA8, static_cast<GLsizei>(width), static_cast<GLsizei>(height)
         );
 
         if (pixels != nullptr) {
