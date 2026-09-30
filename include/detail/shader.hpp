@@ -103,7 +103,7 @@ class shader final {
         if (program_id_ != 0) glUseProgram(program_id_);
     }
 
-    // 以下はGPUに描画をセットする関数。直後にMesh::draw()が呼び出されるのを期待する
+    // 以下はGPUに描画をセットする関数。直後にmesh::draw_elements()などが呼び出されるのを期待する
     void set_mat4(const std::string_view name, const glm::mat4& matrix) noexcept {  // NOLINT
         const auto location =
             glGetUniformLocation(program_id_, static_cast<const char*>(name.data()));
