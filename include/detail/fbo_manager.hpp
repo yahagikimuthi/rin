@@ -12,35 +12,59 @@
 namespace rin::detail {
 class fbo_manager final {
   public:
-    [[nodiscard]] static auto try_make() noexcept -> std::expected<fbo_manager, error> {
-        auto fbo_id = GLuint{};
+    [[nodiscard]] static auto try_make(const extent virtual_size) noexcept
+        -> std::expected<fbo_manager, error> {
+        auto fbo_id     = GLuint{};
+        auto texture_id = GLuint{};
 
-        glGenFramebuffers(1, &fbo_id);
+        const auto width  = static_cast<i32>(virtual_size.width);
+        const auto height = static_cast<i32>(virtual_size.height);
+
+        glCreateFramebuffers(1, &fbo_id);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &texture_id);
+        glTextureStorage2D(
+            texture_id, 1, GL_RGBA8, static_cast<i32>(width), static_cast<i32>(height)
+        );
+
+        glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        // テクスチャを FBO のカラーアタッチメント 0 にアタッチ
+        glNamedFramebufferTexture(fbo_id, GL_COLOR_ATTACHMENT0, texture_id, 0);
 
         // FBO の完全性チェック
-        if (glCheckNamedFramebufferStatus(fbo_id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        if (glCheckNamedFramebufferStatus(fbo_id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            glDeleteTextures(1, &texture_id);
+            glDeleteFramebuffers(1, &fbo_id);
             return make_error(runtime_error, "Failed to initialize FBO.");
+        }
 
-        return fbo_manager{fbo_id};
+        return fbo_manager{fbo_id, texture_id};
     }
 
     fbo_manager(const fbo_manager&) noexcept                    = delete;
     auto operator=(const fbo_manager&) noexcept -> fbo_manager& = delete;
 
-    fbo_manager(fbo_manager&& other) noexcept : fbo_id_{std::exchange(other.fbo_id_, 0)} {}
+    fbo_manager(fbo_manager&& other) noexcept
+        : fbo_id_{std::exchange(other.fbo_id_, 0)},
+          texture_id_{std::exchange(other.texture_id_, 0)} {}
     auto operator=(fbo_manager&& other) noexcept -> fbo_manager& {
         if (this == &other) return *this;
 
         destroy();
 
-        fbo_id_ = std::exchange(other.fbo_id_, 0);
+        fbo_id_     = std::exchange(other.fbo_id_, 0);
+        texture_id_ = std::exchange(other.texture_id_, 0);
 
         return *this;
     }
 
     ~fbo_manager() noexcept { destroy(); }
 
-    void bind(const extent& virtual_size) const noexcept {
+    void bind(const extent virtual_size) const noexcept {
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_id_);
         glViewport(
             0, 0, static_cast<i32>(virtual_size.width), static_cast<i32>(virtual_size.height)
@@ -58,12 +82,15 @@ class fbo_manager final {
     }
 
   private:
-    explicit fbo_manager(const GLuint fbo_id) noexcept : fbo_id_{fbo_id} {}
+    explicit fbo_manager(const GLuint fbo_id, const GLuint texture_id) noexcept
+        : fbo_id_{fbo_id}, texture_id_{texture_id} {}
 
     void destroy() noexcept {
+        if (texture_id_ != 0) glDeleteTextures(1, &texture_id_);
         if (fbo_id_ != 0) glDeleteFramebuffers(1, &fbo_id_);
     }
 
     GLuint fbo_id_{};
+    GLuint texture_id_{};
 };
 }  // namespace rin::detail
