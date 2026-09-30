@@ -14,7 +14,7 @@
 #include "types.hpp"
 
 namespace rin::detail {
-constexpr const auto* vertex_shader_source = R"(
+constexpr auto* vertex_shader_source = R"(
     #version 450 core
     
     layout (location = 0) in vec2 aPos;
@@ -33,7 +33,7 @@ constexpr const auto* vertex_shader_source = R"(
     }
 )";
 
-constexpr const auto* fragment_shader_source = R"(
+constexpr auto* fragment_shader_source = R"(
     #version 450 core
 
     in vec2 v_TexCoord;
