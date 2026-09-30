@@ -23,7 +23,7 @@ file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/sr
 # 共通コンパイル/リンク設定
 add_library(project_warnings INTERFACE)
 target_compile_options(project_warnings INTERFACE
-    -O0
+    -O2
     -Wall
     -Werror
     -Wextra
@@ -34,22 +34,23 @@ target_compile_options(project_warnings INTERFACE
     -Wunreachable-code
     -Wimplicit-fallthrough
     -Wnoexcept
-    -D_GLIBCXX_DEBUG
-    -D_GLIBCXX_ASSERTIONS
-    -D_FORTIFY_SOURCE=2
-    -fstack-protector-strong
-    -fstack-clash-protection
     -fcf-protection
-    -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
-    -fno-omit-frame-pointer
-    -fcontracts
     -mtune=native
     -march=native
     -flto
+    $<$<CONFIG:Debug>:-O0>
+    $<$<CONFIG:Debug>:-D_GLIBCXX_DEBUG>
+    $<$<CONFIG:Debug>:-D_GLIBCXX_ASSERTIONS>
+    $<$<CONFIG:Debug>:-D_FORTIFY_SOURCE=2>
+    $<$<CONFIG:Debug>:-fstack-protector-strong>
+    $<$<CONFIG:Debug>:-fstack-clash-protection>
+    $<$<CONFIG:Debug>:-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow>
+    $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+    $<$<CONFIG:Debug>:-fcontracts>
 )
 target_link_options(project_warnings INTERFACE
-    -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
-    -fcontracts
+    $<$<CONFIG:Debug>:-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow>
+    $<$<CONFIG:Debug>:-fcontracts>
 )
 
 # --- ヘッダーオンリーライブラリの定義 ---
