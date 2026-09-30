@@ -193,10 +193,7 @@ class window final {
 
     void begin_render() noexcept {
         fbo_manager_.bind(virtual_size_);
-
-        glClearColor(0.f, 0.f, 0.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        fbo_manager_.clear();
         renderer_.use();
     }
 
@@ -204,8 +201,10 @@ class window final {
         fbo_manager_.bind_for_bit();
 
         glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
+        glDisable(GL_SCISSOR_TEST);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
         glClearColor(0.f, 0.f, 0.f, 1.f);
-        glDrawBuffer(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBlitFramebuffer(

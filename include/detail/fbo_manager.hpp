@@ -23,7 +23,7 @@ class fbo_manager final {
         glTextureStorage2D(
             texture_id,
             1,
-            GL_RGBA8,
+            GL_RGBA,
             static_cast<i32>(virtual_size.width),
             static_cast<i32>(virtual_size.height)
         );
@@ -74,6 +74,11 @@ class fbo_manager final {
         glViewport(
             0, 0, static_cast<i32>(virtual_size.width), static_cast<i32>(virtual_size.height)
         );
+    }
+
+    void clear() const noexcept {
+        constexpr float clear_color[] = {0.f, 0.f, 0.f, 1.f};          // NOLINT
+        glClearNamedFramebufferfv(fbo_id_, GL_COLOR, 0, clear_color);  // NOLINT
     }
 
     void bind_for_bit() const noexcept {
