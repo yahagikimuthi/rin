@@ -17,10 +17,8 @@ class fbo_manager final {
         auto fbo_id     = GLuint{};
         auto texture_id = GLuint{};
 
-        // 1. FBO の生成 (DSA API)
         glCreateFramebuffers(1, &fbo_id);
 
-        // 2. カラーテクスチャの生成と領域確保 (DSA API)
         glCreateTextures(GL_TEXTURE_2D, 1, &texture_id);
         glTextureStorage2D(
             texture_id,
@@ -30,20 +28,16 @@ class fbo_manager final {
             static_cast<i32>(virtual_size.height)
         );
 
-        // テクスチャのフィルタリング設定
         glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        // 3. FBO にカラーテクスチャを結合 (Color Attachment 0)
         glNamedFramebufferTexture(fbo_id, GL_COLOR_ATTACHMENT0, texture_id, 0);
 
-        // 4. カラーバッファへ描画することを明示
         constexpr GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0};  // NOLINT
         glNamedFramebufferDrawBuffers(fbo_id, 1, draw_buffers);    // NOLINT
 
-        // 5. テクスチャをバインドした「後」に完全性チェックを行う！
         if (glCheckNamedFramebufferStatus(fbo_id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             // 失敗時はリソースを解放
             glDeleteTextures(1, &texture_id);
