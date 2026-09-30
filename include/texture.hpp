@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <cmath>
 #include <expected>
 #include <filesystem>
 #include <utility>
@@ -79,14 +81,20 @@ class texture final {
     explicit texture(const u32 width, const u32 height, const u8* const pixels) noexcept
         : size_{.width = static_cast<f32>(width), .height = static_cast<f32>(height)} {
         glCreateTextures(GL_TEXTURE_2D, 1, &id_);
+
+        // ミップマップレベルを生成
+        const auto mipLevels =
+            static_cast<GLsizei>(std::floor(std::log2(std::max(width, height)))) + 1;
+
         glTextureStorage2D(
-            id_, 1, GL_RGBA8, static_cast<GLsizei>(width), static_cast<GLsizei>(height)
+            id_, mipLevels, GL_RGBA8, static_cast<GLsizei>(width), static_cast<GLsizei>(height)
         );
+
         if (pixels != nullptr) {
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTextureSubImage2D(
                 id_,
-                0,
+                0,  // Mip Level 0 (原寸)
                 0,
                 0,
                 static_cast<GLsizei>(width),
@@ -95,10 +103,15 @@ class texture final {
                 GL_UNSIGNED_BYTE,
                 pixels
             );
+
+            glGenerateTextureMipmap(id_);
         }
+
         glTextureParameteri(id_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(id_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        // ミップマップを設定
+        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
