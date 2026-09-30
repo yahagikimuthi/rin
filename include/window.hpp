@@ -38,6 +38,13 @@ inline void GLAPIENTRY message_callback(
 }
 
 class window final {
+    struct view_point final {
+        i32 x;
+        i32 y;
+        i32 w;
+        i32 h;
+    };
+
   public:
     [[nodiscard]] static auto try_make(
         const f32 width, const f32 height, const std::string_view title, const bool vsync = true
@@ -54,6 +61,8 @@ class window final {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
 
         auto        str        = std::string{title};
@@ -103,6 +112,7 @@ class window final {
           camera_{other.camera_},
           window_{std::exchange(other.window_, nullptr)},
           renderer_{std::move(other.renderer_)},
+          vp_{other.vp_},
           size_{other.size_},
           virtual_size_{other.virtual_size_} {
         glfwSetWindowUserPointer(window_, this);
@@ -121,6 +131,7 @@ class window final {
         renderer_     = std::move(other.renderer_);
         size_         = other.size_;
         virtual_size_ = other.virtual_size_;
+        vp_           = other.vp_;
 
         glfwSetWindowUserPointer(window_, this);
         return *this;
@@ -140,8 +151,6 @@ class window final {
     void camera_zoom(const f32 zoom) noexcept { camera_.zoom(zoom); }
 
     [[nodiscard]] auto camera_zoom() const noexcept -> f32 { return camera_.zoom(); }
-
-    void display() noexcept { glfwSwapBuffers(window_); }
 
     [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {
         return input_.is_key_down(button);
@@ -178,22 +187,29 @@ class window final {
     void poll_events() noexcept {
         glfwPollEvents();
         input_.update(window_);
-        renderer_.use();
     }
 
-    static void clear(
+    void begin_render(
         const f32 r = 0.f, const f32 g = 0.f, const f32 b = 0.f, const f32 a = 1.f
     ) noexcept {
+        renderer_.use();
         glClearColor(r, g, b, a);
         glClear(GL_COLOR_BUFFER_BIT);
     }
-    static void clear(const rgba& color) noexcept { clear(color.r, color.g, color.b, color.a); }
+    void begin_render(const rgba& color) noexcept {
+        begin_render(color.r, color.g, color.b, color.a);
+    }
 
     void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_, virtual_size_); }
 
     void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_, virtual_size_); }
 
     void draw(text& tex) noexcept { renderer_.draw(tex, camera_, virtual_size_); }
+
+    void end_render() noexcept {
+        glViewport(vp_.x, vp_.y, vp_.w, vp_.h);
+        glfwSwapBuffers(window_);
+    }
 
   private:
     explicit window(
@@ -207,60 +223,51 @@ class window final {
           size_{size},
           virtual_size_{virtual_size} {
         glfwSetWindowUserPointer(window_, this);
-        glfwSetFramebufferSizeCallback(
-            window_, [](GLFWwindow* win, i32 fb_w, i32 fb_h) noexcept -> void {
-                auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
-                if (self == nullptr || fb_w <= 0 || fb_h <= 0) return;
+        glfwSetFramebufferSizeCallback(window_, window_size_callback);
 
-                const auto target_aspect = self->virtual_size_.width / self->virtual_size_.height;
-                const auto fb_aspect     = static_cast<f32>(fb_w) / static_cast<f32>(fb_h);
+        glEnable(GL_CULL_FACE);
 
-                auto vp_w = static_cast<f32>(fb_w);
-                auto vp_h = static_cast<f32>(fb_h);
-                auto vp_x = 0.f;
-                auto vp_y = 0.f;
+        window_size_callback(window_, static_cast<i32>(size.width), static_cast<i32>(size.height));
+    }
 
-                if (fb_aspect > target_aspect) {
-                    vp_w = static_cast<f32>(fb_h) * target_aspect;
-                    vp_x = (static_cast<f32>(fb_w) - vp_w) * 0.5f;
-                } else {
-                    vp_h = static_cast<f32>(fb_w) / target_aspect;
-                    vp_y = (static_cast<f32>(fb_h) - vp_h) * 0.5f;
-                }
+    static void window_size_callback(GLFWwindow* win, i32 fb_w, i32 fb_h) noexcept {
+        auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+        if (self == nullptr || fb_w <= 0 || fb_h <= 0) return;
 
-                glViewport(0, 0, fb_w, fb_h);
-                glClearColor(0.f, 0.f, 0.f, 1.f);
-                glClear(GL_COLOR_BUFFER_BIT);
+        const auto target_aspect = self->virtual_size_.width / self->virtual_size_.height;
+        const auto fb_aspect     = static_cast<f32>(fb_w) / static_cast<f32>(fb_h);
 
-                glViewport(
-                    static_cast<i32>(vp_x),
-                    static_cast<i32>(vp_y),
-                    static_cast<i32>(vp_w),
-                    static_cast<i32>(vp_h)
-                );
+        auto vp_w = static_cast<f32>(fb_w);
+        auto vp_h = static_cast<f32>(fb_h);
+        auto vp_x = 0.f;
+        auto vp_y = 0.f;
 
-                auto win_w = 0;
-                auto win_h = 0;
-                glfwGetWindowSize(win, &win_w, &win_h);
-                self->size_ =
-                    extent{.width = static_cast<f32>(win_w), .height = static_cast<f32>(win_h)};
-            }
-        );
+        if (fb_aspect > target_aspect) {
+            vp_w = static_cast<f32>(fb_h) * target_aspect;
+            vp_x = (static_cast<f32>(fb_w) - vp_w) * 0.5f;
+        } else {
+            vp_h = static_cast<f32>(fb_w) / target_aspect;
+            vp_y = (static_cast<f32>(fb_h) - vp_h) * 0.5f;
+        }
 
-        // デバッグ出力の有効化
-        glEnable(GL_DEBUG_OUTPUT);
+        self->vp_ = {
+            .x = static_cast<i32>(vp_x),
+            .y = static_cast<i32>(vp_y),
+            .w = static_cast<i32>(vp_w),
+            .h = static_cast<i32>(vp_h)
+        };
 
-        // 同期出力の有効化（エラーが発生したコードの位置で即座にコールバックを発生させる）
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
-        // コールバック関数の登録
-        glDebugMessageCallback(message_callback, nullptr);
+        auto win_w = 0;
+        auto win_h = 0;
+        glfwGetWindowSize(win, &win_w, &win_h);
+        self->size_ = extent{.width = static_cast<f32>(win_w), .height = static_cast<f32>(win_h)};
     }
 
     detail::input    input_;
     detail::camera   camera_;
     GLFWwindow*      window_;
     detail::renderer renderer_;
+    view_point       vp_{};
     extent           size_;
     extent           virtual_size_;
 };
