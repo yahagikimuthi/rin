@@ -59,11 +59,7 @@ class window final {
         glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-#ifndef NDEBUG
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
-#else
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
-#endif
 
         auto        str        = std::string{title};
         auto* const window_ptr = glfwCreateWindow(
@@ -91,7 +87,7 @@ class window final {
         if (not renderer_res)
             return make_error(runtime_error, "Failed to create renderer.", renderer_res.error());
 
-        auto fbo = detail::fbo_manager::try_make();
+        auto fbo = detail::fbo_manager::try_make({.width = width, .height = height});
         if (not fbo) return make_error(runtime_error, "Failed to create FBO.", fbo.error());
 
         return window{
