@@ -111,8 +111,8 @@ class texture final {
         glTextureParameteri(id_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         // ミップマップを設定
-        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-        glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     void destroy() noexcept {
