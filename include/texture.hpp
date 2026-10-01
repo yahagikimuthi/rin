@@ -20,6 +20,11 @@
 #include "extent.hpp"
 #include "types.hpp"
 
+/**
+ * @file texture.hpp
+ * @brief OpenGL テクスチャリソースの作成・管理を行うモジュール
+ */
+
 namespace rin::detail {
 struct uv_rectangle final {
     f32 x;
@@ -30,14 +35,37 @@ struct uv_rectangle final {
 }  // namespace rin::detail
 
 namespace rin {
+/**
+ * @class texture
+ * @brief OpenGL 2Dテクスチャリソースを RAII パターンで管理するクラス
+ *
+ * @details コピー不可・ムーブ可能であり、デストラクタ呼び出し時に自動的に OpenGL
+ * テクスチャオブジェクトを破棄します。 直接のコンストラクタ呼び出しは行わず、静的ファクトリ関数
+ * `make`, `try_make` または対応するフリー関数を使用してください。
+ */
 class texture final {
   public:
+    /**
+     * @brief ピクセルデータ配列から texture インスタンスを生成します。
+     *
+     * @param width テクスチャの幅（ピクセル）
+     * @param height テクスチャの高さ（ピクセル）
+     * @param pixels RGBAフォーマットのピクセル配列データへのポインタ（null 許容）
+     * @return texture 生成された texture インスタンス
+     */
     [[nodiscard]] static auto make(
         const u32 width, const u32 height, const u8* const pixels
     ) noexcept -> texture {
         return texture{width, height, pixels};
     }
 
+    /**
+     * @brief 画像ファイルパスから texture インスタンスの生成を試みます。
+     *
+     * @param path 画像ファイルのパス
+     * @return std::expected<texture, error> 成功した場合は texture
+     * インスタンス、失敗した場合はエラー情報
+     */
     [[nodiscard]] static auto try_make(const std::filesystem::path& path) noexcept
         -> std::expected<texture, error> {
         stbi_set_flip_vertically_on_load(static_cast<int>(true));
@@ -71,8 +99,18 @@ class texture final {
     }
     ~texture() noexcept { destroy(); }
 
+    /**
+     * @brief テクスチャのサイズ（幅・高さ）を取得します。
+     * @return extent テクスチャサイズ
+     */
     [[nodiscard]] auto size() const noexcept -> extent { return size_; }
 
+    /**
+     * @brief テクスチャを指定したテクスチャユニットにバインドします。
+     *
+     * @param self バインドする texture インスタンス
+     * @param unit バインド先のスロット番号
+     */
     friend void bind(const texture& self, const u32 unit) noexcept {
         glBindTextureUnit(unit, self.id_);
     }
@@ -126,12 +164,26 @@ class texture final {
     extent size_{};
 };
 
+/**
+ * @brief ピクセル配列データから texture インスタンスを生成するフリーのファクトリ関数
+ *
+ * @param width テクスチャの幅（ピクセル）
+ * @param height テクスチャの高さ（ピクセル）
+ * @param pixels RGBAピクセル配列へのポインタ
+ * @return texture 生成された texture インスタンス
+ */
 [[nodiscard]] inline auto make_texture(
     const u32 width, const u32 height, const u8* const pixels
 ) noexcept -> texture {
     return texture::make(width, height, pixels);
 }
 
+/**
+ * @brief 画像ファイルから texture インスタンスの生成を試みるフリーのファクトリ関数
+ *
+ * @param path 画像ファイルのパス
+ * @return std::expected<texture, error> 成功時は texture インスタンス、失敗時はエラー情報
+ */
 [[nodiscard]] inline auto try_make_texture(const std::filesystem::path& path) noexcept
     -> std::expected<texture, error> {
     return texture::try_make(path);
