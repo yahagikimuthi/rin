@@ -17,21 +17,69 @@
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
 
+/**
+ * @file text.hpp
+ * @brief 文字列描画オブジェクトおよび頂点データの管理を行うモジュール
+ */
+
 namespace rin {
+/**
+ * @class text
+ * @brief 文字列、位置、カラー、フォント参照を保持し、描画用頂点を生成・管理するクラス
+ *
+ * @warning 本クラスは内部で `font` への参照（`std::reference_wrapper`）を保持します。
+ * 参照先の `font` インスタンスが破棄された後にアクセスすると未定義動作となるため、
+ * `text` の生存期間が `font` の生存期間を超えないように注意してください。
+ */
 class text final {
     using str_t = std::variant<std::string_view, std::string>;
 
   public:
+    /**
+     * @brief フォントを指定して text インスタンスを生成します。
+     *
+     * @param font_ref 参照するフォント（インスタンスの生存期間に注意してください）
+     * @return text 生成された text インスタンス
+     */
     [[nodiscard]] static auto make(const font& font_ref) noexcept -> text { return text{font_ref}; }
 
+    /**
+     * @brief 設定されている文字列を取得します。
+     * @return std::string_view 文字列ビュー
+     */
     [[nodiscard]] auto string() const noexcept -> std::string_view {
         return tex_str.visit([](auto&& str) noexcept -> std::string_view { return str; });
     }
+
+    /**
+     * @brief 現在の位置座標を取得します。
+     * @return vec2 位置座標
+     */
     [[nodiscard]] auto position() const noexcept -> vec2 { return vertices_.position(); }
+
+    /**
+     * @brief 現在のカラーを取得します。
+     * @return rgba カラー情報
+     */
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
+
+    /**
+     * @brief 参照しているフォントを取得します。
+     * @return const font& フォントへの参照
+     */
     [[nodiscard]] auto setting_font() const noexcept -> const font& { return font_; }
+
+    /**
+     * @brief 現在のスケールを取得します。
+     * @return vec2 スケール値
+     */
     [[nodiscard]] auto scale() const noexcept -> vec2 { return vertices_.scale(); }
 
+    /**
+     * @brief 文字列リテラルを非所有で設定します。
+     * @tparam T 文字列リテラル型
+     * @param str 文字列リテラル
+     */
     template <typename T>
         requires detail::is_string_literal_v<T>
     void string(const T& str) noexcept {
@@ -40,52 +88,129 @@ class text final {
         tex_str         = std::string_view{str};
     }
 
+    /**
+     * @brief 文字列（string_view）を設定します。
+     * @param str 設定する文字列ビュー
+     */
     void string(const std::string_view str) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         tex_str         = std::string{str};
     }
 
+    /**
+     * @brief 数値（整数・浮動小数点数）を文字列に変換して設定します。
+     * @tparam T 整数または浮動小数点数型
+     * @param num 設定する数値
+     */
     template <typename T>
         requires std::integral<T> or std::floating_point<T>
     void string(T num) noexcept {
         string(std::to_string(num));
     }
 
+    /**
+     * @brief 位置座標を設定します。
+     * @param pos 位置座標
+     */
     void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
+
+    /**
+     * @brief 位置座標（X, Y成分）を設定します。
+     * @param x X座標
+     * @param y Y座標
+     */
     void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
+
+    /**
+     * @brief 原点（原点オフセット）を設定します。
+     * @param o 原点座標
+     */
     void origin(const vec2 o) noexcept { origin(o.x, o.y); }
+
+    /**
+     * @brief 原点（X, Y成分）を設定します。
+     * @param x 原点X座標
+     * @param y 原点Y座標
+     */
     void origin(const f32 x, const f32 y) noexcept {
         const auto scale   = vertices_.scale();
         const auto local_x = (scale.x != 0.f) ? x / scale.x : x;
         const auto local_y = (scale.y != 0.f) ? y / scale.y : y;
         vertices_.origin(local_x, local_y);
     }
+
+    /**
+     * @brief 描画カラーを設定します。
+     * @param col カラー情報（rgba）
+     */
     void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
+
+    /**
+     * @brief 描画カラー（各チャンネル値）を設定します。
+     * @param r 赤成分 (0〜255)
+     * @param g 緑成分 (0〜255)
+     * @param b 青成分 (0〜255)
+     * @param a アルファ成分 (0〜255、デフォルト値: 0)
+     */
     void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
         vertices_dirty_ = true;
         color_          = {.r = r, .g = g, .b = b, .a = a};
     }
+
+    /**
+     * @brief 参照するフォントを変更・再設定します。
+     *
+     * @warning 渡すフォントの生存期間がこの text インスタンスより長くなるようにしてください。
+     * @param font_ref 設定するフォントの参照
+     */
     void setting_font(const font& font_ref) noexcept {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         font_           = std::cref(font_ref);
     }
+
+    /**
+     * @brief スケール（拡大率）を設定します。
+     * @param s スケール値
+     */
     void scale(const vec2 s) noexcept { vertices_.scale(s); }
+
+    /**
+     * @brief スケール（X, Y成分）を設定します。
+     * @param x X方向スケール
+     * @param y Y方向スケール
+     */
     void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
 
+    /**
+     * @brief 現在の文字列とスケールに応じた描画サイズ（幅・高さ）を計算・取得します。
+     * @return extent 計算されたサイズ
+     */
     [[nodiscard]] auto calc_extent() noexcept -> extent {
         const auto base_extent = calc_base_extent();
         const auto scale       = vertices_.scale();
         return extent{.width = base_extent.width * scale.x, .height = base_extent.height * scale.y};
     }
 
+    /**
+     * @brief テキスト描画に必要な最新の頂点情報を計算・取得します。
+     *
+     * @details 変更フラグ（vertices_dirty_）が立っている場合は頂点データを再生成してから返します。
+     * @param self text インスタンス
+     * @return const vertex_vector& 算出された頂点データの参照
+     */
     [[nodiscard]] friend auto calc_vertices(text& self) noexcept -> const vertex_vector& {
         if (self.vertices_dirty_) self.update_vertices();
         self.vertices_dirty_ = false;
         return self.vertices_;
     }
 
+    /**
+     * @brief フォントアトラスのテクスチャを指定されたテクスチャユニットにバインドします。
+     * @param self text インスタンス
+     * @param unit バインド先のスロット番号
+     */
     friend void bind(const text& self, const u32 unit) noexcept {
         bind(self.font_.get().setting_texture(), unit);
     }
@@ -176,6 +301,13 @@ class text final {
     bool                               extent_dirty_{true};
 };
 
+/**
+ * @brief text インスタンスを生成するフリーのファクトリ関数
+ *
+ * @warning 参照する `font` インスタンスが `text` より長く生存している必要があります。
+ * @param font_ref 参照するフォント
+ * @return text 生成された text インスタンス
+ */
 [[nodiscard]] inline auto make_text(const font& font_ref) noexcept -> text {
     return text::make(font_ref);
 }
