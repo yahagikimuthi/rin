@@ -3,6 +3,7 @@
 #include <expected>
 #include <utility>
 
+#include "detail/fullscreen_shader.hpp"
 #include "detail/graphics.hpp"
 
 #include "error.hpp"
@@ -47,7 +48,11 @@ class fbo_manager final {
             );
         }
 
-        return fbo_manager{fbo_id, texture_id};
+        auto shader = fullscreen_shader::try_make();
+        if (not shader)
+            return make_error(runtime_error, "Failed to create fullscreen shader.", shader.error());
+
+        return fbo_manager{fbo_id, texture_id, std::move(*shader)};
     }
 
     fbo_manager(const fbo_manager&) noexcept                    = delete;
@@ -55,7 +60,8 @@ class fbo_manager final {
 
     fbo_manager(fbo_manager&& other) noexcept
         : fbo_id_{std::exchange(other.fbo_id_, 0)},
-          texture_id_{std::exchange(other.texture_id_, 0)} {}
+          texture_id_{std::exchange(other.texture_id_, 0)},
+          shader_{std::move(other.shader_)} {}
     auto operator=(fbo_manager&& other) noexcept -> fbo_manager& {
         if (this == &other) return *this;
 
@@ -63,6 +69,7 @@ class fbo_manager final {
 
         fbo_id_     = std::exchange(other.fbo_id_, 0);
         texture_id_ = std::exchange(other.texture_id_, 0);
+        shader_     = std::move(other.shader_);
 
         return *this;
     }
@@ -83,16 +90,21 @@ class fbo_manager final {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void render() const noexcept { shader_.render(texture_id_); }
+
   private:
-    explicit fbo_manager(const GLuint fbo_id, const GLuint texture_id) noexcept
-        : fbo_id_{fbo_id}, texture_id_{texture_id} {}
+    explicit fbo_manager(
+        const GLuint fbo_id, const GLuint texture_id, fullscreen_shader shader
+    ) noexcept
+        : fbo_id_{fbo_id}, texture_id_{texture_id}, shader_{std::move(shader)} {}
 
     void destroy() noexcept {
         if (texture_id_ != 0) glDeleteTextures(1, &texture_id_);
         if (fbo_id_ != 0) glDeleteFramebuffers(1, &fbo_id_);
     }
 
-    GLuint fbo_id_{};
-    GLuint texture_id_{};
+    GLuint            fbo_id_{};
+    GLuint            texture_id_{};
+    fullscreen_shader shader_;
 };
 }  // namespace rin::detail
