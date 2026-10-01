@@ -5,11 +5,24 @@
 
 #include "types.hpp"
 
+/**
+ * @file color.hpp
+ * @brief 8ビット整数によるRGBAカラー構造体
+ */
+
 namespace rin {
+/**
+ * @struct rgba
+ * @brief 赤、緑、青、透過度（アルファ）の各要素を 8 ビット（u8）で保持するカラー構造体
+ */
 struct rgba final {
+    /// 赤要素（0〜255）
     u8 r{0};
+    /// 緑要素（0〜255）
     u8 g{0};
+    /// 青要素（0〜255）
     u8 b{0};
+    /// アルファ要素（0〜255、デフォルトは不透明: 255）
     u8 a{255};
 
     [[nodiscard]] constexpr auto operator+() const noexcept -> rgba { return *this; }
