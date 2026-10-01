@@ -23,7 +23,7 @@ class fbo_manager final {
         glTextureStorage2D(
             texture_id,
             1,
-            GL_RGBA,
+            GL_RGBA8,
             static_cast<i32>(virtual_size.width),
             static_cast<i32>(virtual_size.height)
         );
