@@ -37,22 +37,10 @@ class sound final {
     friend class audio_engine;
 
   public:
-    /// コピーコンストラクタ（削除済み）
-    sound(const sound&) noexcept = delete;
-    /// コピー代入演算子（削除済み）
+    sound(const sound&) noexcept                    = delete;
     auto operator=(const sound&) noexcept -> sound& = delete;
 
-    /**
-     * @brief ムーブコンストラクタ
-     * @param other ムーブ元のサウンドインスタンス
-     */
     sound(sound&& other) noexcept : sound_{std::move(other.sound_)} {}
-
-    /**
-     * @brief ムーブ代入演算子
-     * @param other ムーブ元のサウンドインスタンス
-     * @return sound& 自身の参照
-     */
     auto operator=(sound&& other) noexcept -> sound& {
         if (this == &other) return *this;
 
@@ -111,15 +99,8 @@ class sound final {
     }
 
   private:
-    /**
-     * @brief デフォルトコンストラクタ
-     * @details `audio_engine` のみが呼び出し可能です。
-     */
     explicit sound() noexcept = default;
 
-    /**
-     * @brief サウンドリソースの解放を行います。
-     */
     void destroy() noexcept {
         if (not sound_) {
             return;
@@ -128,7 +109,6 @@ class sound final {
         sound_.reset();
     }
 
-    /// miniaudio の `ma_sound` を保持するスマートポインタ
     std::unique_ptr<ma_sound> sound_{std::make_unique<ma_sound>()};
 };
 
@@ -158,22 +138,10 @@ class audio_engine final {
         return audio_engine{std::move(engine)};
     }
 
-    /// コピーコンストラクタ（削除済み）
-    audio_engine(const audio_engine&) noexcept = delete;
-    /// コピー代入演算子（削除済み）
+    audio_engine(const audio_engine&) noexcept                    = delete;
     auto operator=(const audio_engine&) noexcept -> audio_engine& = delete;
 
-    /**
-     * @brief ムーブコンストラクタ
-     * @param other ムーブ元のオーディオエンジンインスタンス
-     */
     audio_engine(audio_engine&& other) noexcept : engine_{std::move(other.engine_)} {}
-
-    /**
-     * @brief ムーブ代入演算子
-     * @param other ムーブ元のオーディオエンジンインスタンス
-     * @return audio_engine& 自身の参照
-     */
     auto operator=(audio_engine&& other) noexcept -> audio_engine& {
         if (this == &other) return *this;
 
@@ -219,16 +187,9 @@ class audio_engine final {
     }
 
   private:
-    /**
-     * @brief プライベートコンストラクタ
-     * @param engine 初期化済みの `ma_engine` のユニークポインタ
-     */
     explicit audio_engine(std::unique_ptr<ma_engine> engine) noexcept
         : engine_{std::move(engine)} {}
 
-    /**
-     * @brief オーディオエンジンの終了およびリソースの解放を行います。
-     */
     void destroy() noexcept {
         if (not engine_) {
             return;
@@ -237,7 +198,6 @@ class audio_engine final {
         engine_.reset();
     }
 
-    /// miniaudioエンジンの所有権を保持するスマートポインタ
     std::unique_ptr<ma_engine> engine_;
 };
 
