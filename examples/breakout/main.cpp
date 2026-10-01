@@ -189,7 +189,7 @@ void Engine::main_loop() noexcept {
 }
 }  // namespace gm
 
-auto breakout_main() noexcept -> int {
+auto main() noexcept -> int {
     auto win = rin::try_make_window(800, 600, "Breakout");
     if (not win) win.error().panic();
 
