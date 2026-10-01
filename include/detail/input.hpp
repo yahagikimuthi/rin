@@ -135,12 +135,6 @@ class input final {
 
         key_.update(win);
         mouse_.update(win);
-
-        auto x = f64{};
-        auto y = f64{};
-
-        glfwGetCursorPos(win, &x, &y);
-        mouse_position_ = {.x = static_cast<f32>(x), .y = static_cast<f32>(y)};
     }
 
     [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {
@@ -176,7 +170,6 @@ class input final {
   private:
     key_input   key_;
     mouse_input mouse_;
-    vec2        mouse_position_{};
 };
 
 }  // namespace rin::detail
