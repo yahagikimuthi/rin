@@ -163,7 +163,8 @@ class vertex_vector final {
     void assign(size_type n, const vertex& v) noexcept { vec_.assign(n, v); }
     void assign(std::initializer_list<vertex> list) noexcept { vec_.assign(list); }
 
-    template <std::__detail::__container_compatible_range<vertex> R>
+    template <typename R>
+        requires requires(std::vector<vertex> vec, R range) { vec.assign_range(range); }
     void assign_range(R&& range) noexcept {
         vec_.assign_range(std::forward<R>(range));
     }
@@ -176,7 +177,8 @@ class vertex_vector final {
         vec_.emplace_back(std::forward<Args>(args)...);
     }
 
-    template <std::__detail::__container_compatible_range<vertex> R>
+    template <typename R>
+        requires requires(std::vector<vertex> vec, R range) { vec.append_range(range); }
     void append_range(R&& range) noexcept {
         vec_.append_range(range);
     }
@@ -207,11 +209,13 @@ class vertex_vector final {
         return vec_.emplace(position, std::forward<Args>(args)...);
     }
 
-    template <std::__detail::__container_compatible_range<vertex> R>
+    template <typename R>
+        requires requires(std::vector<vertex> vec, iterator pos, R range) {
+            vec.insert_range(pos, range);
+        }
     auto insert_range(const iterator& pos, R&& range) noexcept -> iterator {
         return vec_.insert_range(pos, std::forward<R>(range));
     }
-
     auto erase(const iterator& position) noexcept -> iterator { return vec_.erase(position); }
     auto erase(const iterator& first, const iterator& last) -> iterator {
         return vec_.erase(first, last);
