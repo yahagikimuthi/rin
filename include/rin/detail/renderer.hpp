@@ -5,15 +5,15 @@
 #include <glm/ext/vector_float4.hpp>
 #include <utility>
 
-#include "detail/camera.hpp"
-#include "detail/ebo_manager.hpp"
-#include "detail/mesh.hpp"
-#include "detail/shader.hpp"
-#include "error.hpp"
-#include "extent.hpp"
-#include "sprite.hpp"
-#include "text.hpp"
-#include "vertex_vector.hpp"
+#include "rin/detail/camera.hpp"
+#include "rin/detail/ebo_manager.hpp"
+#include "rin/detail/mesh.hpp"
+#include "rin/detail/shader.hpp"
+#include "rin/error.hpp"
+#include "rin/extent.hpp"
+#include "rin/sprite.hpp"
+#include "rin/text.hpp"
+#include "rin/vertex_vector.hpp"
 
 namespace rin::detail {
 class renderer final {

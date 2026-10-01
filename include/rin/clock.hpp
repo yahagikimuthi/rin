@@ -1,8 +1,8 @@
 #pragma once
 
-#include "detail/fps_counter.hpp"
-#include "detail/graphics.hpp"
-#include "types.hpp"
+#include "rin/detail/fps_counter.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file clock.hpp

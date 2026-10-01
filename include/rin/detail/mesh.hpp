@@ -6,9 +6,9 @@
 #include <span>
 #include <utility>
 
-#include "detail/graphics.hpp"
-#include "types.hpp"
-#include "vertex_vector.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/types.hpp"
+#include "rin/vertex_vector.hpp"
 
 namespace rin::detail {
 class mesh final {

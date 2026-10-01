@@ -8,20 +8,20 @@
 #include <string_view>
 #include <utility>
 
-#include "color.hpp"
-#include "detail/camera.hpp"
-#include "detail/fbo_manager.hpp"
-#include "detail/input.hpp"
-#include "detail/renderer.hpp"
-#include "error.hpp"
-#include "extent.hpp"
-#include "key.hpp"
-#include "mouse.hpp"
-#include "sprite.hpp"
-#include "text.hpp"
-#include "types.hpp"
-#include "vec2.hpp"
-#include "vertex_vector.hpp"
+#include "rin/color.hpp"
+#include "rin/detail/camera.hpp"
+#include "rin/detail/fbo_manager.hpp"
+#include "rin/detail/input.hpp"
+#include "rin/detail/renderer.hpp"
+#include "rin/error.hpp"
+#include "rin/extent.hpp"
+#include "rin/key.hpp"
+#include "rin/mouse.hpp"
+#include "rin/sprite.hpp"
+#include "rin/text.hpp"
+#include "rin/types.hpp"
+#include "rin/vec2.hpp"
+#include "rin/vertex_vector.hpp"
 
 /**
  * @file window.hpp

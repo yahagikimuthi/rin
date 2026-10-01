@@ -5,9 +5,9 @@
 #include <limits>
 #include <optional>
 
-#include "extent.hpp"
-#include "types.hpp"
-#include "vec2.hpp"
+#include "rin/extent.hpp"
+#include "rin/types.hpp"
+#include "rin/vec2.hpp"
 
 /**
  * @file collision.hpp

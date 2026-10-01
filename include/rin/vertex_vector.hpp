@@ -11,12 +11,11 @@
 #include <utility>
 #include <vector>
 
-#include "detail/graphics.hpp"
-
-#include "color.hpp"
-#include "types.hpp"
-#include "uv.hpp"
-#include "vec2.hpp"
+#include "rin/color.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/types.hpp"
+#include "rin/uv.hpp"
+#include "rin/vec2.hpp"
 
 /**
  * @file vertex_vector.hpp

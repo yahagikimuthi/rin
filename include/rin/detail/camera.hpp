@@ -6,9 +6,9 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "extent.hpp"
-#include "types.hpp"
-#include "vec2.hpp"
+#include "rin/extent.hpp"
+#include "rin/types.hpp"
+#include "rin/vec2.hpp"
 
 namespace rin::detail {
 struct camera final {

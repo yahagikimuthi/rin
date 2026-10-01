@@ -8,8 +8,8 @@
 #include <variant>
 #include <vector>
 
-#include "detail/others.hpp"
-#include "types.hpp"
+#include "rin/detail/others.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file error.hpp

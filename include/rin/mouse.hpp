@@ -1,7 +1,7 @@
 #pragma once
 
 #include "detail/graphics.hpp"
-#include "types.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file mouse.hpp

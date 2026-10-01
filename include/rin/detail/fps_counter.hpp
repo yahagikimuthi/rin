@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "types.hpp"
+#include "rin/types.hpp"
 
 namespace rin::detail {
 

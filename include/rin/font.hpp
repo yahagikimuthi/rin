@@ -19,11 +19,11 @@
 #pragma GCC diagnostic pop
 
 #include "detail/default_font_data.hpp"
-#include "error.hpp"
-#include "extent.hpp"
-#include "texture.hpp"
-#include "types.hpp"
-#include "vec2.hpp"
+#include "rin/error.hpp"
+#include "rin/extent.hpp"
+#include "rin/texture.hpp"
+#include "rin/types.hpp"
+#include "rin/vec2.hpp"
 
 /**
  * @file font.hpp

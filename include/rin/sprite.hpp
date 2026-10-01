@@ -7,12 +7,12 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 
-#include "color.hpp"
-#include "texture.hpp"
-#include "types.hpp"
-#include "uv.hpp"
-#include "vec2.hpp"
-#include "vertex_vector.hpp"
+#include "rin/color.hpp"
+#include "rin/texture.hpp"
+#include "rin/types.hpp"
+#include "rin/uv.hpp"
+#include "rin/vec2.hpp"
+#include "rin/vertex_vector.hpp"
 
 /**
  * @file sprite.hpp

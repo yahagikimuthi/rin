@@ -4,8 +4,8 @@
 #include <optional>
 #include <utility>
 
-#include "detail/graphics.hpp"
-#include "error.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/error.hpp"
 
 namespace rin::detail {
 class fullscreen_shader final {

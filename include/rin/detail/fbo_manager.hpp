@@ -4,12 +4,11 @@
 #include <expected>
 #include <utility>
 
-#include "detail/fullscreen_shader.hpp"
-#include "detail/graphics.hpp"
-
-#include "error.hpp"
-#include "extent.hpp"
-#include "types.hpp"
+#include "rin/detail/fullscreen_shader.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/error.hpp"
+#include "rin/extent.hpp"
+#include "rin/types.hpp"
 
 namespace rin::detail {
 class fbo_manager final {

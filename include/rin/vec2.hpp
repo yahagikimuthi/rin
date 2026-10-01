@@ -3,7 +3,7 @@
 #include <cmath>
 #include <glm/ext/vector_float2.hpp>
 
-#include "types.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file vec2.hpp

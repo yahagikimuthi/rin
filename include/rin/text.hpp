@@ -8,14 +8,14 @@
 #include <string_view>
 #include <variant>
 
-#include "color.hpp"
-#include "detail/others.hpp"
-#include "extent.hpp"
-#include "font.hpp"
-#include "types.hpp"
-#include "uv.hpp"
-#include "vec2.hpp"
-#include "vertex_vector.hpp"
+#include "rin/color.hpp"
+#include "rin/detail/others.hpp"
+#include "rin/extent.hpp"
+#include "rin/font.hpp"
+#include "rin/types.hpp"
+#include "rin/uv.hpp"
+#include "rin/vec2.hpp"
+#include "rin/vertex_vector.hpp"
 
 /**
  * @file text.hpp

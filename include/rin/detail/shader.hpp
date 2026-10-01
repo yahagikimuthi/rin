@@ -8,9 +8,9 @@
 #include <string_view>
 #include <utility>
 
-#include "detail/graphics.hpp"
-#include "error.hpp"
-#include "types.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/error.hpp"
+#include "rin/types.hpp"
 
 namespace rin::detail {
 constexpr auto* vertex_shader_source = R"(

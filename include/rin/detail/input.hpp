@@ -5,12 +5,12 @@
 #include <cstddef>
 #include <glm/ext/vector_float2.hpp>
 
-#include "detail/graphics.hpp"
-#include "extent.hpp"
-#include "key.hpp"
-#include "mouse.hpp"
-#include "types.hpp"
-#include "vec2.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/extent.hpp"
+#include "rin/key.hpp"
+#include "rin/mouse.hpp"
+#include "rin/types.hpp"
+#include "rin/vec2.hpp"
 
 namespace rin::detail {
 struct view_point final {

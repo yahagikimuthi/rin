@@ -3,7 +3,7 @@
 #include <compare>
 #include <glm/ext/vector_float4.hpp>
 
-#include "types.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file color.hpp

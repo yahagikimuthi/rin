@@ -13,8 +13,8 @@
 #include "miniaudio.h"
 #pragma GCC diagnostic pop
 
-#include "error.hpp"
-#include "types.hpp"
+#include "rin/error.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file audio.hpp

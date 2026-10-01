@@ -5,9 +5,8 @@
 #include <ranges>
 #include <vector>
 
-#include "detail/graphics.hpp"
-
-#include "types.hpp"
+#include "rin/detail/graphics.hpp"
+#include "rin/types.hpp"
 
 namespace rin::detail {
 struct polygon_index_data final {

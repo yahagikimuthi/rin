@@ -16,9 +16,9 @@
 #include "stb_image.h"
 #pragma GCC diagnostic pop
 
-#include "error.hpp"
-#include "extent.hpp"
-#include "types.hpp"
+#include "rin/error.hpp"
+#include "rin/extent.hpp"
+#include "rin/types.hpp"
 
 /**
  * @file texture.hpp

@@ -80,7 +80,6 @@ if(PROJECT_IS_TOP_LEVEL)
 
     add_executable(rin)
     target_include_directories(rin PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/rin
         ${CMAKE_CURRENT_SOURCE_DIR}
     )
     target_sources(rin PRIVATE ${MAIN_SOURCES})
