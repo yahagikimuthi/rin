@@ -35,6 +35,10 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 100 \
   --slave /usr/bin/g++ g++ /usr/bin/g++-16 \
   --slave /usr/bin/gcov gcov /usr/bin/gcov-16
 
-mkdir -p /tmp/.X11-unix && ln -sf /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
+#mkdir -p /tmp/.X11-unix && ln -sf /mnt/wslg/.X11-unix/X0 /tmp/.X11-unix/X0
+
+sudo apt-get update && sudo apt-get install -y mesa-utils libgl1-mesa-dri libgl1 libglx-mesa0 libglfw3-dev
+
+sudo chmod 666 /dev/dxg
 
 echo "=== Setup Completed Successfully ==="
