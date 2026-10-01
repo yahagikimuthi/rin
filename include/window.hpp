@@ -49,7 +49,10 @@ class window final {
 
   public:
     [[nodiscard]] static auto try_make(
-        const f32 width, const f32 height, const std::string_view title, const bool vsync = true
+        const f32                   width,
+        const f32                   height,
+        const std::string_view      title,
+        [[maybe_unused]] const bool vsync = true
     ) noexcept -> std::expected<window, error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
@@ -57,7 +60,10 @@ class window final {
                 runtime_error, "Failed to GLFW initialize. We recommend ending program."
             );
 
-        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 
         auto        str        = std::string{title};
         auto* const window_ptr = glfwCreateWindow(
@@ -71,7 +77,7 @@ class window final {
         if (window_ptr == nullptr) return make_error(runtime_error, "Failed to initialize window.");
 
         glfwMakeContextCurrent(window_ptr);
-        glfwSwapInterval(static_cast<i32>(vsync));
+        glfwSwapInterval(0);
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
 
         auto actual_width  = 0;
@@ -190,26 +196,25 @@ class window final {
     }
 
     void begin_render() noexcept {
-        //    fbo_manager_.bind(virtual_size_);
-        //    fbo_manager_.clear();
-        //   renderer_.use();
+        // fbo_manager_.bind(virtual_size_);
+        // fbo_manager_.clear();
+        renderer_.use();
+        glClearColor(0.f, 0.f, 0.f, 1.f);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     void end_render() noexcept {
-        //   fbo_manager_.bind_for_bit();
+        // fbo_manager_.bind_for_bit();
 
-        // glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
-        // // glDisable(GL_SCISSOR_TEST);
+        glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
+        // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // マスクを全解凍して Fast Clear を強制
         // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
         // glClearColor(0.f, 0.f, 0.f, 1.f);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // マスクを全解凍して Fast Clear を強制
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        glClearColor(0.f, 0.f, 0.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // glClear(GL_COLOR_BUFFER_BIT);
 
         // glBlitFramebuffer(
         //     0,
@@ -224,7 +229,7 @@ class window final {
         //     GL_NEAREST
         //);
 
-        //  fbo_manager_.unbind();
+        // fbo_manager_.unbind();
 
         glfwSwapBuffers(window_);
     }
