@@ -3,7 +3,17 @@
 #include "detail/graphics.hpp"
 #include "types.hpp"
 
+/**
+ * @file mouse.hpp
+ * @brief キーボードの識別子および関連定数を定義するモジュール
+ */
+
 namespace rin {
+
+/**
+ * @enum key
+ * @brief キーボード種類を表す列挙体（基礎型: u16）
+ */
 enum class key : u16 {
     space         = GLFW_KEY_SPACE,
     apostrophe    = GLFW_KEY_APOSTROPHE,
@@ -125,6 +135,7 @@ enum class key : u16 {
     menu          = GLFW_KEY_MENU
 };
 
+/// 以下はエイリアス
 inline constexpr auto key_space         = key::space;
 inline constexpr auto key_apostrophe    = key::apostrophe;
 inline constexpr auto key_comma         = key::comma;
