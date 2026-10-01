@@ -86,7 +86,7 @@ class error final {
                        return "[Runtime Error]: " + code.message_to_str();
                    }) |
                    std::views::join_with(std::string{"\n -> "}) | std::ranges::to<std::string>();
-        out += "\n";
+        out += '\n';
         return out;
     }
 
