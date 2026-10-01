@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <expected>
 #include <utility>
 
@@ -76,13 +77,15 @@ class fbo_manager final {
 
     ~fbo_manager() noexcept { destroy(); }
 
-    void bind(const extent virtual_size) const noexcept {
+    void bind(
+        const extent virtual_size, const f32 r, const f32 g, const f32 b, const f32 a
+    ) const noexcept {
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_id_);
         glViewport(
             0, 0, static_cast<i32>(virtual_size.width), static_cast<i32>(virtual_size.height)
         );
-        constexpr float clear_color[] = {0.f, 0.f, 0.f, 1.f};          // NOLINT
-        glClearNamedFramebufferfv(fbo_id_, GL_COLOR, 0, clear_color);  // NOLINT
+        const auto clear_color = std::array<f32, 4>{r, g, b, a};
+        glClearNamedFramebufferfv(fbo_id_, GL_COLOR, 0, clear_color.data());  // NOLINT
     }
 
     void unbind() const noexcept {
