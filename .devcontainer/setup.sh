@@ -12,7 +12,7 @@ sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
 echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
 
-echo "=== 2. Installing Toolchain, CMake & SFML Dependencies ==="
+echo "=== 2. Installing Toolchain, CMake ==="
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
     gcc-16 \

@@ -4,10 +4,14 @@
     "containerEnv": {
         "DISPLAY": ":0",
         "WAYLAND_DISPLAY": "wayland-0",
-        "XDG_RUNTIME_DIR": "/tmp/runtime-dir",
+        "XDG_RUNTIME_DIR": "/mnt/wslg/runtime-dir",
+        // GPU パススルー設定
         "MESA_LOADER_DRIVER_OVERRIDE": "d3d12",
         "GALLIUM_DRIVER": "d3d12",
-        "LD_LIBRARY_PATH": "/usr/lib/wsl/lib"
+        "LD_LIBRARY_PATH": "/usr/lib/wsl/lib",
+        // GLX のパラメータ範囲外エラー(BadValue)を回避するためのオーバーライド
+        "MESA_GL_VERSION_OVERRIDE": "4.5COMPAT",
+        "MESA_GLSL_VERSION_OVERRIDE": "450"
     },
     "postCreateCommand": "bash .devcontainer/setup.sh",
     "customizations": {
