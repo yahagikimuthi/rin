@@ -55,25 +55,37 @@ class fullscreen_shader final {
         glDeleteShader(*vertex_shader);
         glDeleteShader(*frag_shader);
 
-        return fullscreen_shader{program};
+        auto vao = GLuint{};
+        glCreateVertexArrays(1, &vao);
+
+        return fullscreen_shader{program, vao};
     }
 
     fullscreen_shader(const fullscreen_shader&) noexcept                    = delete;
     auto operator=(const fullscreen_shader&) noexcept -> fullscreen_shader& = delete;
 
     fullscreen_shader(fullscreen_shader&& other) noexcept
-        : program_id_{std::exchange(other.program_id_, 0)} {}
+        : program_id_{std::exchange(other.program_id_, 0)}, vao_{std::exchange(other.vao_, 0)} {}
     auto operator=(fullscreen_shader&& other) noexcept -> fullscreen_shader& {
         if (this == &other) return *this;
         destroy();
         program_id_ = std::exchange(other.program_id_, 0);
+        vao_        = std::exchange(other.vao_, 0);
         return *this;
     }
 
     ~fullscreen_shader() noexcept { destroy(); }
 
+    void render(const GLuint fbo_texture_id) const noexcept {
+        glUseProgram(program_id_);
+        glBindTextureUnit(0, fbo_texture_id);
+        glBindVertexArray(vao_);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+    }
+
   private:
-    explicit fullscreen_shader(const GLuint program_id) noexcept : program_id_{program_id} {}
+    explicit fullscreen_shader(const GLuint program_id, const GLuint vao) noexcept
+        : program_id_{program_id}, vao_{vao} {}
 
     [[nodiscard]] static auto compile_shader(GLuint type, std::string_view source) noexcept
         -> std::optional<GLuint> {
@@ -93,8 +105,13 @@ class fullscreen_shader final {
             glDeleteProgram(program_id_);
             program_id_ = 0;
         }
+        if (vao_ != 0) {
+            glDeleteVertexArrays(1, &vao_);
+            vao_ = 0;
+        }
     }
 
     GLuint program_id_{};
+    GLuint vao_{};
 };
 }  // namespace rin::detail
