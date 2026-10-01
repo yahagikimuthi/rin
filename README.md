@@ -37,5 +37,3 @@ target_link_libraries(my_game PRIVATE rin::rin_lib)
 ## サンプルコード (Examples)
 
 リポジトリ内の `examples/` ディレクトリに、上記のブロック崩しをはじめとするサンプルコードを公開しています。
-
-- **[Breakout (ブロック崩し)](examples/breakout/main.cpp)**: `rin` の描画ルーチン・入力処理・衝突判定・オーディオを用いた簡単な実装例
