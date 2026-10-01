@@ -34,6 +34,11 @@ inline void GLAPIENTRY message_callback(
     std::cerr << "[OpenGL Debug Message]: " << message << '\n';
 }
 
+void glfw_error_callback(int error, const char* description) {
+    if (error == 65539) return;  // 無効なキー
+    std::cerr << "GLFW Error [" << error << "]: " << description << '\n';
+}
+
 class window final {
     struct view_point final {
         i32 x;
@@ -52,14 +57,7 @@ class window final {
                 runtime_error, "Failed to GLFW initialize. We recommend ending program."
             );
 
-        // これから作る画面のメタ設定
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
-        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // デバッグ有効
+        glfwDefaultWindowHints();
 
         auto        str        = std::string{title};
         auto* const window_ptr = glfwCreateWindow(
@@ -192,35 +190,41 @@ class window final {
     }
 
     void begin_render() noexcept {
-        fbo_manager_.bind(virtual_size_);
-        fbo_manager_.clear();
-        renderer_.use();
+        //    fbo_manager_.bind(virtual_size_);
+        //    fbo_manager_.clear();
+        //   renderer_.use();
     }
 
     void end_render() noexcept {
-        fbo_manager_.bind_for_bit();
+        //   fbo_manager_.bind_for_bit();
 
-        glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
-        glDisable(GL_SCISSOR_TEST);
+        // glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
+        // // glDisable(GL_SCISSOR_TEST);
+        // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+        // glClearColor(0.f, 0.f, 0.f, 1.f);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // マスクを全解凍して Fast Clear を強制
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBlitFramebuffer(
-            0,
-            0,
-            static_cast<i32>(virtual_size_.width),
-            static_cast<i32>(virtual_size_.height),
-            vp_.x,
-            vp_.y,
-            vp_.x + vp_.w,
-            vp_.y + vp_.h,
-            GL_COLOR_BUFFER_BIT,
-            GL_NEAREST
-        );
+        // glBlitFramebuffer(
+        //     0,
+        //     0,
+        //     static_cast<i32>(virtual_size_.width),
+        //     static_cast<i32>(virtual_size_.height),
+        //     vp_.x,
+        //     vp_.y,
+        //     vp_.x + vp_.w,
+        //     vp_.y + vp_.h,
+        //     GL_COLOR_BUFFER_BIT,
+        //     GL_NEAREST
+        //);
 
-        fbo_manager_.unbind();
+        //  fbo_manager_.unbind();
 
         glfwSwapBuffers(window_);
     }
