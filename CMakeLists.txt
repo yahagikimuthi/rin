@@ -61,7 +61,7 @@ if(PROJECT_IS_TOP_LEVEL)
         -mtune=native
         -march=native
         -flto
-        $<$<CONFIG:Debug>:-O2>
+        $<$<CONFIG:Release>:-O2>
         $<$<CONFIG:Debug>:-O0>
         $<$<CONFIG:Debug>:-D_GLIBCXX_DEBUG>
         $<$<CONFIG:Debug>:-D_GLIBCXX_ASSERTIONS>
