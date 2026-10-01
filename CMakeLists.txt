@@ -23,7 +23,7 @@ file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/sr
 # 共通コンパイル/リンク設定
 add_library(project_warnings INTERFACE)
 target_compile_options(project_warnings INTERFACE
-    #-O0
+    -O2
     -Wall
     -Werror
     -Wextra
