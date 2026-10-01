@@ -11,9 +11,24 @@
 #include "detail/others.hpp"
 #include "types.hpp"
 
+/**
+ * @file error.hpp
+ * @brief エラーの種類およびエラー情報を保持・追跡するエラーハンドリングモジュール
+ */
+
 namespace rin {
-enum class error_type : u8 { logic, runtime };
-inline constexpr auto logic_error   = error_type::logic;
+/**
+ * @enum error_type
+ * @brief エラーの種類を表す列挙体
+ */
+enum class error_type : u8 {
+    logic,   ///< ロジックエラー（呼び出し側の事前条件違反など）
+    runtime  ///< 実行時エラー（環境や入出力に起因する不具合など）
+};
+
+/// logic エラーの簡略エイリアス
+inline constexpr auto logic_error = error_type::logic;
+/// runtime エラーの簡略エイリアス
 inline constexpr auto runtime_error = error_type::runtime;
 
 class error final {
@@ -34,6 +49,14 @@ class error final {
     };
 
   public:
+    /**
+     * @brief 文字列リテラルからエラーインスタンス（std::unexpected）を生成します。
+     *
+     * @tparam T 文字列リテラルの型
+     * @param type エラーの種類（logic または runtime）
+     * @param message エラーメッセージ（文字列リテラル）
+     * @return std::unexpected<error> エラーオブジェクトを保持する std::unexpected
+     */
     template <typename T>
         requires detail::is_string_literal_v<T>
     [[nodiscard]] static auto make(const error_type type, const T& message) noexcept
@@ -43,6 +66,15 @@ class error final {
         return std::unexpected{out};
     }
 
+    /**
+     * @brief 親エラーの文脈を含めて文字列リテラルからエラーインスタンスを生成します。
+     *
+     * @tparam T 文字列リテラルの型
+     * @param type エラーの種類
+     * @param message エラーメッセージ（文字列リテラル）
+     * @param child_error 追記元となる既存のエラーオブジェクト
+     * @return std::unexpected<error> エラーチェーンが連結された std::unexpected
+     */
     template <typename T>
         requires detail::is_string_literal_v<T>
     [[nodiscard]] static auto make(
@@ -57,6 +89,13 @@ class error final {
         return std::unexpected{out};
     }
 
+    /**
+     * @brief std::string_view からエラーインスタンス（std::unexpected）を生成します。
+     *
+     * @param type エラーの種類
+     * @param message エラーメッセージ
+     * @return std::unexpected<error> エラーオブジェクトを保持する std::unexpected
+     */
     [[nodiscard]] static auto make(const error_type type, const std::string_view message) noexcept
         -> std::unexpected<error> {
         const auto codes = error_code{.type = type, .message = std::string{message}};
@@ -64,6 +103,14 @@ class error final {
         return std::unexpected{out};
     }
 
+    /**
+     * @brief 親エラーの文脈を含めて std::string_view からエラーインスタンスを生成します。
+     *
+     * @param type エラーの種類
+     * @param message エラーメッセージ
+     * @param child_error 追記元となる既存のエラーオブジェクト
+     * @return std::unexpected<error> エラーチェーンが連結された std::unexpected
+     */
     [[nodiscard]] static auto make(
         const error_type type, const std::string_view message, const error& child_error
     ) noexcept -> std::unexpected<error> {
@@ -76,20 +123,16 @@ class error final {
         return std::unexpected{out};
     }
 
+    /**
+     * @brief 最も根本（先頭）のエラー種別を取得します。
+     *
+     * @return error_type エラー種別
+     */
     [[nodiscard]] auto type() const noexcept -> error_type { return codes_.front().type; }
 
-    [[nodiscard]] auto message() const noexcept -> std::string {
-        auto out = codes_ |
-                   std::views::transform([](const error_code& code) noexcept -> std::string {
-                       if (code.type == logic_error)
-                           return "[Logic Error] " + code.message_to_str();
-                       return "[Runtime Error]: " + code.message_to_str();
-                   }) |
-                   std::views::join_with(std::string{"\n -> "}) | std::ranges::to<std::string>();
-        out += '\n';
-        return out;
-    }
-
+    /**
+     * @brief 蓄積されたエラーチェーンを標準エラー出力（std::cerr）へ出力します。
+     */
     void what() const noexcept {
         for (const auto [i, code] : std::views::enumerate(codes_)) {
             if (i != 0) {
@@ -103,6 +146,9 @@ class error final {
         }
     }
 
+    /**
+     * @brief エラー内容を出力した上で、プログラムを強制終了（std::abort）します。
+     */
     [[noreturn]] void panic() const noexcept {
         what();
         std::abort();
@@ -114,6 +160,14 @@ class error final {
     std::vector<error_code> codes_;
 };
 
+/**
+ * @brief 文字列リテラルからエラーインスタンス（std::unexpected）を生成します。
+ *
+ * @tparam T 文字列リテラルの型
+ * @param type エラーの種類（logic または runtime）
+ * @param message エラーメッセージ（文字列リテラル）
+ * @return std::unexpected<error> エラーオブジェクトを保持する std::unexpected
+ */
 template <typename T>
     requires detail::is_string_literal_v<T>
 [[nodiscard]] constexpr auto make_error(const error_type type, const T& message) noexcept
@@ -121,6 +175,15 @@ template <typename T>
     return error::make(type, message);
 }
 
+/**
+ * @brief 親エラーの文脈を含めて文字列リテラルからエラーインスタンスを生成します。
+ *
+ * @tparam T 文字列リテラルの型
+ * @param type エラーの種類
+ * @param message エラーメッセージ（文字列リテラル）
+ * @param child_error 追記元となる既存のエラーオブジェクト
+ * @return std::unexpected<error> エラーチェーンが連結された std::unexpected
+ */
 template <typename T>
     requires detail::is_string_literal_v<T>
 [[nodiscard]] constexpr auto make_error(
@@ -129,12 +192,27 @@ template <typename T>
     return error::make(type, message, child_error);
 }
 
+/**
+ * @brief std::string_view からエラーインスタンス（std::unexpected）を生成します。
+ *
+ * @param type エラーの種類
+ * @param message エラーメッセージ
+ * @return std::unexpected<error> エラーオブジェクトを保持する std::unexpected
+ */
 [[nodiscard]] constexpr auto make_error(
     const error_type type, const std::string_view message
 ) noexcept -> std::unexpected<error> {
     return error::make(type, message);
 }
 
+/**
+ * @brief 親エラーの文脈を含めて std::string_view からエラーインスタンスを生成します。
+ *
+ * @param type エラーの種類
+ * @param message エラーメッセージ
+ * @param child_error 追記元となる既存のエラーオブジェクト
+ * @return std::unexpected<error> エラーチェーンが連結された std::unexpected
+ */
 [[nodiscard]] constexpr auto make_error(
     const error_type type, const std::string_view message, const error& child_error
 ) noexcept -> std::unexpected<error> {
