@@ -32,8 +32,6 @@ namespace rin {
  * リソースの重複解放を防ぐため、コピーは不可でムーブセマンティクスのみサポートします。
  */
 class sound final {
-    /// `audio_engine` からの非公開コンストラクタ呼び出しおよび内部 `sound_`
-    /// メンバーへのアクセスを許可
     friend class audio_engine;
 
   public:
@@ -50,10 +48,6 @@ class sound final {
         return *this;
     }
 
-    /**
-     * @brief デストラクタ
-     * @details 所有している `ma_sound` の終了処理（`ma_sound_uninit`）を実行します。
-     */
     ~sound() noexcept { destroy(); }
 
     /**
