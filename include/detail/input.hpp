@@ -22,7 +22,7 @@ class key_input final {
         previous_ = current_;
 
         for (const auto i : std::views::indices(current_.size())) {
-            current_[i] = (glfwGetKey(win, static_cast<i32>(i))) == GLFW_PRESS;
+            current_[i] = glfwGetKey(win, static_cast<i32>(i)) == GLFW_PRESS;
         }
     }
 
