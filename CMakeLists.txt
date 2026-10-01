@@ -81,9 +81,6 @@ if(PROJECT_IS_TOP_LEVEL)
     file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
     add_executable(rin)
-    target_include_directories(rin PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-    )
     target_sources(rin PRIVATE ${MAIN_SOURCES})
     target_link_libraries(rin PRIVATE
         rin_lib
