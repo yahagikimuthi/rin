@@ -74,16 +74,8 @@ class fbo_manager final {
         glViewport(
             0, 0, static_cast<i32>(virtual_size.width), static_cast<i32>(virtual_size.height)
         );
-    }
-
-    void clear() const noexcept {
         constexpr float clear_color[] = {0.f, 0.f, 0.f, 1.f};          // NOLINT
         glClearNamedFramebufferfv(fbo_id_, GL_COLOR, 0, clear_color);  // NOLINT
-    }
-
-    void bind_for_bit() const noexcept {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_id_);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     }
 
     void unbind() const noexcept {
