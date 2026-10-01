@@ -4,17 +4,21 @@
 
 ![Breakout Demo](examples/breakout/breakout.gif)
 
+
 ## 特徴
 
-- **C++26 対応**: `std::expected` などを活用した例外機構を使わないモダンなエラーハンドリング
-- **FetchContent 対応**: CMake から簡単にプロジェクトへ組み込み可能
-- **2D レンダリング機能**: 頂点バッファ描画、スプライト、テキスト表示、カメラ制御
+- **C++26 対応**: `std::expected` などを活用した例外機構を使わないモダンなエラーハンドリング.
+- **FetchContent 対応**: CMake から簡単にプロジェクトへ組み込み可能.
+- **2D レンダリング機能**: 頂点バッファ描画、スプライト、テキスト表示、カメラ制御.
+- **標準ライブラリと同じ使用感**: クラス及び関数をsnake_caseで命名, 名前空間のネストを最小化.
+
 
 ## 動作環境
 
 - **C++ コンパイラ**: C++26 サポート（GCC 16 等）
 - **CMake**: 3.30 以上
 - **WSL2**: 推奨環境（必要なOpenGLやGPU等の依存関係が.devcontainer/にセットアップ済み）
+
 
 ## 導入方法
 
@@ -34,9 +38,11 @@ FetchContent_MakeAvailable(rin)
 target_link_libraries(MyProject PRIVATE rin::rin_lib)
 ```
 
+
 ## サンプルコード (Examples)
 
 リポジトリ内の `examples/` ディレクトリに、上記のブロック崩しをはじめとするサンプルコードを公開しています。
+
 
 ## 使用するサードパーティライブラリ
 
