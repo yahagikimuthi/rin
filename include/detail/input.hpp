@@ -14,6 +14,13 @@
 #include "vec2.hpp"
 
 namespace rin::detail {
+struct view_point final {
+    i32 x;
+    i32 y;
+    i32 w;
+    i32 h;
+};
+
 class key_input final {
   public:
     explicit key_input() noexcept = default;
@@ -69,31 +76,18 @@ class mouse_input final {
     }
 
     [[nodiscard]] auto position(
-        const extent& window_size, const extent& virtual_window_size
+        const view_point& vp, const extent& virtual_window_size
     ) const noexcept -> vec2 {
-        if (window_size.width <= 0.f || window_size.height <= 0.f) {
+        if (vp.w <= 0 || vp.h <= 0) {
             return vec2{.x = 0.f, .y = 0.f};
         }
 
-        const auto target_aspect = virtual_window_size.width / virtual_window_size.height;
-        const auto window_aspect = window_size.width / window_size.height;
+        const auto relative_x = position_.x - static_cast<f32>(vp.x);
+        const auto relative_y = position_.y - static_cast<f32>(vp.y);
 
-        auto render_w = window_size.width;
-        auto render_h = window_size.height;
-        auto offset_x = 0.f;
-        auto offset_y = 0.f;
+        const auto norm_x = relative_x / static_cast<f32>(vp.w);
 
-        if (window_aspect > target_aspect) {
-            render_w = window_size.height * target_aspect;
-            offset_x = (window_size.width - render_w) * 0.5f;
-        } else {
-            render_h = window_size.width / target_aspect;
-            offset_y = (window_size.height - render_h) * 0.5f;
-        }
-
-        const auto norm_x = (position_.x - offset_x) / render_w;
-
-        const auto norm_y = 1.f - ((position_.y - offset_y) / render_h);
+        const auto norm_y = 1.f - (relative_y / static_cast<f32>(vp.h));
 
         const auto virt_x = norm_x * virtual_window_size.width;
         const auto virt_y = norm_y * virtual_window_size.height;
@@ -162,9 +156,9 @@ class input final {
     }
 
     [[nodiscard]] auto mouse_position(
-        const extent& window_size, const extent& virtual_window_size
+        const view_point& vp, const extent& virtual_window_size
     ) const noexcept -> vec2 {
-        return mouse_.position(window_size, virtual_window_size);
+        return mouse_.position(vp, virtual_window_size);
     }
 
   private:

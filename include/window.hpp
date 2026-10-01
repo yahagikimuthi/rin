@@ -42,13 +42,6 @@ void glfw_error_callback(int error, const char* description) {
 }
 
 class window final {
-    struct view_point final {
-        i32 x;
-        i32 y;
-        i32 w;
-        i32 h;
-    };
-
   public:
     [[nodiscard]] static auto try_make(
         const f32                   width,
@@ -185,7 +178,7 @@ class window final {
     }
 
     [[nodiscard]] auto mouse_position() const noexcept -> vec2 {
-        return input_.mouse_position(size_, virtual_size_);
+        return input_.mouse_position(vp_, virtual_size_);
     }
 
     [[nodiscard]] auto is_open() const noexcept -> bool {
@@ -289,7 +282,7 @@ class window final {
     GLFWwindow*         window_;  // 所有権を持たない
     detail::renderer    renderer_;
     detail::fbo_manager fbo_manager_;
-    view_point          vp_{};
+    detail::view_point  vp_{};
     extent              size_;
     extent              virtual_size_;
 };
