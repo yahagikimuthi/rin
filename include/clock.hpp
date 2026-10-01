@@ -11,7 +11,7 @@
 
 namespace rin {
 /**
- * @class tick
+ * @class clock
  * @brief フレーム間の経過時間計測および FPS 算出を行うタイマークラス
  *
  * @details GLFW の `glfwGetTime()` を用いて時間の計測を行います。
@@ -20,8 +20,8 @@ namespace rin {
 class clock final {
   public:
     /**
-     * @brief tick インスタンスを生成します。
-     * @return tick 生成された tick インスタンス
+     * @brief clock インスタンスを生成します。
+     * @return clock 生成された clock インスタンス
      */
     [[nodiscard]] static auto make() noexcept -> clock { return clock{}; }
 
@@ -63,8 +63,8 @@ class clock final {
 };
 
 /**
- * @brief tick インスタンスを生成するフリーのファクトリ関数
- * @return tick 生成された tick インスタンス
+ * @brief clock インスタンスを生成するフリーのファクトリ関数
+ * @return clock 生成された clock インスタンス
  */
-[[nodiscard]] inline auto make_tick() noexcept -> clock { return clock::make(); }
+[[nodiscard]] inline auto make_clock() noexcept -> clock { return clock::make(); }
 }  // namespace rin
