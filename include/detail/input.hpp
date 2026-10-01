@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstddef>
 #include <glm/ext/vector_float2.hpp>
-#include <ranges>
 
 #include "detail/graphics.hpp"
 #include "extent.hpp"
@@ -25,11 +24,19 @@ class key_input final {
   public:
     explicit key_input() noexcept = default;
 
-    void update(GLFWwindow* win) noexcept {
+    void update() noexcept {
         previous_ = current_;
+        current_  = next_;
+    }
 
-        for (const auto i : std::views::indices(current_.size())) {
-            current_[i] = glfwGetKey(win, static_cast<i32>(i)) == GLFW_PRESS;
+    void callback(const i32 code, const i32 action) noexcept {
+        if (code < 0 or code >= static_cast<i32>(GLFW_KEY_LAST)) return;
+
+        const auto idx = static_cast<std::size_t>(code);
+        if (action == GLFW_PRESS) {
+            next_[idx] = true;
+        } else if (action == GLFW_RELEASE) {
+            next_[idx] = false;
         }
     }
 
@@ -53,6 +60,7 @@ class key_input final {
         return static_cast<std::size_t>(button);
     }
 
+    std::array<bool, GLFW_KEY_LAST> next_{};
     std::array<bool, GLFW_KEY_LAST> current_{};
     std::array<bool, GLFW_KEY_LAST> previous_{};
 };
@@ -61,19 +69,23 @@ class mouse_input final {
   public:
     explicit mouse_input() noexcept = default;
 
-    void update(GLFWwindow* win) noexcept {
-        previous_ = curent_;
-
-        for (const auto i : std::views::indices(curent_.size())) {
-            curent_[i] = glfwGetMouseButton(win, static_cast<i32>(i)) == GLFW_PRESS;
-        }
-
-        auto x = f64{};
-        auto y = f64{};
-
-        glfwGetCursorPos(win, &x, &y);
-        position_ = {.x = static_cast<f32>(x), .y = static_cast<f32>(y)};
+    void update() noexcept {
+        previous_ = current_;
+        current_  = next_;
     }
+
+    void button_callback(const i32 button, const i32 action) noexcept {
+        if (button < 0 or button > GLFW_MOUSE_BUTTON_LAST) return;
+
+        const auto idx = static_cast<std::size_t>(button);
+        if (action == GLFW_PRESS) {
+            next_[idx] = true;
+        } else if (action == GLFW_RELEASE) {
+            next_[idx] = false;
+        }
+    }
+
+    void cursor_callback(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
 
     [[nodiscard]] auto position(
         const view_point& vp, const extent& virtual_window_size
@@ -97,17 +109,17 @@ class mouse_input final {
 
     [[nodiscard]] auto is_down(const mouse button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return curent_[idx];
+        return current_[idx];
     }
 
     [[nodiscard]] auto is_pressed(const mouse button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return curent_[idx] and not previous_[idx];
+        return current_[idx] and not previous_[idx];
     }
 
     [[nodiscard]] auto is_released(const mouse button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return not curent_[idx] and previous_[idx];
+        return not current_[idx] and previous_[idx];
     }
 
   private:
@@ -115,7 +127,8 @@ class mouse_input final {
         return static_cast<std::size_t>(button);
     }
 
-    std::array<bool, GLFW_MOUSE_BUTTON_LAST> curent_{};
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST> next_{};
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST> current_{};
     std::array<bool, GLFW_MOUSE_BUTTON_LAST> previous_{};
     vec2                                     position_;
 };
@@ -124,11 +137,17 @@ class input final {
   public:
     explicit input() noexcept = default;
 
-    void update(GLFWwindow* win) noexcept {
-        if (win == nullptr) return;
+    void update() noexcept {
+        key_.update();
+        mouse_.update();
+    }
 
-        key_.update(win);
-        mouse_.update(win);
+    void key_callback(const i32 code, const i32 action) noexcept { key_.callback(code, action); }
+
+    void cursor_callback(const f32 x, const f32 y) noexcept { mouse_.cursor_callback(x, y); }
+
+    void mouse_button_callback(const i32 button, const i32 action) noexcept {
+        mouse_.button_callback(button, action);
     }
 
     [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {

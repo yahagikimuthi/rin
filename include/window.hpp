@@ -187,7 +187,7 @@ class window final {
 
     void poll_events() noexcept {
         glfwPollEvents();
-        input_.update(window_);
+        input_.update();
     }
 
     void begin_render(const rgba& clear_color = black) noexcept {
@@ -240,6 +240,33 @@ class window final {
           virtual_size_{virtual_size} {
         glfwSetWindowUserPointer(window_, this);
         glfwSetFramebufferSizeCallback(window_, window_size_callback);
+        glfwSetKeyCallback(
+            window_,
+            [](GLFWwindow*          win,
+               i32                  keycode,
+               [[maybe_unused]] i32 scancode,
+               i32                  action,
+               [[maybe_unused]] i32 mods) noexcept -> void {
+                auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+                if (self == nullptr) return;
+                self->input_.key_callback(keycode, action);
+            }
+        );
+        glfwSetCursorPosCallback(window_, [](GLFWwindow* win, f64 x, f64 y) noexcept -> void {
+            auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+            if (self == nullptr) return;
+            self->input_.cursor_callback(static_cast<f32>(x), static_cast<f32>(y));
+        });
+        glfwSetMouseButtonCallback(
+            window_,
+            [](
+                GLFWwindow* win, i32 button, i32 action, [[maybe_unused]] i32 mods
+            ) noexcept -> void {
+                auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+                if (self == nullptr) return;
+                self->input_.mouse_button_callback(button, action);
+            }
+        );
 
         glEnable(GL_CULL_FACE);
 
