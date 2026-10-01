@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "detail/graphics.hpp"
-
 #include "types.hpp"
 #include "vertex_vector.hpp"
 

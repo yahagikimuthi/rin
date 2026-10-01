@@ -9,7 +9,6 @@
 #include <utility>
 
 #include "detail/graphics.hpp"
-
 #include "error.hpp"
 #include "types.hpp"
 
