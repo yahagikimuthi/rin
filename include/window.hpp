@@ -1,12 +1,14 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <expected>
 #include <iostream>
 #include <string>
 #include <string_view>
 #include <utility>
 
+#include "color.hpp"
 #include "detail/camera.hpp"
 #include "detail/fbo_manager.hpp"
 #include "detail/input.hpp"
@@ -195,42 +197,30 @@ class window final {
         input_.update(window_);
     }
 
-    void begin_render() noexcept {
-        // fbo_manager_.bind(virtual_size_);
-        // fbo_manager_.clear();
+    void begin_render(const rgba& clear_color = black) noexcept {
+        const auto r = static_cast<f32>(clear_color.r) / 255.f;
+        const auto g = static_cast<f32>(clear_color.g) / 255.f;
+        const auto b = static_cast<f32>(clear_color.b) / 255.f;
+        const auto a = static_cast<f32>(clear_color.a) / 255.f;
+        fbo_manager_.bind(virtual_size_, r, g, b, a);
         renderer_.use();
-        glClearColor(0.f, 0.f, 0.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void begin_render(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
+        begin_render(rgba{.r = r, .g = g, .b = b, .a = a});
     }
 
     void end_render() noexcept {
-        // fbo_manager_.bind_for_bit();
+        fbo_manager_.unbind();
 
         glViewport(0, 0, static_cast<i32>(size_.width), static_cast<i32>(size_.height));
-        // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // マスクを全解凍して Fast Clear を強制
-        // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        constexpr auto black_arr = std::array<f32, 4>{0.f, 0.f, 0.f, 1.f};
+        glClearNamedFramebufferfv(0, GL_COLOR, 0, black_arr.data());
 
-        // glClearColor(0.f, 0.f, 0.f, 1.f);
-        // glClear(GL_COLOR_BUFFER_BIT);
+        glViewport(vp_.x, vp_.y, vp_.w, vp_.h);
 
-        // glBlitFramebuffer(
-        //     0,
-        //     0,
-        //     static_cast<i32>(virtual_size_.width),
-        //     static_cast<i32>(virtual_size_.height),
-        //     vp_.x,
-        //     vp_.y,
-        //     vp_.x + vp_.w,
-        //     vp_.y + vp_.h,
-        //     GL_COLOR_BUFFER_BIT,
-        //     GL_NEAREST
-        //);
-
-        // fbo_manager_.unbind();
-
+        fbo_manager_.render();
         glfwSwapBuffers(window_);
     }
 
