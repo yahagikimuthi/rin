@@ -78,7 +78,7 @@ class mouse_input final {
     [[nodiscard]] auto position(
         const view_point& vp, const extent& virtual_window_size
     ) const noexcept -> vec2 {
-        if (vp.w <= 0 || vp.h <= 0) {
+        if (vp.w <= 0 or vp.h <= 0) {
             return vec2{.x = 0.f, .y = 0.f};
         }
 
