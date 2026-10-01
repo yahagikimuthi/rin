@@ -8,7 +8,12 @@
 namespace gm {
 class SoundManager final {
   public:
-    explicit SoundManager() = default;
+    explicit SoundManager() {
+        engine_.master_volume(1.f);
+        for (auto& sound : clash_sounds_) {
+            sound.volume(1.f);
+        }
+    }
 
     SoundManager(const SoundManager&) noexcept                    = delete;
     auto operator=(const SoundManager&) noexcept -> SoundManager& = delete;
@@ -29,14 +34,14 @@ class SoundManager final {
   private:
     rin::audio_engine         engine_{rin::try_make_audio_engine().value()};
     std::array<rin::sound, 8> clash_sounds_{
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value(),
-        engine_.try_load_sound("../assets/crash.mp3").value()
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value(),
+        engine_.try_load_sound("../examples/breakout/crash.mp3").value()
     };
 };
 }  // namespace gm

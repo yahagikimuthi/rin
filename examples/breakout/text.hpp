@@ -92,7 +92,7 @@ class TextManager {
         score_.origin(extent.width / 2, extent.height / 2);
     }
 
-    rin::font font_{rin::try_make_font("../assets/DejaVuSans.ttf").value()};
+    rin::font font_{rin::try_make_font("../examples/breakout/DejaVuSans.ttf").value()};
     rin::text wait_{rin::make_text(font_)};
     rin::text state_{rin::make_text(font_)};
     rin::text score_{rin::make_text(font_)};
