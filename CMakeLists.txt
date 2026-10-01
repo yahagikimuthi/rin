@@ -29,7 +29,6 @@ add_library(rin::rin_lib ALIAS rin_lib) # 外部から rin::rin_lib で呼び出
 # ヘッダーディレクトリの設定
 target_include_directories(rin_lib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
 target_link_libraries(rin_lib INTERFACE
