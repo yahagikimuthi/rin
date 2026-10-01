@@ -23,26 +23,31 @@
 #include "vec2.hpp"
 #include "vertex_vector.hpp"
 
+/**
+ * @file window.hpp
+ * @brief ウィンドウの作成、イベント処理、入力管理、描画ルーチンを提供するモジュール
+ */
+
 namespace rin {
-inline void GLAPIENTRY message_callback(
-    [[maybe_unused]] GLenum      source,
-    [[maybe_unused]] GLenum      type,
-    [[maybe_unused]] GLuint      id,
-    [[maybe_unused]] GLenum      severity,
-    [[maybe_unused]] GLsizei     length,
-    const GLchar*                message,
-    [[maybe_unused]] const void* userParam
-) noexcept {
-    std::cerr << "[OpenGL Debug Message]: " << message << '\n';
-}
 
-void glfw_error_callback(int error, const char* description) {
-    if (error == 65539) return;  // 無効なキー
-    std::cerr << "GLFW Error [" << error << "]: " << description << '\n';
-}
-
+/**
+ * @class window
+ * @brief ウィンドウの生成、グラフィックスコンテキスト管理、描画・入力制御を統括するクラス
+ */
 class window final {
   public:
+    /**
+     * @brief 幅・高さを個別指定してウィンドウおよびコンテキストの初期化を試みます。
+     *
+     * @details GLFW の初期化、コンテキスト作成、GLAD による OpenGL 関数のロード、
+     * 内部レンダラーおよび FBO (Frame Buffer Object) の生成を順次行います。
+     *
+     * @param width ウィンドウの幅（ピクセル）
+     * @param height ウィンドウの高さ（ピクセル）
+     * @param title ウィンドウのタイトル文字列
+     * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: true）
+     * @return std::expected<window, error> 成功時は window インスタンス、初期化失敗時はエラー情報
+     */
     [[nodiscard]] static auto try_make(
         const f32                   width,
         const f32                   height,
@@ -98,6 +103,14 @@ class window final {
         };
     }
 
+    /**
+     * @brief extent（サイズ構造体）を指定してウィンドウおよびコンテキストの初期化を試みます。
+     *
+     * @param size ウィンドウの幅と高さ（extent）
+     * @param title ウィンドウのタイトル文字列（デフォルト: "No Title"）
+     * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: true）
+     * @return std::expected<window, error> 成功時は window インスタンス、初期化失敗時はエラー情報
+     */
     [[nodiscard]] static auto try_make(
         const extent size, const std::string_view title = "No Title", const bool vsync = true
     ) noexcept -> std::expected<window, error> {
@@ -145,38 +158,95 @@ class window final {
         window_ = nullptr;
     }
 
+    /**
+     * @brief カメラの位置座標を取得します。
+     * @return vec2 カメラの位置座標
+     */
     [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
 
+    /**
+     * @brief カメラの位置座標（X, Y成分）を設定します。
+     * @param x X座標
+     * @param y Y座標
+     */
     void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
+
+    /**
+     * @brief カメラの位置座標を設定します。
+     * @param position 位置座標
+     */
     void camera_position(const vec2 position) noexcept { camera_.position(position); }
+
+    /**
+     * @brief カメラのズーム倍率を設定します。
+     * @param zoom ズーム倍率
+     */
     void camera_zoom(const f32 zoom) noexcept { camera_.zoom(zoom); }
 
+    /**
+     * @brief カメラのズーム倍率を取得します。
+     * @return f32 ズーム倍率
+     */
     [[nodiscard]] auto camera_zoom() const noexcept -> f32 { return camera_.zoom(); }
 
+    /**
+     * @brief 指定したキーが押されている状態（ホールド）かどうかを判定します。
+     * @param button 対象のキーコード
+     * @return true 押されている状態、false 押されていない状態
+     */
     [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {
         return input_.is_key_down(button);
     }
 
+    /**
+     * @brief 指定したキーがこのフレームで押された瞬間かどうかを判定します。
+     * @param button 対象のキーコード
+     * @return true 押された瞬間、false それ以外
+     */
     [[nodiscard]] auto is_key_pressed(const key button) const noexcept -> bool {
         return input_.is_key_pressed(button);
     }
 
+    /**
+     * @brief 指定したキーがこのフレームで離された瞬間かどうかを判定します。
+     * @param button 対象のキーコード
+     * @return true 離された瞬間、false それ以外
+     */
     [[nodiscard]] auto is_key_released(const key button) const noexcept -> bool {
         return input_.is_key_released(button);
     }
 
+    /**
+     * @brief 指定したマウスボタンが押されている状態（ホールド）かどうかを判定します。
+     * @param button 対象のマウスボタン
+     * @return true 押されている状態、false 押されていない状態
+     */
     [[nodiscard]] auto is_mouse_down(const mouse button) const noexcept -> bool {
         return input_.is_mouse_down(button);
     }
 
+    /**
+     * @brief 指定したマウスボタンがこのフレームで押された瞬間かどうかを判定します。
+     * @param button 対象のマウスボタン
+     * @return true 押された瞬間、false それ以外
+     */
     [[nodiscard]] auto is_mouse_pressed(const mouse button) const noexcept -> bool {
         return input_.is_mouse_pressed(button);
     }
 
+    /**
+     * @brief 指定したマウスボタンがこのフレームで離された瞬間かどうかを判定します。
+     * @param button 対象のマウスボタン
+     * @return true 離された瞬間、false それ以外
+     */
     [[nodiscard]] auto is_mouse_released(const mouse button) const noexcept -> bool {
         return input_.is_mouse_released(button);
     }
 
+    /**
+     * @brief 仮想画面座標系における現在のマウスカーソル位置を取得します。
+     * @return vec2 マウスカーソルの位置座標
+     */
     [[nodiscard]] auto mouse_position() const noexcept -> vec2 {
         return input_.mouse_position(vp_, virtual_size_);
     }
@@ -185,11 +255,22 @@ class window final {
         return not static_cast<bool>(glfwWindowShouldClose(window_));
     }
 
+    /**
+     * @brief イベントのポーリングを行い、内部の入力状態を更新します。
+     *
+     * @details フレームの開始時などに呼び出し、GLFW
+     * のイベント処理と入力デバイスの状態更新を行います。
+     */
     void poll_events() noexcept {
         glfwPollEvents();
         input_.update();
     }
 
+    /**
+     * @brief 描画処理を開始し、クリアカラーでオフスクリーンフレームバッファ（FBO）をクリアします。
+     *
+     * @param clear_color 画面消去時の背景色（デフォルト: black）
+     */
     void begin_render(const rgba& clear_color = black) noexcept {
         const auto r = static_cast<f32>(clear_color.r) / 255.f;
         const auto g = static_cast<f32>(clear_color.g) / 255.f;
@@ -199,10 +280,22 @@ class window final {
         renderer_.use();
     }
 
+    /**
+     * @brief RGBA値を個別に指定して描画処理を開始します。
+     *
+     * @param r 赤成分 (0〜255)
+     * @param g 緑成分 (0〜255)
+     * @param b 青成分 (0〜255)
+     * @param a アルファ成分 (0〜255、デフォルト値: 255)
+     */
     void begin_render(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
         begin_render(rgba{.r = r, .g = g, .b = b, .a = a});
     }
 
+    /**
+     * @brief
+     * 描画処理を終了し、オフスクリーンバッファの内容を画面（デフォルトフレームバッファ）へレンダリングしてバッファをスワップします。
+     */
     void end_render() noexcept {
         fbo_manager_.unbind();
 
@@ -217,13 +310,23 @@ class window final {
         glfwSwapBuffers(window_);
     }
 
+    /**
+     * @brief 頂点配列（vertex_vector）を描画します。
+     * @param vec 描画対象の頂点コンテナ
+     */
     void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_, virtual_size_); }
 
+    /**
+     * @brief スプライトオブジェクトを描画します。
+     * @param sprite_obj 描画対象のスプライト
+     */
     void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_, virtual_size_); }
 
+    /**
+     * @brief テキストオブジェクトを描画します。
+     * @param tex 描画対象のテキスト
+     */
     void draw(text& tex) noexcept { renderer_.draw(tex, camera_, virtual_size_); }
-
-    [[nodiscard]] auto native_window() noexcept -> GLFWwindow* { return window_; }
 
   private:
     explicit window(
@@ -314,14 +417,31 @@ class window final {
     extent              virtual_size_;
 };
 
+/**
+ * @brief 幅・高さを個別指定してウィンドウおよびコンテキストの初期化を試みるヘルパー関数
+ *
+ * @param width ウィンドウの幅（ピクセル）
+ * @param height ウィンドウの高さ（ピクセル）
+ * @param title ウィンドウのタイトル文字列（デフォルト: "No Title"）
+ * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: false）
+ * @return std::expected<window, error> 成功時は window インスタンス、初期化失敗時はエラー情報
+ */
 [[nodiscard]] inline auto try_make_window(
-    const f32 width, const f32 height, std::string_view title = "No Title", const bool vsync = true
+    const f32 width, const f32 height, std::string_view title = "No Title", const bool vsync = false
 ) noexcept -> std::expected<window, error> {
     return window::try_make(width, height, title, vsync);
 }
 
+/**
+ * @brief extent（サイズ構造体）を指定してウィンドウおよびコンテキストの初期化を試みるヘルパー関数
+ *
+ * @param size ウィンドウの幅と高さ（extent）
+ * @param title ウィンドウのタイトル文字列（デフォルト: "No Title"）
+ * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: false）
+ * @return std::expected<window, error> 成功時は window インスタンス、初期化失敗時はエラー情報
+ */
 [[nodiscard]] inline auto try_make_window(
-    const extent size, std::string_view title = "No Title", const bool vsync = true
+    const extent size, std::string_view title = "No Title", const bool vsync = false
 ) noexcept -> std::expected<window, error> {
     return window::try_make(size, title, vsync);
 }
