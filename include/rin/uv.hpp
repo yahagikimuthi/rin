@@ -62,7 +62,9 @@ struct uv final {
         return lhs;
     }
 
-    auto operator+() const noexcept -> uv { return *this; }
+    [[nodiscard]] auto operator+() const noexcept -> uv { return *this; }
+    [[nodiscard]] auto operator-() const noexcept -> uv { return uv{.u = -u, .v = -v}; }
+
     auto operator==(const uv&) const noexcept -> bool = default;
 };
 }  // namespace rin
