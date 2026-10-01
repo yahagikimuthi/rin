@@ -6,14 +6,14 @@
 #include <filesystem>
 #include <utility>
 
-#include "detail/graphics.hpp"
+#include "rin/detail/graphics.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
-#include "stb_image.h"
+#include "rin/detail/stb_image.h"
 #pragma GCC diagnostic pop
 
 #include "rin/error.hpp"

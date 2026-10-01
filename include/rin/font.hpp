@@ -15,10 +15,10 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
-#include "stb_truetype.h"
+#include "rin/detail/stb_truetype.h"
 #pragma GCC diagnostic pop
 
-#include "detail/default_font_data.hpp"
+#include "rin/detail/default_font_data.hpp"
 #include "rin/error.hpp"
 #include "rin/extent.hpp"
 #include "rin/texture.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "detail/graphics.hpp"
+#include "rin/detail/graphics.hpp"
 #include "rin/types.hpp"
 
 /**

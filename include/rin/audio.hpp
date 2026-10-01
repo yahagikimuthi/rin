@@ -10,7 +10,7 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
-#include "miniaudio.h"
+#include "rin/detail/miniaudio.h"
 #pragma GCC diagnostic pop
 
 #include "rin/error.hpp"
