@@ -1,6 +1,5 @@
 #pragma once
 
-#include <compare>
 #include <glm/ext/vector_float4.hpp>
 
 #include "rin/types.hpp"
