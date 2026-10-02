@@ -44,14 +44,14 @@ class window final {
      * @param width ウィンドウの幅（ピクセル）
      * @param height ウィンドウの高さ（ピクセル）
      * @param title ウィンドウのタイトル文字列
-     * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: true）
+     * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: false）
      * @return std::expected<window, error> 成功時は window インスタンス、初期化失敗時はエラー情報
      */
     [[nodiscard]] static auto try_make(
         const f32                   width,
         const f32                   height,
         const std::string_view      title,
-        [[maybe_unused]] const bool vsync = true
+        [[maybe_unused]] const bool vsync = false
     ) noexcept -> std::expected<window, error> {
         // GLFWの初期化（何回呼び出しても安全）
         if (not static_cast<bool>(glfwInit()))
@@ -76,7 +76,7 @@ class window final {
         if (window_ptr == nullptr) return make_error(runtime_error, "Failed to initialize window.");
 
         glfwMakeContextCurrent(window_ptr);
-        glfwSwapInterval(0);
+        glfwSwapInterval(static_cast<i32>(vsync));
         gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));  // NOLINT
 
         auto actual_width  = 0;
@@ -107,11 +107,11 @@ class window final {
      *
      * @param size ウィンドウの幅と高さ（extent）
      * @param title ウィンドウのタイトル文字列（デフォルト: "No Title"）
-     * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: true）
+     * @param vsync 垂直同期（V-Sync）の有効化フラグ（デフォルト: false）
      * @return std::expected<window, error> 成功時は window インスタンス、初期化失敗時はエラー情報
      */
     [[nodiscard]] static auto try_make(
-        const extent size, const std::string_view title = "No Title", const bool vsync = true
+        const extent size, const std::string_view title = "No Title", const bool vsync = false
     ) noexcept -> std::expected<window, error> {
         return try_make(size.width, size.height, title, vsync);
     }
