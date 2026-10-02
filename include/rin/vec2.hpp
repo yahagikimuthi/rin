@@ -60,7 +60,7 @@ struct vec2 final {
         return vec2{.x = -x, .y = -y};
     }
 
-    constexpr auto operator==(const vec2&) const noexcept -> bool = default;
+    [[nodiscard]] constexpr auto operator==(const vec2&) const noexcept -> bool = default;
 
     [[nodiscard]] friend constexpr auto operator+(vec2 lhs, const vec2& rhs) noexcept -> vec2 {
         lhs += rhs;
