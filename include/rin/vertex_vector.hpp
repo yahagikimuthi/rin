@@ -53,9 +53,9 @@ struct vertex final {
      */
     constexpr vertex(const vec2& Position) noexcept : position{Position} {}
 
-    constexpr auto operator==(const vertex&) const noexcept -> bool = default;
+    [[nodiscard]] constexpr auto operator==(const vertex&) const noexcept -> bool = default;
 
-    constexpr auto operator+() const noexcept -> vertex { return *this; }
+    [[nodiscard]] constexpr auto operator+() const noexcept -> vertex { return *this; }
 
     /// 頂点位置座標
     vec2 position;
