@@ -151,9 +151,9 @@ class text final {
      * @param r 赤成分 (0〜255)
      * @param g 緑成分 (0〜255)
      * @param b 青成分 (0〜255)
-     * @param a アルファ成分 (0〜255、デフォルト値: 0)
+     * @param a アルファ成分 (0〜255、デフォルト値: 255)
      */
-    void color(const u8 r, const u8 g, const u8 b, const u8 a = 0) noexcept {
+    void color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
         vertices_dirty_ = true;
         color_          = {.r = r, .g = g, .b = b, .a = a};
     }
