@@ -207,7 +207,7 @@ class text final {
 
     /**
      * @brief フォントアトラスのテクスチャを指定されたテクスチャユニットにバインドします。
-     * @attention これは内部で使用します。呼び出しは行わないでください。
+     * @warning これは内部で使用します。呼び出しは行わないでください。
      * @param unit バインド先のスロット番号
      */
     void bind(const u32 unit) noexcept { font_.get().setting_texture().bind(unit); }
