@@ -189,12 +189,10 @@ void Engine::main_loop() noexcept {
 }
 }  // namespace gm
 
-auto main() noexcept -> int {
+auto main() -> int {
     auto win = rin::try_make_window(800, 600, "Breakout");
     if (not win) win.error().panic();
 
     auto engine = gm::Engine{std::move(*win)};
     engine.run();
-
-    return 0;
 }
