@@ -85,6 +85,12 @@ class sprite final {
     [[nodiscard]] auto setting_texture() const noexcept -> const texture& { return tex_; }
 
     /**
+     * @brief 現在のUV長方形を取得します
+     * @return uv_rectangle UV長方形
+     */
+    [[nodiscard]] auto uv_rect() const noexcept -> uv_rectangle { return uv_rect_; }
+
+    /**
      * @brief 位置座標を設定します。
      * @param pos 位置座標
      */
@@ -160,6 +166,13 @@ class sprite final {
             .x = uv_rect_.x, .y = uv_rect_.y, .width = tex.size().width, .height = tex.size().height
         };
     }
+
+    /**
+     * @brief UV長方形を再設定します
+     *
+     * @param rect 設定するUV長方形
+     */
+    void uv_rect(const uv_rectangle& rect) noexcept { uv_rect_ = rect; }
 
     /**
      * @brief スプライトの最新の頂点情報を計算・取得します。
