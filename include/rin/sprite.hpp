@@ -69,6 +69,16 @@ class sprite final {
     [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
 
     /**
+     * @brief スプライトのサイズ(幅・高さ)を取得します。
+     * @return extent スプライトサイズ
+     */
+    [[nodiscard]] auto size() noexcept -> extent {
+        const auto tex_size = tex_.get().size();
+        const auto scale    = calc_vertices().scale();
+        return {.width = tex_size.width * scale.x, .height = tex_size.height * scale.y};
+    }
+
+    /**
      * @brief 参照しているテクスチャの参照を取得します。
      * @return const texture& テクスチャの参照
      */
@@ -155,13 +165,12 @@ class sprite final {
      * @brief スプライトの最新の頂点情報を計算・取得します。
      *
      * @details 変更フラグ（dirty_）が立っている場合は頂点データを更新してから返します。
-     * @param self sprite インスタンス
      * @return const vertex_vector& 算出された頂点データの参照
      */
-    [[nodiscard]] friend auto calc_vertices(sprite& self) noexcept -> const vertex_vector& {
-        if (self.dirty_) self.update_vertices();
-        self.dirty_ = false;
-        return self.vertices_;
+    [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
+        if (dirty_) update_vertices();
+        dirty_ = false;
+        return vertices_;
     }
 
   private:
