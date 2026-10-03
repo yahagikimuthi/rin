@@ -15,14 +15,14 @@ class SoundManager final {
         if (not engine) engine.error().panic();
 
         auto sounds_res = std::array<std::expected<rin::sound, rin::error>, 8>{
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
-            engine->try_load_sound("../examples/05_breakout/crash.mp3")
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3"),
+            engine->try_load_sound("crash.mp3")
         };
 
         for (auto& sound : sounds_res) {

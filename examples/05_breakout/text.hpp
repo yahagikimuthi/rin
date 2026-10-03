@@ -16,7 +16,7 @@ namespace gm {
 class TextManager {
   public:
     [[nodiscard]] static auto make() noexcept -> TextManager {
-        auto font = rin::try_make_font("../examples/05_breakout/DejaVuSans.ttf");
+        auto font = rin::try_make_font("DejaVuSans.ttf");
         if (not font) font.error().panic();
 
         return TextManager{std::make_unique<rin::font>(std::move(*font))};
