@@ -82,12 +82,12 @@ if(PROJECT_IS_TOP_LEVEL)
     # ソースファイルの取得とスタンドアロン実行ファイルの作成
     file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-    add_executable(rin)
-    target_sources(rin PRIVATE ${MAIN_SOURCES})
-    target_link_libraries(rin PRIVATE
+    add_executable(rin.exe)
+    target_sources(rin.exe PRIVATE ${MAIN_SOURCES})
+    target_link_libraries(rin.exe PRIVATE
         rin_lib
         project_warnings
     )
 
-    target_include_directories(rin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_include_directories(rin.exe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
