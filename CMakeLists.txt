@@ -61,6 +61,7 @@ if(PROJECT_IS_TOP_LEVEL)
         -mtune=native
         -march=native
         -flto
+        -fcontracts
         $<$<CONFIG:Release>:-O2>
         $<$<CONFIG:Debug>:-O0>
         $<$<CONFIG:Debug>:-D_GLIBCXX_DEBUG>
@@ -70,11 +71,10 @@ if(PROJECT_IS_TOP_LEVEL)
         $<$<CONFIG:Debug>:-fstack-clash-protection>
         $<$<CONFIG:Debug>:-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow>
         $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-        $<$<CONFIG:Debug>:-fcontracts>
     )
     target_link_options(project_warnings INTERFACE
+        -fcontracts
         $<$<CONFIG:Debug>:-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow>
-        $<$<CONFIG:Debug>:-fcontracts>
     )
 
     # ソースファイルの取得とスタンドアロン実行ファイルの作成
@@ -86,4 +86,6 @@ if(PROJECT_IS_TOP_LEVEL)
         rin_lib
         project_warnings
     )
+
+    target_include_directories(rin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
