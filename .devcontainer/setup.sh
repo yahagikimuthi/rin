@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+# ユーザーグループの生成
+sudo groupadd -r systemd-journal 2>/dev/null || true
+sudo useradd -r -s /sbin/nologin systemd-network 2>/dev/null || true
+
 echo "=== 1. Adding Repositories for GCC 16 & Latest CMake ==="
 sudo apt-get update
 sudo apt-get install -y software-properties-common wget gpg ca-certificates
