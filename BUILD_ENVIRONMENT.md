@@ -17,7 +17,7 @@
 
 ## Dev Container 設定
 
-WSLg（GUI / オーディオパススルー）および GPU アクセス（Direct3D12 / Mesa 経由）を正常に機能させるため、本ライブラリの`./devcontainer/`以下のファイルに、開発中に使用しているdevcontainer.jsonを公開しています。ご活用ください。
+WSLg（GUI / オーディオパススルー）および GPU アクセス（Direct3D12 / Mesa 経由）を正常に機能させるため、本ライブラリの`.devcontainer/`以下のファイルに、開発中に使用しているdevcontainer.jsonを公開しています。ご活用ください。
 
 ---
 ## 注意点
