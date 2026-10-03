@@ -7,7 +7,7 @@
 #include "rin/font.hpp"
 #include "rin/window.hpp"
 
-#include "../examples/breakout/setting.hpp"
+#include "examples/breakout/setting.hpp"
 
 namespace gm {
 
