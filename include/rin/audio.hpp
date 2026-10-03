@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <expected>
 #include <filesystem>
 #include <memory>
@@ -61,6 +62,27 @@ class sound final {
     }
 
     /**
+     * @brief 現在サウンドがループ中であるかを返します
+     *
+     * @return true ループ中の場合
+     * @return false ループ中またはインスタンスが無効な場合
+     */
+    [[nodiscard]] auto is_looping() const noexcept -> bool {
+        if (not sound_) return false;
+        return ma_sound_is_playing(sound_.get()) == MA_TRUE;
+    }
+
+    /**
+     * @brief 現在のボリュームを返します
+     *
+     * @return f32 音量(0.fで静音、100.fで標準)
+     */
+    [[nodiscard]] auto volume() const noexcept -> f32 {
+        if (not sound_) return 0.f;
+        return ma_sound_get_volume(sound_.get()) * 100.f;
+    }
+
+    /**
      * @brief サウンドの再生を開始（または一時停止状態から再開）します。
      */
     void play() noexcept {
@@ -89,7 +111,7 @@ class sound final {
      * @param volume 音量（0.0f で消音、100.f で標準）
      */
     void volume(const f32 volume) noexcept {
-        if (sound_) ma_sound_set_volume(sound_.get(), volume / 100.f);
+        if (sound_) ma_sound_set_volume(sound_.get(), std::clamp(volume / 100.f, 0.f, 1.f));
     }
 
   private:
@@ -171,13 +193,18 @@ class audio_engine final {
         return sound_obj;
     }
 
+    [[nodiscard]] auto master_volume() const noexcept -> f32 {
+        if (not engine_) return 0.f;
+        return ma_engine_get_volume(engine_.get()) * 100.f;
+    }
+
     /**
      * @brief 全体のマスターボリュームを設定します。
      *
      * @param volume 音量（0.0f で消音、100.f で標準）
      */
     void master_volume(const f32 volume) noexcept {
-        if (engine_) ma_engine_set_volume(engine_.get(), volume / 100.f);
+        if (engine_) ma_engine_set_volume(engine_.get(), std::clamp(volume / 100.f, 0.f, 1.f));
     }
 
   private:
