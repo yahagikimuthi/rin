@@ -26,11 +26,23 @@
  */
 
 namespace rin {
+
+/**
+ * @struct uv_rectangle
+ * @brief テクスチャを表現するためのUV構造体
+ */
 struct uv_rectangle final {
-    f32 x;
-    f32 y;
-    f32 width;
-    f32 height;
+    /// テクスチャ上における領域の起点となるx座標
+    f32 x{};
+
+    /// テクスチャ上における領域の起点となるy座標
+    f32 y{};
+
+    /// 描画や切り出しに使う領域の幅と
+    f32 width{};
+
+    /// 描画や切り出しに使う領域の高さ
+    f32 height{};
 };
 
 /**
