@@ -15,7 +15,7 @@
 
 - **C++ コンパイラ**: C++26 サポート(内部でC++26で追加されたライブラリ機能を使用します)
 - **CMake**: 3.30 以上
-- **WSL2**: 推奨環境（必要なOpenGLやGPU等の依存関係が.devcontainer/にセットアップ済み）
+- **WSL2**: 推奨環境（必要なOpenGLやGPU等の依存関係が`.devcontainer/`にセットアップ済み）
 
 本ライブラリで実際のコンシューマー向けゲーム開発を行う点については**注意が必要**です。
 C++26の一部機能は2026/10/3現在、ClangやMSVC等のコンパイラで安全に動作しない可能性があり、Windows環境でのコンパイルが不安定となっています。
@@ -39,6 +39,15 @@ FetchContent_MakeAvailable(rin)
 
 # 自身のターゲットにリンク
 target_link_libraries(MyProject PRIVATE rin::rin_lib)
+```
+
+ソースコードでは以下のようにincludeします。
+```cpp
+#include <rin/rin.hpp>
+
+auto main() -> int {
+    // 使用方法はexamplesを参照
+}
 ```
 
 
