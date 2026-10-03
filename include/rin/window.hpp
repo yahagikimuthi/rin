@@ -273,6 +273,12 @@ class window final {
         return input_.mouse_position(vp_, virtual_size_);
     }
 
+    /**
+     * @brief 現在、画面が開いているか判定します
+     *
+     * @return true 画面が現在開いています
+     * @return false 閉じています
+     */
     [[nodiscard]] auto is_open() const noexcept -> bool {
         return not static_cast<bool>(glfwWindowShouldClose(window_));
     }
