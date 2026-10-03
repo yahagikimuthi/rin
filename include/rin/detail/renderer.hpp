@@ -31,7 +31,7 @@ class renderer final {
     void draw(
         const vertex_vector& vertices, const camera& camera_obj, const extent& virtual_window_size
     ) noexcept {
-        const auto model = calc_transform_mat(vertices);
+        const auto model = vertices.calc_transform_mat();
         const auto vp    = camera_obj.calc_view_position_mat(virtual_window_size);
         const auto mvp   = vp * model;
         shader_.set_mat4(shader::u_Transform, mvp);
@@ -52,10 +52,10 @@ class renderer final {
     void draw(sprite& spr, const camera& camera, const extent& virtual_window_size) noexcept {
         const auto& tex = spr.setting_texture();
 
-        bind(tex, 0);
-        const auto& vertices = calc_vertices(spr);
+        tex.bind(0);
+        const auto& vertices = spr.calc_vertices();
 
-        const auto model = calc_transform_mat(vertices);
+        const auto model = vertices.calc_transform_mat();
         const auto vp    = camera.calc_view_position_mat(virtual_window_size);
         const auto mvp   = vp * model;
 
@@ -72,12 +72,12 @@ class renderer final {
     }
 
     void draw(text& tex, const camera& camera_obj, const extent& virtual_window_size) noexcept {
-        bind(tex, 0);
+        tex.bind(0);
 
-        const auto& vertices = calc_vertices(tex);
+        const auto& vertices = tex.calc_vertices();
 
         const auto vp    = camera_obj.calc_view_position_mat(virtual_window_size);
-        const auto model = calc_transform_mat(vertices);
+        const auto model = vertices.calc_transform_mat();
         const auto mvp   = vp * model;
 
         shader_.set_mat4(shader::u_Transform, mvp);

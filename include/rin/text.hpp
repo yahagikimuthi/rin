@@ -197,23 +197,19 @@ class text final {
      * @brief テキスト描画に必要な最新の頂点情報を計算・取得します。
      *
      * @details 変更フラグ（vertices_dirty_）が立っている場合は頂点データを再生成してから返します。
-     * @param self text インスタンス
      * @return const vertex_vector& 算出された頂点データの参照
      */
-    [[nodiscard]] friend auto calc_vertices(text& self) noexcept -> const vertex_vector& {
-        if (self.vertices_dirty_) self.update_vertices();
-        self.vertices_dirty_ = false;
-        return self.vertices_;
+    [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
+        if (vertices_dirty_) update_vertices();
+        vertices_dirty_ = false;
+        return vertices_;
     }
 
     /**
      * @brief フォントアトラスのテクスチャを指定されたテクスチャユニットにバインドします。
-     * @param self text インスタンス
      * @param unit バインド先のスロット番号
      */
-    friend void bind(const text& self, const u32 unit) noexcept {
-        bind(self.font_.get().setting_texture(), unit);
-    }
+    void bind(const u32 unit) noexcept { font_.get().setting_texture().bind(unit); }
 
   private:
     explicit text(const font& font_obj) noexcept : font_{font_obj} {}

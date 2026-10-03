@@ -111,9 +111,7 @@ class texture final {
      * @param self バインドする texture インスタンス
      * @param unit バインド先のスロット番号
      */
-    friend void bind(const texture& self, const u32 unit) noexcept {
-        glBindTextureUnit(unit, self.id_);
-    }
+    void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }
 
   private:
     explicit texture(const u32 width, const u32 height, const u8* const pixels) noexcept
