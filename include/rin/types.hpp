@@ -17,8 +17,20 @@ using u16 = std::uint16_t;
 /// 32ビット無符号整数型
 using u32 = std::uint32_t;
 
+/// 64ビット無符号整数型
+using u64 = std::uint64_t;
+
+/// 8ビット符号有整数型
+using i8 = std::int8_t;
+
+/// 16ビット符号有整数型
+using i16 = std::int16_t;
+
 /// 32ビット有符号整数型
 using i32 = std::int32_t;
+
+/// 64ビット符号有整数型
+using i64 = std::int64_t;
 
 /// 32ビット単精度浮動小数点数型
 /// @note `<stdfloat>`（std::float32_t 等）の環境依存・未安定性を考慮し、標準の `float`
