@@ -8,12 +8,7 @@
 namespace gm {
 class SoundManager final {
   public:
-    explicit SoundManager() {
-        engine_.master_volume(1.f);
-        for (auto& sound : clash_sounds_) {
-            sound.volume(1.f);
-        }
-    }
+    explicit SoundManager() = default;
 
     SoundManager(const SoundManager&) noexcept                    = delete;
     auto operator=(const SoundManager&) noexcept -> SoundManager& = delete;

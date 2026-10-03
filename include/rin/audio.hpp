@@ -86,10 +86,10 @@ class sound final {
     /**
      * @brief 個別の音量を設定します。
      *
-     * @param volume 音量（0.0f で消音、1.0f で標準）
+     * @param volume 音量（0.0f で消音、100.f で標準）
      */
     void volume(const f32 volume) noexcept {
-        if (sound_) ma_sound_set_volume(sound_.get(), volume);
+        if (sound_) ma_sound_set_volume(sound_.get(), volume / 100.f);
     }
 
   private:
@@ -174,10 +174,10 @@ class audio_engine final {
     /**
      * @brief 全体のマスターボリュームを設定します。
      *
-     * @param volume 音量（0.0f で消音、1.0f で標準）
+     * @param volume 音量（0.0f で消音、100.f で標準）
      */
     void master_volume(const f32 volume) noexcept {
-        if (engine_) ma_engine_set_volume(engine_.get(), volume);
+        if (engine_) ma_engine_set_volume(engine_.get(), volume / 100.f);
     }
 
   private:
