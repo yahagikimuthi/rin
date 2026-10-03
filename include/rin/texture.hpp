@@ -107,8 +107,7 @@ class texture final {
 
     /**
      * @brief テクスチャを指定したテクスチャユニットにバインドします。
-     *
-     * @param self バインドする texture インスタンス
+     * @attention これは内部で使用します。呼び出しは行わないでください
      * @param unit バインド先のスロット番号
      */
     void bind(const u32 unit) const noexcept { glBindTextureUnit(unit, id_); }
