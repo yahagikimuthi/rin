@@ -25,16 +25,14 @@
  * @brief OpenGL テクスチャリソースの作成・管理を行うモジュール
  */
 
-namespace rin::detail {
+namespace rin {
 struct uv_rectangle final {
     f32 x;
     f32 y;
     f32 width;
     f32 height;
 };
-}  // namespace rin::detail
 
-namespace rin {
 /**
  * @class texture
  * @brief OpenGL 2Dテクスチャリソースを RAII パターンで管理するクラス

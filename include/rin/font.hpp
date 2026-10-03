@@ -129,7 +129,7 @@ class font final {
 
             auto g = detail::glyph{
                 .uv_rect =
-                    detail::uv_rectangle{
+                    uv_rectangle{
                         .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
                         .y      = static_cast<f32>(b.y0) / static_cast<f32>(atlas_height),
                         .width  = static_cast<f32>(b.x1 - b.x0) / static_cast<f32>(atlas_width),
