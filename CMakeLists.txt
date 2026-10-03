@@ -42,49 +42,6 @@ target_link_libraries(rin_lib INTERFACE
     ${CMAKE_DL_LIBS}
 )
 
-# find_package対応のための設定
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
-
-# インストール定義
-# rin_lib ターゲットと include ディレクトリの指定
-install(TARGETS glad rin_lib
-    EXPORT rinTargets
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-# include フォルダ配下のヘッダーファイルをインストール先にコピー
-install(DIRECTORY include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-# Export ターゲットファイルの作成
-install(EXPORT rinTargets
-    FILE rinTargets.cmake
-    NAMESPACE rin::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rin
-)
-
-# Config / Version ファイルの生成
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/rinConfigVersion.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/rinConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/rinConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rin
-)
-
-# Config ファイル群のインストール
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/rinConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/rinConfigVersion.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rin
-)
-
 # 単体開発（トップレベルプロジェクト）時のみ有効化する設定
 if(PROJECT_IS_TOP_LEVEL)
     # 警告オプションやデバッグ用フラグの設定
