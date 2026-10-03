@@ -25,14 +25,7 @@
 自身の `CMakeLists.txt` に以下を追加してください。
 
 ```cmake
-include(FetchContent)
-
-FetchContent_Declare(
-    rin
-    GIT_REPOSITORY https://github.com/yahagikimuthi/rin.git
-    GIT_TAG        v1.0.0
-)
-FetchContent_MakeAvailable(rin)
+find_package(rin REQUIRED)
 
 # 自身のターゲットにリンク
 target_link_libraries(MyProject PRIVATE rin::rin_lib)
