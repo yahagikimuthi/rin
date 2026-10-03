@@ -1,11 +1,8 @@
-/assets/
 /build/
 /.clangd
 /.clang-format
 /.compile_commands.json
 core.*
-/game/
 ./git/
 /src/main.cpp
 /.vscode/
-.VSCodeCounter/
