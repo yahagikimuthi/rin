@@ -2,19 +2,47 @@
 
 #include <array>
 #include <ranges>
+#include <utility>
 
 #include "rin/audio.hpp"
+#include "rin/error.hpp"
 
 namespace gm {
 class SoundManager final {
   public:
-    explicit SoundManager() = default;
+    [[nodiscard]] static auto make() noexcept -> SoundManager {
+        auto engine = rin::try_make_audio_engine();
+        if (not engine) engine.error().panic();
 
-    SoundManager(const SoundManager&) noexcept                    = delete;
-    auto operator=(const SoundManager&) noexcept -> SoundManager& = delete;
-    SoundManager(SoundManager&&) noexcept                         = delete;
-    auto operator=(SoundManager&&) noexcept -> SoundManager&      = delete;
-    ~SoundManager() noexcept                                      = default;
+        auto sounds_res = std::array<std::expected<rin::sound, rin::error>, 8>{
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3"),
+            engine->try_load_sound("../examples/05_breakout/crash.mp3")
+        };
+
+        for (auto& sound : sounds_res) {
+            if (not sound) sound.error().panic();
+        }
+
+        return SoundManager{
+            std::move(*engine),
+            std::array<rin::sound, 8>{
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0]),
+                std::move(*sounds_res[0])
+            }
+        };
+    };
 
     void crash() noexcept {
         auto valid_sounds =
@@ -27,16 +55,10 @@ class SoundManager final {
     }
 
   private:
-    rin::audio_engine         engine_{rin::try_make_audio_engine().value()};
-    std::array<rin::sound, 8> clash_sounds_{
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value(),
-        engine_.try_load_sound("crash.mp3").value()
-    };
+    explicit SoundManager(rin::audio_engine engine, std::array<rin::sound, 8> sounds) noexcept
+        : engine_{std::move(engine)}, clash_sounds_(std::move(sounds)) {}
+
+    rin::audio_engine         engine_;
+    std::array<rin::sound, 8> clash_sounds_;
 };
 }  // namespace gm

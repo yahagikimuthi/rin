@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/trigonometric.hpp>
+#include <utility>
 
 #include "rin/clock.hpp"
 #include "rin/collision.hpp"
@@ -19,7 +20,13 @@
 namespace gm {
 class Engine final {
   public:
-    explicit Engine(rin::window win) : window_{std::move(win)} {}
+    [[nodiscard]] static auto make() noexcept -> Engine {
+        auto win_res = rin::try_make_window(800, 600, "Breakout");
+        if (not win_res) win_res.error().panic();
+
+        return Engine{std::move(*win_res), SoundManager::make(), TextManager::make()};
+    }
+
     void run() noexcept {
         while (window_.is_open()) {
             window_.poll_events();
@@ -29,6 +36,9 @@ class Engine final {
     }
 
   private:
+    explicit Engine(rin::window win, SoundManager sound, TextManager text)
+        : window_{std::move(win)}, sound_{std::move(sound)}, text_{std::move(text)} {}
+
     void main_loop() noexcept;
 
     [[nodiscard]] auto is_ball_collision_window_and_process() noexcept -> bool {
@@ -107,7 +117,6 @@ class Engine final {
                 const auto dot =
                     (ball_v.x * hit->resolution_vector.x) + (ball_v.y * hit->resolution_vector.y);
                 ball_.velocity(ball_v - (hit->resolution_vector * 2.f * dot));
-                score_ += 10;
                 sound_.crash();
 
                 break;
@@ -133,7 +142,6 @@ class Engine final {
     Ball         ball_;
     Blocks       blocks_;
     TextManager  text_;
-    u32          score_{};
     GameState    state_{GameState::waiting};
 };
 
@@ -190,9 +198,6 @@ void Engine::main_loop() noexcept {
 }  // namespace gm
 
 auto main() -> int {
-    auto win = rin::try_make_window(800, 600, "Breakout");
-    if (not win) win.error().panic();
-
-    auto engine = gm::Engine{std::move(*win)};
+    auto engine = gm::Engine::make();
     engine.run();
 }

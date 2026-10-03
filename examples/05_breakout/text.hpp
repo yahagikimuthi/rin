@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cassert>
+#include <memory>
 #include <string>
+#include <utility>
 
 #include "rin/color.hpp"
 #include "rin/font.hpp"
@@ -13,38 +15,12 @@ namespace gm {
 
 class TextManager {
   public:
-    explicit TextManager() {
-        {
-            state_.scale(2.f, 2.f);
-            state_.position(window_size.width / 2, window_size.height / 1.75f);
-        }
-        {
-            score_.scale(0.8f, 0.8f);
-            score_.position(window_size.width / 2, window_size.height / 2.5f);
-            score_.color(rin::white);
-        }
-        {
-            explanation_.scale(0.8f, 0.8f);
-            explanation_.position(window_size.width / 2, window_size.height / 3);
-            explanation_.color(rin::white);
-            explanation_.string("You can restart to press escape button.");
-            const auto extent = explanation_.calc_extent();
-            explanation_.origin(extent.width / 2, extent.height / 2);
-        }
-        {
-            wait_.string("Click to start!");
-            wait_.position(window_size.width / 2, window_size.height / 2.5f);
-            wait_.color(rin::white);
-            const auto extent = wait_.calc_extent();
-            wait_.origin(extent.width / 2, extent.height / 2);
-        }
-    }
+    [[nodiscard]] static auto make() noexcept -> TextManager {
+        auto font = rin::try_make_font("../examples/05_breakout/DejaVuSans.ttf");
+        if (not font) font.error().panic();
 
-    TextManager(const TextManager&)                             = delete;
-    auto operator=(const TextManager&) noexcept -> TextManager& = delete;
-    TextManager(TextManager&&) noexcept                         = delete;
-    auto operator=(TextManager&&) noexcept -> TextManager&      = delete;
-    ~TextManager() noexcept                                     = default;
+        return TextManager{std::make_unique<rin::font>(std::move(*font))};
+    }
 
     void wait() noexcept { is_waiting_ = true; }
 
@@ -86,17 +62,44 @@ class TextManager {
     }
 
   private:
+    explicit TextManager(std::unique_ptr<rin::font> font) : font_{std::move(font)} {
+        {
+            state_.scale(2.f, 2.f);
+            state_.position(window_size.width / 2, window_size.height / 1.75f);
+        }
+        {
+            score_.scale(0.8f, 0.8f);
+            score_.position(window_size.width / 2, window_size.height / 2.5f);
+            score_.color(rin::white);
+        }
+        {
+            explanation_.scale(0.8f, 0.8f);
+            explanation_.position(window_size.width / 2, window_size.height / 3);
+            explanation_.color(rin::white);
+            explanation_.string("You can restart to press escape button.");
+            const auto extent = explanation_.calc_extent();
+            explanation_.origin(extent.width / 2, extent.height / 2);
+        }
+        {
+            wait_.string("Click to start!");
+            wait_.position(window_size.width / 2, window_size.height / 2.5f);
+            wait_.color(rin::white);
+            const auto extent = wait_.calc_extent();
+            wait_.origin(extent.width / 2, extent.height / 2);
+        }
+    }
+
     void score(const u32 num) noexcept {
         score_.string("Destroyed Blocks: " + std::to_string(num));
         const auto extent = score_.calc_extent();
         score_.origin(extent.width / 2, extent.height / 2);
     }
 
-    rin::font font_{rin::try_make_font("DejaVuSans.ttf").value()};
-    rin::text wait_{rin::make_text(font_)};
-    rin::text state_{rin::make_text(font_)};
-    rin::text score_{rin::make_text(font_)};
-    rin::text explanation_{rin::make_text(font_)};
-    bool      is_waiting_{true};
+    std::unique_ptr<rin::font> font_;
+    rin::text                  wait_{rin::make_text(*font_)};
+    rin::text                  state_{rin::make_text(*font_)};
+    rin::text                  score_{rin::make_text(*font_)};
+    rin::text                  explanation_{rin::make_text(*font_)};
+    bool                       is_waiting_{true};
 };
 }  // namespace gm
