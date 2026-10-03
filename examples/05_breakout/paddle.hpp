@@ -4,7 +4,7 @@
 #include "rin/vertex_vector.hpp"
 #include "rin/window.hpp"
 
-#include "examples/breakout/setting.hpp"
+#include "examples/05_breakout/setting.hpp"
 
 namespace gm {
 class Paddle final {

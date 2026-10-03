@@ -9,12 +9,12 @@
 #include "rin/color.hpp"
 #include "rin/window.hpp"
 
-#include "examples/breakout/ball.hpp"
-#include "examples/breakout/block.hpp"
-#include "examples/breakout/paddle.hpp"
-#include "examples/breakout/setting.hpp"
-#include "examples/breakout/sound.hpp"
-#include "examples/breakout/text.hpp"
+#include "examples/05_breakout/ball.hpp"
+#include "examples/05_breakout/block.hpp"
+#include "examples/05_breakout/paddle.hpp"
+#include "examples/05_breakout/setting.hpp"
+#include "examples/05_breakout/sound.hpp"
+#include "examples/05_breakout/text.hpp"
 
 namespace gm {
 class Engine final {
