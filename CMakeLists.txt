@@ -71,10 +71,12 @@ if(PROJECT_IS_TOP_LEVEL)
         $<$<CONFIG:Debug>:-fstack-clash-protection>
         $<$<CONFIG:Debug>:-fsanitize=undefined,float-divide-by-zero,float-cast-overflow>
         $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+        $<$<CONFIG:Debug>:-fsanitize=address>
     )
     target_link_options(project_warnings INTERFACE
         -fcontracts
         $<$<CONFIG:Debug>:-fsanitize=undefined,float-divide-by-zero,float-cast-overflow>
+        $<$<CONFIG:Debug>:-fsanitize=address>
     )
 
     # ソースファイルの取得とスタンドアロン実行ファイルの作成
