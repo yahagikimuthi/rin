@@ -30,16 +30,26 @@
  * @brief フォントファイルの読み込み、アトラス生成、グリフ情報の管理を行うモジュール
  */
 
-namespace rin::detail {
-struct glyph final {
-    uv_rectangle uv_rect{};
-    extent       size{};
-    vec2         bearing{};
-    f32          advance{};
-};
-}  // namespace rin::detail
-
 namespace rin {
+
+/**
+ * @struct glyph
+ * @brief グリフ座標
+ */
+struct glyph final {
+    /// UV長方形
+    uv_rectangle uv_rect{};
+
+    /// 文字サイズ
+    extent size{};
+
+    /// 基準位置から文字を描画し始まる左隅までの距離
+    vec2   bearing{};
+
+    /// 送り量
+    f32    advance{};
+};
+
 /// デフォルトのフォントサイズ（ピクセル単位）
 inline constexpr auto default_font_size = 48.f;
 
@@ -127,7 +137,7 @@ class font final {
             const auto& b         = baked_chars[i];
             const auto  codepoint = static_cast<char32_t>(32 + i);
 
-            auto g = detail::glyph{
+            auto g = glyph{
                 .uv_rect =
                     uv_rectangle{
                         .x      = static_cast<f32>(b.x0) / static_cast<f32>(atlas_width),
@@ -153,11 +163,11 @@ class font final {
      * @brief 指定したコードポイントに対応するグリフ情報を取得します。
      *
      * @param codepoint 取得対象のコードポイント（UTF-32 文字）
-     * @return std::optional<const detail::glyph&>
+     * @return std::optional<const glyph&>
      * グリフ情報が存在する場合はその参照、存在しない場合は std::nullopt
      */
     [[nodiscard]] auto glyph_of_point(const char32_t codepoint) const noexcept
-        -> std::optional<const detail::glyph&> {
+        -> std::optional<const glyph&> {
         const auto it = glyphs_.find(codepoint);
         if (it != glyphs_.end()) return it->second;
         return std::nullopt;
@@ -173,8 +183,8 @@ class font final {
   private:
     explicit font(texture tex) noexcept : atlas_texture_(std::move(tex)) {}
 
-    std::unordered_map<char32_t, detail::glyph> glyphs_;
-    texture                                     atlas_texture_;
+    std::unordered_map<char32_t, glyph> glyphs_;
+    texture                             atlas_texture_;
 };
 
 /**
