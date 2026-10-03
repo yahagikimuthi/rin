@@ -49,7 +49,7 @@ target_link_libraries(MyProject PRIVATE rin::rin_lib)
 このゲームエンジンは以下のサードパーティライブラリをヘッダーファイルにおいてインクルードします。
 
 - **glm**: 行列演算ライブラリ. `rin::vec2`などは`glm::vec2`との変換関数を用意.
-- **glad, KHR, GLFW**: OpenGLを使用するために使用しています. 
+- **glad, KHR, GLFW**: グラフィックAPIです.
 - **miniaudio**: 音源を利用するため`audio_engine`クラスなどが使用します.
 - **stb**: テクスチャ及びそれに基づくスプライト,フォント,文字列の利用のため使用します.
 
