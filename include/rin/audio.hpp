@@ -193,6 +193,11 @@ class audio_engine final {
         return sound_obj;
     }
 
+    /**
+     * @brief 全体のマスターボリュームを返します
+     *
+     * @return f32 インスタンスが向こうの場合ゼロ、0.fで消音、100.fで標準
+     */
     [[nodiscard]] auto master_volume() const noexcept -> f32 {
         if (not engine_) return 0.f;
         return ma_engine_get_volume(engine_.get()) * 100.f;
