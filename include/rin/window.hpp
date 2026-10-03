@@ -284,6 +284,11 @@ class window final {
     }
 
     /**
+     * @brief ウィンドウを閉じます
+     */
+    void close() noexcept { glfwSetWindowShouldClose(window_, GLFW_TRUE); }
+
+    /**
      * @brief イベントのポーリングを行い、内部の入力状態を更新します。
      *
      * @details フレームの開始時などに呼び出し、GLFW
