@@ -2,7 +2,7 @@
 
 `rin` は Modern C++ (C++26) で書かれた、2Dゲーム開発向けの軽量なゲームエンジンです。
 
-![Breakout Demo](examples/breakout/breakout.gif)
+![Breakout Demo](examples/05_breakout/breakout.gif)
 
 
 ## 特徴
