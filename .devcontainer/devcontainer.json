@@ -13,23 +13,6 @@
         "PULSE_SERVER": "unix:/mnt/wslg/PulseServer"
     },
     "postCreateCommand": "bash .devcontainer/setup.sh",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "xaver.clang-format",
-                "llvm-vs-code-extensions.vscode-clangd",
-                "oderwat.indent-rainbow",
-                "christian-kohler.path-intellisense",
-                "ms-azuretools.vscode-docker",
-                "streetsidesoftware.code-spell-checker",
-                "PKief.material-icon-theme",
-                "fabiospampinato.vscode-highlight",
-                "ms-vscode.cmake-tools",
-                "llvm-vs-code-extensions.lldb-dap",
-                "vadimcn.vscode-lldb"
-            ]
-        }
-    },
     "runArgs": [
         "--device=/dev/dxg",
         "-v",
