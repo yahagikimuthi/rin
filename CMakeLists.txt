@@ -68,7 +68,7 @@ install(EXPORT rinTargets
 # Config / Version ファイルの生成
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/rinConfigVersion.cmake"
-    VERSION 1.0.0
+    VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 
