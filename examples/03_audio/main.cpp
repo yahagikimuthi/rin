@@ -2,6 +2,10 @@
 #include "rin/key.hpp"
 #include "rin/window.hpp"
 
+/**
+ * @brief オーディオを再生するプログラム
+ * @details Pキーでループ, up, downで音量調整, spaceで再生/ポーズ
+ */
 auto main() -> int {
     auto win_res = rin::try_make_window(800, 600);
     if (not win_res) win_res.error().panic();

@@ -197,6 +197,13 @@ void Engine::main_loop() noexcept {
 }
 }  // namespace gm
 
+/**
+ * @brief ブロック崩し
+ * @details
+ * マウスによるパドル操作。パドルに対するボールの衝突位置に基づく解決ベクトルの算出、ブロックが破壊された時の音楽のプレイを使用
+ * @warning
+ * フォント及び音楽のパスに注意してください。実行する場合は05_breakout直下にプログラムファイルを置いてください。
+ */
 auto main() -> int {
     auto engine = gm::Engine::make();
     engine.run();

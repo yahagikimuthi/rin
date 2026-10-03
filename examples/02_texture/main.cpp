@@ -1,6 +1,12 @@
 #include "rin/texture.hpp"
 #include "rin/window.hpp"
 
+/**
+ * @brief textureの描画
+ * @details 画面の中央にテクスチャを描画する
+ * @warning
+ * texture.pngのパスに注意してください。実行する場合は02_texture直下に実行ファイルを置いてください。
+ */
 auto main() -> int {
     auto win_res = rin::try_make_window(800, 600);
     if (not win_res) win_res.error().panic();
