@@ -37,4 +37,10 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 100 \
 
 sudo apt-get update && sudo apt-get install -y mesa-utils libgl1-mesa-dri libgl1 libglx-mesa0 libglfw3-dev
 
+sudo apt-get update && sudo apt-get install -y \
+    libasound2-dev \
+    libpulse-dev \
+    alsa-utils \
+    pulseaudio-utils
+
 echo "=== Setup Completed Successfully ==="
