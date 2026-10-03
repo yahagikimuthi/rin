@@ -7,7 +7,7 @@ auto main() -> int {
     auto& win = *win_res;
 
     // テクスチャの生成, 失敗した場合は異常終了
-    auto texture_res = rin::try_make_texture("../examples/02_texture/texture.png");
+    auto texture_res = rin::try_make_texture("texture.png");
     if (not texture_res) texture_res.error().panic();
     auto& texture = *texture_res;
 
