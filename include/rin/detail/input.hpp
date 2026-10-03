@@ -20,13 +20,20 @@ struct view_point final {
     i32 h;
 };
 
+template <std::size_t N>
+struct input_log final {
+    std::array<bool, N> next;
+    std::array<bool, N> current;
+    std::array<bool, N> previous;
+};
+
 class key_input final {
   public:
     explicit key_input() noexcept = default;
 
     void update() noexcept {
-        previous_ = current_;
-        current_  = next_;
+        key_.previous = key_.current;
+        key_.current  = key_.next;
     }
 
     void callback(const i32 code, const i32 action) noexcept {
@@ -34,25 +41,25 @@ class key_input final {
 
         const auto idx = static_cast<std::size_t>(code);
         if (action == GLFW_PRESS) {
-            next_[idx] = true;
+            key_.next[idx] = true;
         } else if (action == GLFW_RELEASE) {
-            next_[idx] = false;
+            key_.next[idx] = false;
         }
     }
 
     [[nodiscard]] auto is_down(const key button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return current_[idx];
+        return key_.current[idx];
     }
 
     [[nodiscard]] auto is_pressed(const key button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return current_[idx] and not previous_[idx];
+        return key_.current[idx] and not key_.previous[idx];
     }
 
     [[nodiscard]] auto is_released(const key button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return not current_[idx] and previous_[idx];
+        return not key_.current[idx] and key_.previous[idx];
     }
 
   private:
@@ -60,9 +67,7 @@ class key_input final {
         return static_cast<std::size_t>(button);
     }
 
-    std::array<bool, GLFW_KEY_LAST> next_{};
-    std::array<bool, GLFW_KEY_LAST> current_{};
-    std::array<bool, GLFW_KEY_LAST> previous_{};
+    input_log<GLFW_KEY_LAST> key_{};
 };
 
 class mouse_input final {
@@ -70,8 +75,11 @@ class mouse_input final {
     explicit mouse_input() noexcept = default;
 
     void update() noexcept {
-        previous_ = current_;
-        current_  = next_;
+        button_.previous = button_.current;
+        button_.current  = button_.next;
+
+        scroll_.current = scroll_.next;
+        scroll_.next.fill(false);
     }
 
     void button_callback(const i32 button, const i32 action) noexcept {
@@ -79,13 +87,22 @@ class mouse_input final {
 
         const auto idx = static_cast<std::size_t>(button);
         if (action == GLFW_PRESS) {
-            next_[idx] = true;
+            button_.next[idx] = true;
         } else if (action == GLFW_RELEASE) {
-            next_[idx] = false;
+            button_.next[idx] = false;
         }
     }
 
     void cursor_callback(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
+
+    void scroll_callback(const scroll action) noexcept {
+        auto idx          = static_cast<std::size_t>(action);
+        scroll_.next[idx] = true;
+    }
+
+    [[nodiscard]] auto is_scroll(const scroll action) const noexcept -> bool {
+        return scroll_.current[static_cast<std::size_t>(action)];
+    }
 
     [[nodiscard]] auto position(
         const view_point& vp, const extent& virtual_window_size
@@ -109,17 +126,17 @@ class mouse_input final {
 
     [[nodiscard]] auto is_down(const mouse button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return current_[idx];
+        return button_.current[idx];
     }
 
     [[nodiscard]] auto is_pressed(const mouse button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return current_[idx] and not previous_[idx];
+        return button_.current[idx] and not button_.previous[idx];
     }
 
     [[nodiscard]] auto is_released(const mouse button) const noexcept -> bool {
         const auto idx = to_size_t(button);
-        return not current_[idx] and previous_[idx];
+        return not button_.current[idx] and button_.previous[idx];
     }
 
   private:
@@ -127,10 +144,9 @@ class mouse_input final {
         return static_cast<std::size_t>(button);
     }
 
-    std::array<bool, GLFW_MOUSE_BUTTON_LAST> next_{};
-    std::array<bool, GLFW_MOUSE_BUTTON_LAST> current_{};
-    std::array<bool, GLFW_MOUSE_BUTTON_LAST> previous_{};
-    vec2                                     position_;
+    input_log<GLFW_MOUSE_BUTTON_LAST>                  button_{};
+    input_log<static_cast<std::size_t>(scroll::count)> scroll_{};
+    vec2                                               position_;
 };
 
 class input final {
@@ -149,6 +165,8 @@ class input final {
     void mouse_button_callback(const i32 button, const i32 action) noexcept {
         mouse_.button_callback(button, action);
     }
+
+    void scroll_callback(const scroll action) noexcept { mouse_.scroll_callback(action); }
 
     [[nodiscard]] auto is_key_down(const key button) const noexcept -> bool {
         return key_.is_down(button);
@@ -172,6 +190,10 @@ class input final {
 
     [[nodiscard]] auto is_mouse_released(const mouse button) const noexcept -> bool {
         return mouse_.is_released(button);
+    }
+
+    [[nodiscard]] auto is_scroll(const scroll action) const noexcept -> bool {
+        return mouse_.is_scroll(action);
     }
 
     [[nodiscard]] auto mouse_position(

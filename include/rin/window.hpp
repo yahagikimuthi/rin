@@ -177,10 +177,22 @@ class window final {
     void camera_position(const vec2 position) noexcept { camera_.position(position); }
 
     /**
-     * @brief カメラのズーム倍率を設定します。
-     * @param zoom ズーム倍率
+     * @brief マウスカーソルを起点とするズーム倍率を設定します
+     * @param zoom_factor ズーム倍率。 1.fより大きい場合ズームイン、未満の場合ズームアウト
      */
-    void camera_zoom(const f32 zoom) noexcept { camera_.zoom(zoom); }
+    void zoom_camera(const f32 zoom_factor) noexcept {
+        camera_.zoom(zoom_factor, mouse_position());
+    }
+
+    /**
+     * @brief カメラのズーム倍率を設定します
+     *
+     * @param zoom ズーム倍率。1.fより大きい場合ズームイン、未満の場合ズームアウト
+     * @param reference_point ズームを起点とする座標
+     */
+    void zoom_camera(const f32 zoom, const vec2 reference_point) noexcept {
+        camera_.zoom(zoom, reference_point);
+    }
 
     /**
      * @brief カメラのズーム倍率を取得します。
@@ -222,6 +234,17 @@ class window final {
      */
     [[nodiscard]] auto is_mouse_down(const mouse button) const noexcept -> bool {
         return input_.is_mouse_down(button);
+    }
+
+    /**
+     * @brief 指定したスクロールアクションがされているか判定します
+     *
+     * @param action
+     * @return true 指定したアクションが行われている状態
+     * @return false 行われていない状態
+     */
+    [[nodiscard]] auto is_mouse_scroll(const scroll action) const noexcept -> bool {
+        return input_.is_scroll(action);
     }
 
     /**
@@ -367,6 +390,20 @@ class window final {
                 auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
                 if (self == nullptr) return;
                 self->input_.mouse_button_callback(button, action);
+            }
+        );
+        glfwSetScrollCallback(
+            window_,
+            [](GLFWwindow*             win,
+               [[maybe_unused]] double x_offset,
+               double                  y_offset) noexcept -> void {
+                auto* self = static_cast<window*>(glfwGetWindowUserPointer(win));
+                if (self == nullptr) return;
+                if (y_offset < 0.f) {
+                    self->input_.scroll_callback(scroll_down);
+                } else if (y_offset > 0.f) {
+                    self->input_.scroll_callback(scroll_up);
+                }
             }
         );
 

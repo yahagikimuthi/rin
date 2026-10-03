@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float2.hpp>
@@ -19,7 +20,7 @@ struct camera final {
     [[nodiscard]] constexpr auto zoom() const noexcept -> f32 { return zoom_; }
 
     [[nodiscard]] constexpr auto calc_view_position_mat(
-        const extent& virtual_window_size
+        const extent virtual_window_size
     ) const noexcept -> glm::mat4 {
         const auto virtual_w = virtual_window_size.width;
         const auto virtual_h = virtual_window_size.height;
@@ -37,7 +38,18 @@ struct camera final {
 
     constexpr void position(const vec2 position) noexcept { position_ = position; }
     constexpr void position(const f32 x, const f32 y) noexcept { position_ = {.x = x, .y = y}; }
-    constexpr void zoom(const f32 zoom) noexcept { zoom_ = (zoom > 0.f) ? zoom : 0.1f; }
+    constexpr void zoom(const f32 zoom_factor, const vec2 reference_point) noexcept {
+        const auto current_zoom = (zoom_ < 0.0001f) ? 0.0001f : zoom_;
+        const auto new_zoom     = std::clamp(current_zoom * zoom_factor, 0.05f, 10.0f);
+
+        const auto ref_pos       = static_cast<glm::vec2>(reference_point);
+        const auto world_ref_pos = static_cast<glm::vec2>(position_) + (ref_pos / current_zoom);
+
+        const auto new_pos = world_ref_pos - (ref_pos / new_zoom);
+
+        position_ = {.x = new_pos.x, .y = new_pos.y};
+        zoom_     = new_zoom;
+    }
 
   private:
     vec2 position_{.x = 0.f, .y = 0.f};
