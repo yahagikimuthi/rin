@@ -130,10 +130,25 @@ class error final {
      */
     [[nodiscard]] auto type() const noexcept -> error_type { return codes_.front().type; }
 
+    [[nodiscard]] auto what() const noexcept -> std::string {
+        auto out = std::string{};
+        for (const auto [i, code] : std::views::enumerate(codes_)) {
+            if (i != 0) {
+                out += " -> ";
+            }
+            if (code.type == logic_error) {
+                out += "[Logic Error]: " + code.message_to_str() + '\n';
+            } else {
+                out += "[Runtime Error]: " + code.message_to_str() + '\n';
+            }
+        }
+        return out;
+    }
+
     /**
      * @brief 蓄積されたエラーチェーンを標準エラー出力（std::cerr）へ出力します。
      */
-    void what() const noexcept {
+    void cerr() const noexcept {
         for (const auto [i, code] : std::views::enumerate(codes_)) {
             if (i != 0) {
                 std::cerr << " -> ";
@@ -150,7 +165,7 @@ class error final {
      * @brief エラー内容を出力した上で、終了ハンドラを呼び出します。
      */
     [[noreturn]] void panic() const noexcept {
-        what();
+        cerr();
         std::terminate();
     }
 
