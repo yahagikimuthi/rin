@@ -66,7 +66,7 @@ class sprite final {
      * @brief 現在のカラーを取得します。
      * @return rgba カラー情報
      */
-    [[nodiscard]] auto color() const noexcept -> rgba { return color_; }
+    [[nodiscard]] auto color() const noexcept -> rgba { return vertices_.color(); }
 
     /**
      * @brief スプライトのサイズ(幅・高さ)を取得します。
@@ -93,53 +93,73 @@ class sprite final {
     /**
      * @brief 位置座標を設定します。
      * @param pos 位置座標
+     * @return 自身の参照
      */
-    void position(const vec2 pos) noexcept { vertices_.position(pos); }
+    auto position(const vec2 pos) noexcept -> sprite& { return position(pos.x, pos.y); }
 
     /**
      * @brief 位置座標（X, Y成分）を設定します。
      * @param x X座標
      * @param y Y座標
+     * @return 自身の参照
      */
-    void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
+    auto position(const f32 x, const f32 y) noexcept -> sprite& {
+        vertices_.position(x, y);
+        return *this;
+    }
 
     /**
      * @brief スケール（拡大率）を設定します。
      * @param scale スケール値
+     * @return 自身の参照
      */
-    void scale(const vec2 scale) noexcept { vertices_.scale(scale); }
+    auto scale(const vec2 s) noexcept -> sprite& { return scale(s.x, s.y); }
 
     /**
      * @brief スケール（X, Y成分）を設定します。
      * @param x X方向スケール
      * @param y Y方向スケール
+     * @return 自身の参照
      */
-    void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
+    auto scale(const f32 x, const f32 y) noexcept -> sprite& {
+        vertices_.scale(x, y);
+        return *this;
+    }
 
     /**
      * @brief 回転角を設定します。
      * @param radian 回転角（ラジアン）
+     * @return 自身の参照
      */
-    void rotation(const f32 radian) noexcept { vertices_.rotation(radian); }
+    auto rotation(const f32 radian) noexcept -> sprite& {
+        vertices_.rotation(radian);
+        return *this;
+    }
 
     /**
      * @brief 原点（原点オフセット）を設定します。
      * @param origin 原点座標
+     * @return 自身の参照
      */
-    void origin(const vec2 origin) noexcept { vertices_.origin(origin); }
+    auto origin(const vec2 o) noexcept -> sprite& { return origin(o.x, o.y); }
 
     /**
      * @brief 原点（X, Y成分）を設定します。
      * @param x 原点X座標
      * @param y 原点Y座標
+     * @return 自身の参照
      */
-    void origin(const f32 x, const f32 y) noexcept { vertices_.origin(x, y); }
+    auto origin(const f32 x, const f32 y) noexcept -> sprite& {
+        vertices_.origin(x, y);
+        return *this;
+    }
 
     /**
      * @brief 描画カラーを設定します。
      * @param col カラー情報（rgba）
+     * @return 自身の参照
      */
-    void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
+    auto color(const rgba& col) noexcept -> sprite& { return color(col.r, col.g, col.b, col.a); }
 
     /**
      * @brief 描画カラー（各チャンネル値）を設定します。
@@ -147,10 +167,11 @@ class sprite final {
      * @param g 緑成分 (0〜255)
      * @param b 青成分 (0〜255)
      * @param a アルファ成分 (0〜255、デフォルト値: 255)
+     * @return 自身の参照
      */
-    void color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
-        dirty_ = true;
-        color_ = {.r = r, .g = g, .b = b, .a = a};
+    auto color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept -> sprite& {
+        vertices_.color(r, g, b, a);
+        return *this;
     }
 
     /**
@@ -158,26 +179,33 @@ class sprite final {
      *
      * @warning 渡すテクスチャの生存期間がこの sprite インスタンスより長くなるようにしてください。
      * @param tex 設定するテクスチャ参照
+     * @return 自身の参照
      */
-    void setting_texture(const texture& tex) noexcept {
+    auto setting_texture(const texture& tex) noexcept -> sprite& {
         dirty_   = true;
         tex_     = std::cref(tex);
         uv_rect_ = uv_rectangle{
             .x = uv_rect_.x, .y = uv_rect_.y, .width = tex.size().width, .height = tex.size().height
         };
+        return *this;
     }
 
     /**
      * @brief UV長方形を再設定します
-     *
      * @param rect 設定するUV長方形
+     * @return 自身の参照
      */
-    void uv_rect(const uv_rectangle& rect) noexcept { uv_rect_ = rect; }
+    auto uv_rect(const uv_rectangle& rect) noexcept -> sprite& {
+        uv_rect_ = rect;
+        return *this;
+    }
 
     /**
      * @brief スプライトの最新の頂点情報を計算・取得します。
      *
-     * @details 変更フラグ（dirty_）が立っている場合は頂点データを更新してから返します。
+     * @details
+     * 変更フラグ（dirty_）が立っている場合は頂点データを更新してから返します。キャッシュを用いるため非const,
+     * 計算量は償却定数時間です
      * @return const vertex_vector& 算出された頂点データの参照
      */
     [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {
@@ -208,19 +236,18 @@ class sprite final {
         const auto p2 = vec2{.x = 0.f + w, .y = 0.f + h};
         const auto p3 = vec2{.x = 0.f, .y = 0.f + h};
 
-        vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
-        vertices_.emplace_back(p1, uv{.u = u1, .v = v0}, color_);
-        vertices_.emplace_back(p2, uv{.u = u1, .v = v1}, color_);
+        vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, white);
+        vertices_.emplace_back(p1, uv{.u = u1, .v = v0}, white);
+        vertices_.emplace_back(p2, uv{.u = u1, .v = v1}, white);
 
-        vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, color_);
-        vertices_.emplace_back(p2, uv{.u = u1, .v = v1}, color_);
-        vertices_.emplace_back(p3, uv{.u = u0, .v = v1}, color_);
+        vertices_.emplace_back(p0, uv{.u = u0, .v = v0}, white);
+        vertices_.emplace_back(p2, uv{.u = u1, .v = v1}, white);
+        vertices_.emplace_back(p3, uv{.u = u0, .v = v1}, white);
     }
 
     vertex_vector                         vertices_{primitive_triangles};
     std::reference_wrapper<const texture> tex_;
     uv_rectangle                          uv_rect_{};
-    rgba                                  color_{white};
     bool                                  dirty_{true};
 };
 
