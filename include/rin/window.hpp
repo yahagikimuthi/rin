@@ -198,6 +198,7 @@ class window final {
      *
      * @param zoom ズーム倍率。1.fより大きい場合ズームイン、未満の場合ズームアウト
      * @param reference_point ズームを起点とする座標
+     * @return 地震の参照
      */
     auto zoom_camera(const f32 zoom, const vec2 reference_point) noexcept -> window& {
         camera_.zoom(zoom, reference_point);
