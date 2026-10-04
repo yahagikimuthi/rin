@@ -79,72 +79,85 @@ class text final {
      * @brief 文字列リテラルを非所有で設定します。
      * @tparam T 文字列リテラル型
      * @param str 文字列リテラル
+     * @return 自身の参照
      */
     template <typename T>
         requires detail::is_string_literal_v<T>
-    void string(const T& str) noexcept {
+    auto string(const T& str) noexcept -> text& {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         tex_str         = std::string_view{str};
+        return *this;
     }
 
     /**
      * @brief 文字列（string_view）を設定します。
      * @param str 設定する文字列ビュー
+     * @return 自身の参照
      */
-    void string(const std::string_view str) noexcept {
+    auto string(const std::string_view str) noexcept -> text& {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         tex_str         = std::string{str};
+        return *this;
     }
 
     /**
      * @brief 数値（整数・浮動小数点数）を文字列に変換して設定します。
      * @tparam T 整数または浮動小数点数型
      * @param num 設定する数値
+     * @return 自身の参照
      */
     template <typename T>
         requires std::integral<T> or std::floating_point<T>
-    void string(T num) noexcept {
-        string(std::to_string(num));
+    auto string(T num) noexcept -> text& {
+        return string(std::to_string(num));
     }
 
     /**
      * @brief 位置座標を設定します。
      * @param pos 位置座標
+     * @return 自身の参照
      */
-    void position(const vec2 pos) noexcept { position(pos.x, pos.y); }
+    auto position(const vec2 pos) noexcept -> text& { return position(pos.x, pos.y); }
 
     /**
      * @brief 位置座標（X, Y成分）を設定します。
      * @param x X座標
      * @param y Y座標
+     * @return 自身の参照
      */
-    void position(const f32 x, const f32 y) noexcept { vertices_.position(x, y); }
+    auto position(const f32 x, const f32 y) noexcept -> text& {
+        vertices_.position(x, y);
+        return *this;
+    }
 
     /**
      * @brief 原点（原点オフセット）を設定します。
      * @param o 原点座標
+     * @return 自身の参照
      */
-    void origin(const vec2 o) noexcept { origin(o.x, o.y); }
+    auto origin(const vec2 o) noexcept -> text& { return origin(o.x, o.y); }
 
     /**
      * @brief 原点（X, Y成分）を設定します。
      * @param x 原点X座標
      * @param y 原点Y座標
      */
-    void origin(const f32 x, const f32 y) noexcept {
+    auto origin(const f32 x, const f32 y) noexcept -> text& {
         const auto scale   = vertices_.scale();
         const auto local_x = (scale.x != 0.f) ? x / scale.x : x;
         const auto local_y = (scale.y != 0.f) ? y / scale.y : y;
         vertices_.origin(local_x, local_y);
+        return *this;
     }
 
     /**
      * @brief 描画カラーを設定します。
      * @param col カラー情報（rgba）
+     * @return 自身の参照
      */
-    void color(const rgba& col) noexcept { color(col.r, col.g, col.b, col.a); }
+    auto color(const rgba& col) noexcept -> text& { return color(col.r, col.g, col.b, col.a); }
 
     /**
      * @brief 描画カラー（各チャンネル値）を設定します。
@@ -152,10 +165,12 @@ class text final {
      * @param g 緑成分 (0〜255)
      * @param b 青成分 (0〜255)
      * @param a アルファ成分 (0〜255、デフォルト値: 255)
+     * @return 自身の参照
      */
-    void color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
+    auto color(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept -> text& {
         vertices_dirty_ = true;
         color_          = {.r = r, .g = g, .b = b, .a = a};
+        return *this;
     }
 
     /**
@@ -163,28 +178,36 @@ class text final {
      *
      * @warning 渡すフォントの生存期間がこの text インスタンスより長くなるようにしてください。
      * @param font_ref 設定するフォントの参照
+     * @return 自身の参照
      */
-    void setting_font(const font& font_ref) noexcept {
+    auto setting_font(const font& font_ref) noexcept -> text& {
         vertices_dirty_ = true;
         extent_dirty_   = true;
         font_           = std::cref(font_ref);
+        return *this;
     }
 
     /**
      * @brief スケール（拡大率）を設定します。
      * @param s スケール値
+     * @return 自身の参照
      */
-    void scale(const vec2 s) noexcept { vertices_.scale(s); }
+    auto scale(const vec2 s) noexcept -> text& { return scale(s.x, s.y); }
 
     /**
      * @brief スケール（X, Y成分）を設定します。
      * @param x X方向スケール
      * @param y Y方向スケール
+     * @return 自身の参照
      */
-    void scale(const f32 x, const f32 y) noexcept { vertices_.scale(x, y); }
+    auto scale(const f32 x, const f32 y) noexcept -> text& {
+        vertices_.scale(x, y);
+        return *this;
+    }
 
     /**
      * @brief 現在の文字列とスケールに応じた描画サイズ（幅・高さ）を計算・取得します。
+     * @details キャッシュを書き換えるため非constです。計算量は償却定数時間
      * @return extent 計算されたサイズ
      */
     [[nodiscard]] auto calc_extent() noexcept -> extent {
@@ -195,8 +218,7 @@ class text final {
 
     /**
      * @brief テキスト描画に必要な最新の頂点情報を計算・取得します。
-     *
-     * @details 変更フラグ（vertices_dirty_）が立っている場合は頂点データを再生成してから返します。
+     * @details キャシュを書き換えるため非constです。計算量は償却定数時間
      * @return const vertex_vector& 算出された頂点データの参照
      */
     [[nodiscard]] auto calc_vertices() noexcept -> const vertex_vector& {

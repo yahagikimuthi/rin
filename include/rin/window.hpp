@@ -164,24 +164,33 @@ class window final {
     [[nodiscard]] auto camera_position() const noexcept -> vec2 { return camera_.position(); }
 
     /**
+     * @brief カメラの位置座標を設定します。
+     * @param position 位置座標
+     * @return 自身の参照
+     */
+    auto camera_position(const vec2 pos) noexcept -> window& {
+        return camera_position(pos.x, pos.y);
+    }
+
+    /**
      * @brief カメラの位置座標（X, Y成分）を設定します。
      * @param x X座標
      * @param y Y座標
+     * @return 自身の参照
      */
-    void camera_position(const f32 x, const f32 y) noexcept { camera_.position(x, y); }
-
-    /**
-     * @brief カメラの位置座標を設定します。
-     * @param position 位置座標
-     */
-    void camera_position(const vec2 position) noexcept { camera_.position(position); }
+    auto camera_position(const f32 x, const f32 y) noexcept -> window& {
+        camera_.position(x, y);
+        return *this;
+    }
 
     /**
      * @brief マウスカーソルを起点とするズーム倍率を設定します
      * @param zoom_factor ズーム倍率。 1.fより大きい場合ズームイン、未満の場合ズームアウト
+     * @return 自身の参照
      */
-    void zoom_camera(const f32 zoom_factor) noexcept {
+    auto zoom_camera(const f32 zoom_factor) noexcept -> window& {
         camera_.zoom(zoom_factor, mouse_position());
+        return *this;
     }
 
     /**
@@ -190,8 +199,9 @@ class window final {
      * @param zoom ズーム倍率。1.fより大きい場合ズームイン、未満の場合ズームアウト
      * @param reference_point ズームを起点とする座標
      */
-    void zoom_camera(const f32 zoom, const vec2 reference_point) noexcept {
+    auto zoom_camera(const f32 zoom, const vec2 reference_point) noexcept -> window& {
         camera_.zoom(zoom, reference_point);
+        return *this;
     }
 
     /**
@@ -301,28 +311,29 @@ class window final {
 
     /**
      * @brief 描画処理を開始し、クリアカラーでオフスクリーンフレームバッファ（FBO）をクリアします。
-     *
      * @param clear_color 画面消去時の背景色（デフォルト: black）
+     * @return 自身の参照
      */
-    void begin_render(const rgba& clear_color = black) noexcept {
+    auto begin_render(const rgba& clear_color = black) noexcept -> window& {
         const auto r = static_cast<f32>(clear_color.r) / 255.f;
         const auto g = static_cast<f32>(clear_color.g) / 255.f;
         const auto b = static_cast<f32>(clear_color.b) / 255.f;
         const auto a = static_cast<f32>(clear_color.a) / 255.f;
         fbo_manager_.bind(virtual_size_, r, g, b, a);
         renderer_.use();
+        return *this;
     }
 
     /**
      * @brief RGBA値を個別に指定して描画処理を開始します。
-     *
      * @param r 赤成分 (0〜255)
      * @param g 緑成分 (0〜255)
      * @param b 青成分 (0〜255)
      * @param a アルファ成分 (0〜255、デフォルト値: 255)
+     * @return 自身の参照
      */
-    void begin_render(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept {
-        begin_render(rgba{.r = r, .g = g, .b = b, .a = a});
+    auto begin_render(const u8 r, const u8 g, const u8 b, const u8 a = 255) noexcept -> window& {
+        return begin_render(rgba{.r = r, .g = g, .b = b, .a = a});
     }
 
     /**
@@ -346,20 +357,32 @@ class window final {
     /**
      * @brief 頂点配列（vertex_vector）を描画します。
      * @param vec 描画対象の頂点コンテナ
+     * @return 自身の参照
      */
-    void draw(const vertex_vector& vec) noexcept { renderer_.draw(vec, camera_, virtual_size_); }
+    auto draw(const vertex_vector& vec) noexcept -> window& {
+        renderer_.draw(vec, camera_, virtual_size_);
+        return *this;
+    }
 
     /**
      * @brief スプライトオブジェクトを描画します。
      * @param sprite_obj 描画対象のスプライト
+     * @return 自身の参照
      */
-    void draw(sprite& sprite_obj) noexcept { renderer_.draw(sprite_obj, camera_, virtual_size_); }
+    auto draw(sprite& sprite_obj) noexcept -> window& {
+        renderer_.draw(sprite_obj, camera_, virtual_size_);
+        return *this;
+    }
 
     /**
      * @brief テキストオブジェクトを描画します。
      * @param tex 描画対象のテキスト
+     * @return 自身の参照
      */
-    void draw(text& tex) noexcept { renderer_.draw(tex, camera_, virtual_size_); }
+    auto draw(text& tex) noexcept -> window& {
+        renderer_.draw(tex, camera_, virtual_size_);
+        return *this;
+    }
 
   private:
     explicit window(

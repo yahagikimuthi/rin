@@ -74,7 +74,6 @@ class sound final {
 
     /**
      * @brief 現在のボリュームを返します
-     *
      * @return f32 音量(0.fで静音、100.fで標準)
      */
     [[nodiscard]] auto volume() const noexcept -> f32 {
@@ -84,34 +83,40 @@ class sound final {
 
     /**
      * @brief サウンドの再生を開始（または一時停止状態から再開）します。
+     * @return 自身の参照
      */
-    void play() noexcept {
+    auto play() noexcept -> sound& {
         if (sound_) ma_sound_start(sound_.get());
+        return *this;
     }
 
     /**
      * @brief サウンドの再生を停止します。
+     * @return 自身の参照
      */
-    void stop() noexcept {
+    auto stop() noexcept -> sound& {
         if (sound_) ma_sound_stop(sound_.get());
+        return *this;
     }
 
     /**
      * @brief ループ再生の有効／無効を設定します。
-     *
      * @param loop true の場合はループ再生を有効化、false の場合は1回再生で終了
+     * @return 自身の参照
      */
-    void looping(const bool loop) noexcept {
+    auto looping(const bool loop) noexcept -> sound& {
         if (sound_) ma_sound_set_looping(sound_.get(), loop ? MA_TRUE : MA_FALSE);
+        return *this;
     }
 
     /**
      * @brief 個別の音量を設定します。
-     *
      * @param volume 音量（0.0f で消音、100.f で標準）
+     * @return 自身の参照
      */
-    void volume(const f32 volume) noexcept {
+    auto volume(const f32 volume) noexcept -> sound& {
         if (sound_) ma_sound_set_volume(sound_.get(), std::clamp(volume / 100.f, 0.f, 1.f));
+        return *this;
     }
 
   private:
@@ -195,7 +200,6 @@ class audio_engine final {
 
     /**
      * @brief 全体のマスターボリュームを返します
-     *
      * @return f32 インスタンスが向こうの場合ゼロ、0.fで消音、100.fで標準
      */
     [[nodiscard]] auto master_volume() const noexcept -> f32 {
@@ -205,11 +209,12 @@ class audio_engine final {
 
     /**
      * @brief 全体のマスターボリュームを設定します。
-     *
      * @param volume 音量（0.0f で消音、100.f で標準）
+     * @return 自身の参照
      */
-    void master_volume(const f32 volume) noexcept {
+    auto master_volume(const f32 volume) noexcept -> audio_engine& {
         if (engine_) ma_engine_set_volume(engine_.get(), std::clamp(volume / 100.f, 0.f, 1.f));
+        return *this;
     }
 
   private:
