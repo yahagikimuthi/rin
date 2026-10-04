@@ -78,7 +78,7 @@ class texture final {
      */
     [[nodiscard]] static auto try_make(const std::filesystem::path& path) noexcept
         -> std::expected<texture, error> {
-        stbi_set_flip_vertically_on_load(static_cast<int>(true));
+        stbi_set_flip_vertically_on_load(static_cast<i32>(true));
 
         auto width    = 0;
         auto height   = 0;
