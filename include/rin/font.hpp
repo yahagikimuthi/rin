@@ -44,10 +44,10 @@ struct glyph final {
     extent size{};
 
     /// 基準位置から文字を描画し始まる左隅までの距離
-    vec2   bearing{};
+    vec2 bearing{};
 
     /// 送り量
-    f32    advance{};
+    f32 advance{};
 };
 
 /// デフォルトのフォントサイズ（ピクセル単位）
@@ -160,13 +160,13 @@ class font final {
     }
 
     /**
-     * @brief 指定したコードポイントに対応するグリフ情報を取得します。
+     * @brief 指定した文字に対応するグリフ情報を取得します。
      *
      * @param codepoint 取得対象のコードポイント（UTF-32 文字）
      * @return std::optional<const glyph&>
      * グリフ情報が存在する場合はその参照、存在しない場合は std::nullopt
      */
-    [[nodiscard]] auto glyph_of_point(const char32_t codepoint) const noexcept
+    [[nodiscard]] auto glyph_of_string(const char32_t codepoint) const noexcept
         -> std::optional<const glyph&> {
         const auto it = glyphs_.find(codepoint);
         if (it != glyphs_.end()) return it->second;

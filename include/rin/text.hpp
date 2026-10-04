@@ -257,7 +257,7 @@ class text final {
                 continue;  // '\r\n' 対策として '\r' は無視
             }
 
-            const auto g = font_.get().glyph_of_point(static_cast<char32_t>(c));
+            const auto g = font_.get().glyph_of_string(static_cast<char32_t>(c));
             if (not g) continue;
 
             current_line_w += g->advance;
@@ -285,7 +285,7 @@ class text final {
                 continue;
             }
 
-            const auto g = font_.get().glyph_of_point(static_cast<char32_t>(c));
+            const auto g = font_.get().glyph_of_string(static_cast<char32_t>(c));
             if (not g) continue;
 
             const auto x0             = std::floor(cursor_x + g->bearing.x);
