@@ -21,8 +21,6 @@
         "/mnt/wslg:/mnt/wslg",
         "-v",
         "/usr/lib/wsl:/usr/lib/wsl",
-        "--ipc=host",
-        "-v",
-        "/mnt/wslg:/mnt/wslg"
+        "--ipc=host"
     ]
 }
