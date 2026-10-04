@@ -325,7 +325,7 @@ class vertex_vector final {
     template <typename R>
         requires requires(std::vector<vertex> vec, R range) { vec.append_range(range); }
     void append_range(R&& range) noexcept {
-        vec_.append_range(range);
+        vec_.append_range(std::forward<R>(range));
     }
 
     void pop_back() noexcept { vec_.pop_back(); }
