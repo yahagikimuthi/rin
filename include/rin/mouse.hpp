@@ -19,12 +19,18 @@ enum class mouse : u8 {
     wheel = GLFW_MOUSE_BUTTON_MIDDLE
 };
 
-enum class scroll : u8 { up, down, count };
-
 /// 以下はエイリアス
 inline constexpr auto mouse_left  = mouse::left;
 inline constexpr auto mouse_right = mouse::right;
 inline constexpr auto mouse_wheel = mouse::wheel;
+
+/**
+ * @enum scroll
+ * @brief マウスのスクロールを表す列挙体（基礎型: u8）
+ */
+enum class scroll : u8 { up, down, count };
+
+/// 以下はエイリアス
 inline constexpr auto scroll_up   = scroll::up;
 inline constexpr auto scroll_down = scroll::down;
 }  // namespace rin
