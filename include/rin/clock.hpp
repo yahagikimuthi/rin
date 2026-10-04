@@ -20,10 +20,9 @@ namespace rin {
 class clock final {
   public:
     /**
-     * @brief clock インスタンスを生成します。
-     * @return clock 生成された clock インスタンス
+     * @brief clockデフォルトコンストラクタ
      */
-    [[nodiscard]] static auto make() noexcept -> clock { return clock{}; }
+    explicit clock() noexcept = default;
 
     /**
      * @brief タイマーを更新し、現在のプログラム経過時間を返します。
@@ -55,16 +54,8 @@ class clock final {
     [[nodiscard]] auto fps() const noexcept -> f32 { return fps_counter_.fps(); }
 
   private:
-    explicit clock() noexcept = default;
-
     detail::fps_counter fps_counter_;
     f64                 last_time_{};
     f64                 delta_time_{};
 };
-
-/**
- * @brief clock インスタンスを生成するフリーのファクトリ関数
- * @return clock 生成された clock インスタンス
- */
-[[nodiscard]] inline auto make_clock() noexcept -> clock { return clock::make(); }
 }  // namespace rin

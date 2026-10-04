@@ -18,15 +18,15 @@ auto main() -> int {
     vertices.emplace_back(rin::vec2{.x = 500, .y = 300}, rin::blue);
     vertices.emplace_back(rin::vec2{.x = 400, .y = 400}, rin::green);
 
-    // タイマーのインスタンス化
-    auto timer = rin::make_clock();
+    // 時計のインスタンス化
+    auto clock = rin::clock{};
 
     while (win.is_open()) {
         win.poll_events();
 
         // delta timeの取得と移動の計算
-        timer.tick();
-        const auto delta_time = timer.delta_time();
+        clock.tick();
+        const auto delta_time = clock.delta_time();
         const auto move       = delta_time * 200.f;
         const auto camera_pos = win.camera_position();
 

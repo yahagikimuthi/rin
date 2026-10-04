@@ -137,7 +137,7 @@ class Engine final {
 
     rin::window  window_;
     SoundManager sound_;
-    rin::clock   clock_{rin::make_clock()};
+    rin::clock   clock_;
     Paddle       paddle_;
     Ball         ball_;
     Blocks       blocks_;
