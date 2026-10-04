@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdlib>
+#include <exception>
 #include <expected>
 #include <iostream>
 #include <ranges>
