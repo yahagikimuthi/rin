@@ -147,11 +147,11 @@ class error final {
     }
 
     /**
-     * @brief エラー内容を出力した上で、プログラムを強制終了（std::abort）します。
+     * @brief エラー内容を出力した上で、終了ハンドラを呼び出します。
      */
     [[noreturn]] void panic() const noexcept {
         what();
-        std::abort();
+        std::terminate();
     }
 
   private:
