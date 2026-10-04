@@ -30,6 +30,8 @@ namespace rin {
  * @warning 本クラスは内部で `font` への参照（`std::reference_wrapper`）を保持します。
  * 参照先の `font` インスタンスが破棄された後にアクセスすると未定義動作となるため、
  * `text` の生存期間が `font` の生存期間を超えないように注意してください。
+ * スタック上にfontを生成する場合はそれを所有するクラスのコピー/ムーブコンストラクタ/代入演算子を削除すること
+ * またはstd::unique_ptrを使用することを推奨します。
  */
 class text final {
     using str_t = std::variant<std::string_view, std::string>;
